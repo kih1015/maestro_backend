@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model admission_types {
+  typeName            String
+  typeCode            Int
+  id                  Int                 @id @default(autoincrement())
+  recruitmentSeasonId Int
+  recruitment_seasons recruitment_seasons @relation(fields: [recruitmentSeasonId], references: [id], onDelete: Cascade)
+}
+
+model password_reset_tokens {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model recruitment_seasons {
+  universityCode         String
+  admissionYear          Int
+  admissionName          String
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  id                     Int                      @id @default(autoincrement())
+  admission_types        admission_types[]
+  recruitment_units      recruitment_units[]
+  student_base_infos     student_base_infos[]
+  subject_group_mappings subject_group_mappings[]
+}
+
+model recruitment_units {
+  unitName            String
+  unitCode            Int
+  id                  Int                 @id @default(autoincrement())
+  recruitmentSeasonId Int
+  recruitment_seasons recruitment_seasons @relation(fields: [recruitmentSeasonId], references: [id], onDelete: Cascade)
+}
+
+model student_base_infos {
+  id                    Int                    @id @default(autoincrement())
+  recruitmentSeasonId   Int
+  recruitmentTypeCode   String
+  recruitmentUnitCode   String
+  identifyNumber        String
+  socialNumber          String
+  schoolCode            String
+  collegeAdmissionYear  String
+  seleScCode            String
+  applicantScCode       String
+  graduateYear          String
+  graduateGrade         String
+  masterSchoolYN        String
+  specializedSchoolYN   String
+  correctionRegisterYN  String
+  examNumber            String
+  uniqueFileName        String?
+  pictureFileName       String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime
+  recruitment_seasons   recruitment_seasons    @relation(fields: [recruitmentSeasonId], references: [id], onDelete: Cascade)
+  student_score_results student_score_results?
+  subject_scores        subject_scores[]
+
+  @@unique([recruitmentSeasonId, identifyNumber])
+  @@index([recruitmentSeasonId])
+  @@index([recruitmentSeasonId, recruitmentTypeCode, recruitmentUnitCode])
+}
+
+model student_score_results {
+  id                                Int                                 @id @default(autoincrement())
+  studentBaseInfoId                 Int                                 @unique
+  finalScore                        Float
+  ranking                           Int
+  createdAt                         DateTime                            @default(now())
+  updatedAt                         DateTime
+  finalFormula                      String?
+  student_base_infos                student_base_infos                  @relation(fields: [studentBaseInfoId], references: [id], onDelete: Cascade)
+  subject_score_calculation_details subject_score_calculation_details[]
+
+  @@index([finalScore])
+  @@index([ranking])
+}
+
+model subject_group_mappings {
+  id                  Int                 @id @default(autoincrement())
+  recruitmentSeasonId Int
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime
+  category            String?
+  courseCode          String?
+  courseName          String?
+  curriculumCode      String?
+  curriculumName      String?
+  includedYn          String?
+  note                String?
+  requiredYn          String?
+  rowNo               Int?
+  subjectCode         String?
+  subjectGroup        String?
+  subjectName         String?
+  recruitment_seasons recruitment_seasons @relation(fields: [recruitmentSeasonId], references: [id], onDelete: Cascade)
+
+  @@index([recruitmentSeasonId, curriculumCode, courseCode, subjectCode])
+  @@index([recruitmentSeasonId])
+}
+
+model subject_score_calculation_details {
+  id                                  Int                    @id @default(autoincrement())
+  subjectScoreId                      Int                    @unique
+  isReflected                         Boolean                @default(false)
+  nonReflectionReason                 String?
+  convertedScore                      Float?
+  createdAt                           DateTime               @default(now())
+  updatedAt                           DateTime
+  conversionFormula                   String?
+  studentScoreResultStudentBaseInfoId Int?
+  convertedBaseValue                  ConvertedBaseValue?
+  student_score_results               student_score_results? @relation(fields: [studentScoreResultStudentBaseInfoId], references: [studentBaseInfoId])
+  subject_scores                      subject_scores         @relation(fields: [subjectScoreId], references: [id], onDelete: Cascade)
+
+  @@index([isReflected])
+  @@index([studentScoreResultStudentBaseInfoId])
+}
+
+model subject_scores {
+  id                                Int                                @id @default(autoincrement())
+  studentBaseInfoId                 Int
+  seqNumber                         Int
+  socialNumber                      String
+  schoolCode                        String
+  year                              String
+  grade                             Int
+  organizationCode                  String
+  organizationName                  String
+  courseCode                        String
+  courseName                        String
+  subjectCode                       String
+  subjectName                       String
+  term                              Int
+  unit                              String?
+  assessment                        String?
+  rank                              String?
+  sameRank                          String?
+  studentCount                      String?
+  originalScore                     String?
+  avgScore                          String?
+  standardDeviation                 String?
+  rankingGrade                      String?
+  rankingGradeCode                  String?
+  achievement                       String?
+  achievementCode                   String?
+  achievementRatio                  String?
+  subjectSeparationCode             String?
+  createdAt                         DateTime                           @default(now())
+  updatedAt                         DateTime
+  subject_score_calculation_details subject_score_calculation_details?
+  student_base_infos                student_base_infos                 @relation(fields: [studentBaseInfoId], references: [id], onDelete: Cascade)
+
+  @@unique([studentBaseInfoId, seqNumber])
+  @@index([grade, term])
+  @@index([organizationCode, courseCode, subjectCode])
+  @@index([studentBaseInfoId])
+}
+
+model users {
+  email                 String                  @unique
+  username              String                  @unique
+  universityCode        String
+  hashedPassword        String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  id                    Int                     @id @default(autoincrement())
+  password_reset_tokens password_reset_tokens[]
+}
+
+enum ConvertedBaseValue {
+  GRADE
+  ACHIEVEMENT
+  PERCENTILE
+  Z_SCORE
+}
