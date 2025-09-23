@@ -1,11 +1,9 @@
 import type { users as PrismaUser } from '@prisma/client';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { User } from '../user.domain';
 
 export interface IUserRepository {
-  findByEmail(email: string): Promise<PrismaUser | null>;
-  findByUsername(username: string): Promise<PrismaUser | null>;
-  findById(id: number): Promise<PrismaUser | null>;
-  create(
-    createUserDto: CreateUserDto & { hashedPassword: string },
-  ): Promise<PrismaUser>;
+  findByEmail(email: string): Promise<User | null>;
+  findByUsername(username: string): Promise<User | null>;
+  findById(id: number): Promise<User | null>;
+  create(user: User): Promise<User>;
 }

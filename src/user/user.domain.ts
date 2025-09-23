@@ -15,6 +15,16 @@ export interface UserProps {
 }
 
 /**
+ * 사용자 생성에 필요한 속성
+ */
+export interface CreateUserProps {
+  readonly email: string;
+  readonly username: string;
+  readonly universityCode: string;
+  readonly password: string;
+}
+
+/**
  * 사용자 엔터티. 비밀번호는 해시 형태로만 보관한다.
  */
 export class User {
@@ -31,15 +41,13 @@ export class User {
   /**
    * 신규 사용자를 생성한다. 평문 비밀번호를 안전하게 해싱한다.
    */
-  static async create(
-    props: Omit<UserProps, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<User> {
+  static async create(props: CreateUserProps): Promise<User> {
     return new User(
       -1,
       props.email,
       props.username,
       props.universityCode,
-      await this.hashPassword(props.hashedPassword),
+      await this.hashPassword(props.password),
       new Date(),
       new Date(),
     );
@@ -68,7 +76,7 @@ export class User {
 
   /**
    * 평문 비밀번호가 일치하는지 검증한다.
-   * @throws DomainException 일치하지 않을 때
+   * @throws UnauthorizedException 일치하지 않을 때
    */
   async verifyPassword(plainPassword: string): Promise<void> {
     const isPasswordValid = await bcrypt.compare(

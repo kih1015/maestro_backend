@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { IUserRepository } from './interfaces/user-repository.interface';
 import { User } from './user.domain';
 
@@ -29,17 +28,16 @@ export class UserRepository implements IUserRepository {
     return user ? User.of(user) : null;
   }
 
-  async create(
-    createUserDto: CreateUserDto & { hashedPassword: string },
-  ): Promise<User> {
-    const { password, ...userData } = createUserDto;
-    const user = await this.prisma.users.create({
+  async create(user: User): Promise<User> {
+    const createdUser = await this.prisma.users.create({
       data: {
-        ...userData,
-        hashedPassword: createUserDto.hashedPassword,
+        email: user.email,
+        username: user.username,
+        universityCode: user.universityCode,
+        hashedPassword: user.hashedPassword,
         updatedAt: new Date(),
       },
     });
-    return User.of(user);
+    return User.of(createdUser);
   }
 }
