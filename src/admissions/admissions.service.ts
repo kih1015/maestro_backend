@@ -1,23 +1,15 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AdmissionsRepository } from './admissions.repository';
 import { RecruitmentSeason } from './entities/recruitment-season.entity';
 import { CreateRecruitmentSeasonDto } from './dto/create-recruitment-season.dto';
 import { UpdateRecruitmentSeasonDto } from './dto/update-recruitment-season.dto';
 import { RecruitmentSeasonResponseDto } from './dto/recruitment-season-response.dto';
-import { AdmissionTypeDto } from './dto/admission-type.dto';
-import { RecruitmentUnitDto } from './dto/recruitment-unit.dto';
 
 @Injectable()
 export class AdmissionsService {
     constructor(private admissionsRepository: AdmissionsRepository) {}
 
     async createRecruitmentSeason(createDto: CreateRecruitmentSeasonDto): Promise<RecruitmentSeasonResponseDto> {
-        // Validate uniqueness of admission types
-        this.validateAdmissionTypesUniqueness(createDto.admissionTypes);
-
-        // Validate uniqueness of recruitment units
-        this.validateRecruitmentUnitsUniqueness(createDto.recruitmentUnits);
-
         const recruitmentSeason = RecruitmentSeason.of({
             id: 0, // Will be set by database
             universityCode: createDto.universityCode,
@@ -62,12 +54,6 @@ export class AdmissionsService {
             throw new NotFoundException('Recruitment season not found');
         }
 
-        // Validate uniqueness of admission types
-        this.validateAdmissionTypesUniqueness(updateDto.admissionTypes);
-
-        // Validate uniqueness of recruitment units
-        this.validateRecruitmentUnitsUniqueness(updateDto.recruitmentUnits);
-
         const updatedSeason = existingSeason.update({
             admissionYear: updateDto.admissionPeriod.admissionYear,
             admissionName: updateDto.admissionPeriod.admissionName,
@@ -86,32 +72,6 @@ export class AdmissionsService {
         }
 
         await this.admissionsRepository.delete(id);
-    }
-
-    private validateAdmissionTypesUniqueness(admissionTypes: AdmissionTypeDto[]): void {
-        const typeNames = admissionTypes.map(type => type.typeName);
-        const typeCodes = admissionTypes.map(type => type.typeCode);
-
-        if (new Set(typeNames).size !== typeNames.length) {
-            throw new ConflictException('Admission type names must be unique');
-        }
-
-        if (new Set(typeCodes).size !== typeCodes.length) {
-            throw new ConflictException('Admission type codes must be unique');
-        }
-    }
-
-    private validateRecruitmentUnitsUniqueness(recruitmentUnits: RecruitmentUnitDto[]): void {
-        const unitNames = recruitmentUnits.map(unit => unit.unitName);
-        const unitCodes = recruitmentUnits.map(unit => unit.unitCode);
-
-        if (new Set(unitNames).size !== unitNames.length) {
-            throw new ConflictException('Recruitment unit names must be unique');
-        }
-
-        if (new Set(unitCodes).size !== unitCodes.length) {
-            throw new ConflictException('Recruitment unit codes must be unique');
-        }
     }
 
     private mapToResponseDto(season: RecruitmentSeason): RecruitmentSeasonResponseDto {
