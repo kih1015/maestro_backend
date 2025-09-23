@@ -3,13 +3,13 @@ import { PrismaClient } from '@prisma/client';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  constructor() {
-    super({
-      log: ['query'],
-    });
-  }
+    constructor() {
+        super({
+            log: ['query'],
+        });
+    }
 
-  async onModuleInit(): Promise<void> {
-    await this.$connect();
-  }
+    async onModuleInit(): Promise<void> {
+        await this.$connect();
+    }
 }
