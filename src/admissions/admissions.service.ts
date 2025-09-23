@@ -4,6 +4,8 @@ import { RecruitmentSeason } from './entities/recruitment-season.entity';
 import { CreateRecruitmentSeasonDto } from './dto/create-recruitment-season.dto';
 import { UpdateRecruitmentSeasonDto } from './dto/update-recruitment-season.dto';
 import { RecruitmentSeasonResponseDto } from './dto/recruitment-season-response.dto';
+import { AdmissionTypeDto } from './dto/admission-type.dto';
+import { RecruitmentUnitDto } from './dto/recruitment-unit.dto';
 
 @Injectable()
 export class AdmissionsService {
@@ -40,7 +42,7 @@ export class AdmissionsService {
             seasons = await this.admissionsRepository.findAll();
         }
 
-        return seasons.map(this.mapToResponseDto);
+        return seasons.map(season => this.mapToResponseDto(season));
     }
 
     async getRecruitmentSeasonById(id: number): Promise<RecruitmentSeasonResponseDto> {
@@ -86,7 +88,7 @@ export class AdmissionsService {
         await this.admissionsRepository.delete(id);
     }
 
-    private validateAdmissionTypesUniqueness(admissionTypes: any[]): void {
+    private validateAdmissionTypesUniqueness(admissionTypes: AdmissionTypeDto[]): void {
         const typeNames = admissionTypes.map(type => type.typeName);
         const typeCodes = admissionTypes.map(type => type.typeCode);
 
@@ -99,7 +101,7 @@ export class AdmissionsService {
         }
     }
 
-    private validateRecruitmentUnitsUniqueness(recruitmentUnits: any[]): void {
+    private validateRecruitmentUnitsUniqueness(recruitmentUnits: RecruitmentUnitDto[]): void {
         const unitNames = recruitmentUnits.map(unit => unit.unitName);
         const unitCodes = recruitmentUnits.map(unit => unit.unitCode);
 

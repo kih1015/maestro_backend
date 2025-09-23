@@ -3,6 +3,23 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RecruitmentSeason } from './entities/recruitment-season.entity';
 import { RecruitmentSeasonRepositoryInterface } from './interfaces/recruitment-season.repository.interface';
 
+interface PrismaRecruitmentSeasonWithRelations {
+    id: number;
+    universityCode: string;
+    admissionYear: number;
+    admissionName: string;
+    createdAt: Date;
+    updatedAt: Date;
+    admission_types: Array<{
+        typeName: string;
+        typeCode: number;
+    }>;
+    recruitment_units: Array<{
+        unitName: string;
+        unitCode: number;
+    }>;
+}
+
 @Injectable()
 export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterface {
     constructor(private prisma: PrismaService) {}
@@ -18,7 +35,7 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
             },
         });
 
-        return results.map(this.mapToEntity);
+        return results.map(result => this.mapToEntity(result));
     }
 
     async findById(id: number): Promise<RecruitmentSeason | null> {
@@ -45,7 +62,7 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
             },
         });
 
-        return results.map(this.mapToEntity);
+        return results.map(result => this.mapToEntity(result));
     }
 
     async create(recruitmentSeason: RecruitmentSeason): Promise<RecruitmentSeason> {
@@ -128,17 +145,17 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
         return count > 0;
     }
 
-    private mapToEntity(data: any): RecruitmentSeason {
+    private mapToEntity(data: PrismaRecruitmentSeasonWithRelations): RecruitmentSeason {
         return RecruitmentSeason.of({
             id: data.id,
             universityCode: data.universityCode,
             admissionYear: data.admissionYear,
             admissionName: data.admissionName,
-            admissionTypes: data.admission_types.map((type: any) => ({
+            admissionTypes: data.admission_types.map(type => ({
                 typeName: type.typeName,
                 typeCode: type.typeCode,
             })),
-            recruitmentUnits: data.recruitment_units.map((unit: any) => ({
+            recruitmentUnits: data.recruitment_units.map(unit => ({
                 unitName: unit.unitName,
                 unitCode: unit.unitCode,
             })),
