@@ -17,6 +17,7 @@ import { CreateRecruitmentSeasonDto } from './dto/create-recruitment-season.dto'
 import { UpdateRecruitmentSeasonDto } from './dto/update-recruitment-season.dto';
 import { RecruitmentSeasonResponseDto } from './dto/recruitment-season-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RecruitmentSeason } from './entities/recruitment-season.entity';
 
 @ApiTags('admissions')
 @Controller('admissions')
@@ -39,7 +40,15 @@ export class AdmissionsController {
     async createRecruitmentSeason(
         @Body(ValidationPipe) createDto: CreateRecruitmentSeasonDto,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
-        const data = await this.admissionsService.createRecruitmentSeason(createDto);
+        const season = await this.admissionsService.createRecruitmentSeason({
+            universityCode: createDto.universityCode,
+            admissionYear: createDto.admissionPeriod.admissionYear,
+            admissionName: createDto.admissionPeriod.admissionName,
+            admissionTypes: createDto.admissionTypes,
+            recruitmentUnits: createDto.recruitmentUnits,
+        });
+
+        const data = this.mapToResponseDto(season);
         return {
             success: true,
             data,
@@ -65,7 +74,8 @@ export class AdmissionsController {
     async getRecruitmentSeasons(
         @Query('universityCode') universityCode?: string,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto[] }> {
-        const data = await this.admissionsService.getAllRecruitmentSeasons(universityCode);
+        const seasons = await this.admissionsService.getAllRecruitmentSeasons(universityCode);
+        const data = seasons.map(season => this.mapToResponseDto(season));
         return {
             success: true,
             data,
@@ -86,7 +96,8 @@ export class AdmissionsController {
     async getRecruitmentSeasonById(
         @Param('id', ParseIntPipe) id: number,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto }> {
-        const data = await this.admissionsService.getRecruitmentSeasonById(id);
+        const season = await this.admissionsService.getRecruitmentSeasonById(id);
+        const data = this.mapToResponseDto(season);
         return {
             success: true,
             data,
@@ -110,7 +121,14 @@ export class AdmissionsController {
         @Param('id', ParseIntPipe) id: number,
         @Body(ValidationPipe) updateDto: UpdateRecruitmentSeasonDto,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
-        const data = await this.admissionsService.updateRecruitmentSeason(id, updateDto);
+        const season = await this.admissionsService.updateRecruitmentSeason(id, {
+            admissionYear: updateDto.admissionPeriod.admissionYear,
+            admissionName: updateDto.admissionPeriod.admissionName,
+            admissionTypes: updateDto.admissionTypes,
+            recruitmentUnits: updateDto.recruitmentUnits,
+        });
+
+        const data = this.mapToResponseDto(season);
         return {
             success: true,
             data,
@@ -135,6 +153,19 @@ export class AdmissionsController {
         return {
             success: true,
             message: 'Recruitment season deleted successfully',
+        };
+    }
+
+    private mapToResponseDto(season: RecruitmentSeason): RecruitmentSeasonResponseDto {
+        return {
+            id: season.id,
+            universityCode: season.universityCode,
+            admissionYear: season.admissionYear,
+            admissionName: season.admissionName,
+            admissionTypes: season.admissionTypes,
+            recruitmentUnits: season.recruitmentUnits,
+            createdAt: season.createdAt.toISOString(),
+            updatedAt: season.updatedAt.toISOString(),
         };
     }
 }
