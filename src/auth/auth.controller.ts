@@ -29,9 +29,9 @@ export class AuthController {
             type: 'object',
             properties: {
                 user: { $ref: '#/components/schemas/UserResponseDto' },
-                accessToken: { type: 'string' }
-            }
-        }
+                accessToken: { type: 'string' },
+            },
+        },
     })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     async login(
