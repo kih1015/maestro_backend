@@ -32,7 +32,6 @@ export class UserRepository implements IUserRepository {
   async create(
     createUserDto: CreateUserDto & { hashedPassword: string },
   ): Promise<User> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...userData } = createUserDto;
     const user = await this.prisma.users.create({
       data: {
