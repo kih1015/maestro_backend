@@ -10,7 +10,7 @@ export class GetStudentDetailDto {
     })
     @IsInt()
     @IsPositive()
-    @Transform(({ value }) => parseInt(value))
+    @Transform(({ value }) => parseInt(value as string))
     recruitmentSeasonId: number;
 
     @ApiProperty({

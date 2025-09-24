@@ -5,6 +5,7 @@ import { StudentReadRepository } from './repositories/student-read.repository';
 import { StudentScoreResultRepository } from './repositories/student-score-result.repository';
 import { SubjectScoreCalculationDetailRepository } from './repositories/subject-score-calculation-detail.repository';
 import { PrismaModule } from '../prisma/prisma.module';
+import { EventsModule } from '../events/events.module';
 
 // Provider tokens for dependency injection
 export const STUDENT_READ_REPOSITORY = 'STUDENT_READ_REPOSITORY';
@@ -12,7 +13,7 @@ export const STUDENT_SCORE_RESULT_REPOSITORY = 'STUDENT_SCORE_RESULT_REPOSITORY'
 export const SUBJECT_SCORE_CALCULATION_DETAIL_REPOSITORY = 'SUBJECT_SCORE_CALCULATION_DETAIL_REPOSITORY';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, EventsModule],
     controllers: [ScoreCalculationController],
     providers: [
         ScoreCalculationService,

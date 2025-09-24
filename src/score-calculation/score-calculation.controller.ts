@@ -9,6 +9,7 @@ import {
     HttpException,
     HttpStatus,
     Res,
+    Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiProduces } from '@nestjs/swagger';
 import type { Response } from 'express';
@@ -53,8 +54,12 @@ export class ScoreCalculationController {
     })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
-    calculateScores(@Body(ValidationPipe) dto: CalculateScoresDto): CalculateScoresResponseDto {
+    calculateScores(
+        @Body(ValidationPipe) dto: CalculateScoresDto,
+        @Request() req: { user?: { userId: number } },
+    ): CalculateScoresResponseDto {
         const seasonId = dto.recruitmentSeasonId;
+        const userId = req.user?.userId; // JWT payload에서 사용자 ID 추출
 
         // Check if calculation is already running
         if (this.jobRunner.get(seasonId)) {
@@ -68,11 +73,13 @@ export class ScoreCalculationController {
             // Set job as running
             this.jobRunner.set(seasonId, true);
 
-            // Start calculation in background
-            this.scoreCalculationService.calculateScores({ recruitmentSeasonId: seasonId }).finally(() => {
-                // Clear job status when done
-                this.jobRunner.delete(seasonId);
-            });
+            // Start calculation in background with user ID for SSE events
+            void this.scoreCalculationService
+                .calculateScores({ recruitmentSeasonId: seasonId }, { userId })
+                .finally(() => {
+                    // Clear job status when done
+                    this.jobRunner.delete(seasonId);
+                });
 
             return {
                 success: true,

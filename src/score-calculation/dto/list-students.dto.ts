@@ -16,7 +16,7 @@ export class ListStudentsDto extends StudentFiltersDto {
     })
     @IsInt()
     @IsPositive()
-    @Transform(({ value }) => parseInt(value))
+    @Transform(({ value }) => parseInt(value as string))
     recruitmentSeasonId: number;
 
     @ApiPropertyOptional({
@@ -28,7 +28,7 @@ export class ListStudentsDto extends StudentFiltersDto {
     @IsOptional()
     @IsInt()
     @Min(1)
-    @Transform(({ value }) => (value ? parseInt(value) : 1))
+    @Transform(({ value }) => (value ? parseInt(value as string) : 1))
     page?: number = 1;
 
     @ApiPropertyOptional({
@@ -42,7 +42,7 @@ export class ListStudentsDto extends StudentFiltersDto {
     @IsInt()
     @Min(1)
     @Max(100)
-    @Transform(({ value }) => (value ? parseInt(value) : 10))
+    @Transform(({ value }) => (value ? parseInt(value as string) : 10))
     pageSize?: number = 10;
 
     @ApiPropertyOptional({

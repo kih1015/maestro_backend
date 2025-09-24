@@ -104,7 +104,7 @@ export class StudentReadRepository implements IStudentReadRepository {
         total: number;
         completed: number;
     }> {
-        const whereClause: any = {
+        const whereClause: Record<string, unknown> = {
             recruitmentSeasonId,
         };
 
@@ -160,7 +160,7 @@ export class StudentReadRepository implements IStudentReadRepository {
         });
 
         // Build sort clause
-        let orderBy: any = { id: 'asc' };
+        let orderBy: Record<string, unknown> = { id: 'asc' };
         if (sort) {
             switch (sort) {
                 case SortOrder.SCORE_ASC:

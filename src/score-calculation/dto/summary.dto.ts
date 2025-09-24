@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsPositive } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export class GetSummaryDto {
     @ApiProperty({
@@ -10,6 +10,6 @@ export class GetSummaryDto {
     })
     @IsInt()
     @IsPositive()
-    @Transform(({ value }) => parseInt(value))
+    @Type(() => Number)
     recruitmentSeasonId: number;
 }

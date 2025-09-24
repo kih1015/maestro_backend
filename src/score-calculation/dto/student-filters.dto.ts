@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsArray } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class StudentFiltersDto {
@@ -25,7 +25,7 @@ export class StudentFiltersDto {
         oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
     })
     @IsOptional()
-    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]) as string[])
     graduateGrade?: string | string[];
 
     @ApiPropertyOptional({
@@ -34,7 +34,7 @@ export class StudentFiltersDto {
         oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
     })
     @IsOptional()
-    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]) as string[])
     recruitmentTypeCode?: string | string[];
 
     @ApiPropertyOptional({
@@ -43,7 +43,7 @@ export class StudentFiltersDto {
         oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
     })
     @IsOptional()
-    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]) as string[])
     recruitmentUnitCode?: string | string[];
 
     @ApiPropertyOptional({
@@ -52,7 +52,7 @@ export class StudentFiltersDto {
         oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
     })
     @IsOptional()
-    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]) as string[])
     applicantScCode?: string | string[];
 
     @ApiPropertyOptional({
@@ -61,6 +61,6 @@ export class StudentFiltersDto {
         oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
     })
     @IsOptional()
-    @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+    @Transform(({ value }) => (Array.isArray(value) ? value : [value]) as string[])
     calculationStatus?: string | string[];
 }

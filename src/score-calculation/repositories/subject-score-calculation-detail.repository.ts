@@ -13,7 +13,7 @@ export class SubjectScoreCalculationDetailRepository implements ISubjectScoreCal
             isReflected: detail.isReflected,
             nonReflectionReason: detail.nonReflectionReason,
             convertedScore: detail.convertedScore,
-            convertedBaseValue: detail.convertedBaseValue as any, // Enum value
+            convertedBaseValue: detail.convertedBaseValue as 'GRADE' | 'ACHIEVEMENT' | 'PERCENTILE' | 'Z_SCORE' | null,
             conversionFormula: detail.conversionFormula,
             updatedAt: new Date(),
         }));
@@ -89,7 +89,12 @@ export class SubjectScoreCalculationDetailRepository implements ISubjectScoreCal
                 ...(detail.nonReflectionReason !== undefined && { nonReflectionReason: detail.nonReflectionReason }),
                 ...(detail.convertedScore !== undefined && { convertedScore: detail.convertedScore }),
                 ...(detail.convertedBaseValue !== undefined && {
-                    convertedBaseValue: detail.convertedBaseValue as any,
+                    convertedBaseValue: detail.convertedBaseValue as
+                        | 'GRADE'
+                        | 'ACHIEVEMENT'
+                        | 'PERCENTILE'
+                        | 'Z_SCORE'
+                        | null,
                 }),
                 ...(detail.conversionFormula !== undefined && { conversionFormula: detail.conversionFormula }),
             },

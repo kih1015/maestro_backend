@@ -2,8 +2,7 @@ import { Student } from '../entities/student.entity';
 import { StudentFiltersDto } from '../dto/student-filters.dto';
 import { SortOrder } from '../dto/list-students.dto';
 
-export interface StudentFilters
-    extends Omit<StudentFiltersDto, 'recruitmentSeasonId' | 'page' | 'pageSize' | 'q' | 'sort'> {}
+export type StudentFilters = Omit<StudentFiltersDto, 'recruitmentSeasonId' | 'page' | 'pageSize' | 'q' | 'sort'>;
 
 export interface IStudentReadRepository {
     /**

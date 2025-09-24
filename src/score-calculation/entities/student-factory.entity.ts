@@ -1,4 +1,4 @@
-import { Student, Subject, StudentScoreResult } from './student.entity';
+import { Subject, StudentScoreResult } from './student.entity';
 import { GCNStudent, HBWStudent, SMWUStudent, UniversityStudent } from './university-students.entity';
 
 export class StudentFactory {
