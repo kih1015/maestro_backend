@@ -202,6 +202,24 @@ export class StudentReadRepository implements IStudentReadRepository {
                     ? { in: filters.applicantScCode }
                     : filters.applicantScCode;
             }
+
+            if (filters.calculationStatus) {
+                const statusArray = Array.isArray(filters.calculationStatus)
+                    ? filters.calculationStatus
+                    : [filters.calculationStatus];
+
+                if (statusArray.includes('completed')) {
+                    whereClause.student_score_results = {
+                        isNot: null,
+                    };
+                }
+
+                if (statusArray.includes('pending') || statusArray.includes('not_completed')) {
+                    whereClause.student_score_results = {
+                        is: null,
+                    };
+                }
+            }
         }
 
         // Get total count
