@@ -15,7 +15,7 @@ export class StudentFactory {
         graduateGrade: string;
         subjectScores: Subject[];
         scoreResult?: StudentScoreResult | null;
-        universityCode: string;
+        recruitmentSeasonId: number;
     }): UniversityStudent {
         const baseProps = {
             id: props.id ?? 0,
@@ -29,9 +29,8 @@ export class StudentFactory {
             scoreResult: props.scoreResult ?? null,
         };
 
-        switch (props.universityCode.toUpperCase()) {
-            case 'GCN':
-            case 'GACHON':
+        switch (props.recruitmentSeasonId) {
+            case 3:
                 return new GCNStudent(
                     baseProps.id,
                     baseProps.identifyNumber,
@@ -44,8 +43,7 @@ export class StudentFactory {
                     baseProps.scoreResult,
                 );
 
-            case 'HBW':
-            case 'HANYANG':
+            case 2:
                 return new HBWStudent(
                     baseProps.id,
                     baseProps.identifyNumber,
@@ -58,8 +56,7 @@ export class StudentFactory {
                     baseProps.scoreResult,
                 );
 
-            case 'SMWU':
-            case 'SOOKMYUNG':
+            case 1:
                 return new SMWUStudent(
                     baseProps.id,
                     baseProps.identifyNumber,
@@ -73,7 +70,7 @@ export class StudentFactory {
                 );
 
             default:
-                throw new Error(`Unsupported university code: ${props.universityCode}`);
+                throw new Error(`Unsupported university code: ${props.recruitmentSeasonId}`);
         }
     }
 

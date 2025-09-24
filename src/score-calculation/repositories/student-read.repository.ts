@@ -75,7 +75,7 @@ export class StudentReadRepository implements IStudentReadRepository {
                 applicantScCode: student.applicantScCode,
                 graduateGrade: student.graduateGrade,
                 subjectScores: subjects,
-                universityCode: student.recruitment_seasons.universityCode,
+                recruitmentSeasonId: recruitmentSeasonId,
             });
         });
     }
@@ -260,7 +260,7 @@ export class StudentReadRepository implements IStudentReadRepository {
             applicantScCode: student.applicantScCode,
             graduateGrade: student.graduateGrade,
             subjectScores: subjects,
-            universityCode: student.recruitment_seasons.universityCode,
+            recruitmentSeasonId: recruitmentSeasonId,
         });
     }
 
