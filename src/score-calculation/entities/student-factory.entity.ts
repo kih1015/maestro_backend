@@ -1,5 +1,5 @@
-import { Subject, StudentScoreResult } from './student.entity';
-import { GCNStudent, HBWStudent, SMWUStudent, UniversityStudent } from './university-students.entity';
+import { Subject, StudentScoreResult, Student } from './student.entity';
+import { GCNStudent } from './university-students.entity';
 
 export class StudentFactory {
     /**
@@ -16,7 +16,7 @@ export class StudentFactory {
         subjectScores: Subject[];
         scoreResult?: StudentScoreResult | null;
         recruitmentSeasonId: number;
-    }): UniversityStudent {
+    }): Student {
         const baseProps = {
             id: props.id ?? 0,
             identifyNumber: props.identifyNumber,
@@ -43,31 +43,31 @@ export class StudentFactory {
                     baseProps.scoreResult,
                 );
 
-            case 2:
-                return new HBWStudent(
-                    baseProps.id,
-                    baseProps.identifyNumber,
-                    baseProps.recruitmentTypeCode,
-                    baseProps.recruitmentUnitCode,
-                    baseProps.graduateYear,
-                    baseProps.applicantScCode,
-                    baseProps.graduateGrade,
-                    baseProps.subjectScores,
-                    baseProps.scoreResult,
-                );
-
-            case 1:
-                return new SMWUStudent(
-                    baseProps.id,
-                    baseProps.identifyNumber,
-                    baseProps.recruitmentTypeCode,
-                    baseProps.recruitmentUnitCode,
-                    baseProps.graduateYear,
-                    baseProps.applicantScCode,
-                    baseProps.graduateGrade,
-                    baseProps.subjectScores,
-                    baseProps.scoreResult,
-                );
+            // case 2:
+            //     return new HBWStudent(
+            //         baseProps.id,
+            //         baseProps.identifyNumber,
+            //         baseProps.recruitmentTypeCode,
+            //         baseProps.recruitmentUnitCode,
+            //         baseProps.graduateYear,
+            //         baseProps.applicantScCode,
+            //         baseProps.graduateGrade,
+            //         baseProps.subjectScores,
+            //         baseProps.scoreResult,
+            //     );
+            //
+            // case 1:
+            //     return new SMWUStudent(
+            //         baseProps.id,
+            //         baseProps.identifyNumber,
+            //         baseProps.recruitmentTypeCode,
+            //         baseProps.recruitmentUnitCode,
+            //         baseProps.graduateYear,
+            //         baseProps.applicantScCode,
+            //         baseProps.graduateGrade,
+            //         baseProps.subjectScores,
+            //         baseProps.scoreResult,
+            //     );
 
             default:
                 throw new Error(`Unsupported university code: ${props.recruitmentSeasonId}`);

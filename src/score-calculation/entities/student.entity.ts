@@ -1,3 +1,5 @@
+export type ConvertedBaseValue = 'GRADE' | 'ACHIEVEMENT' | 'PERCENTILE' | 'Z_SCORE';
+
 export class Student {
     id: number;
     identifyNumber: string;
@@ -131,6 +133,23 @@ export class StudentScoreResult {
         this.ranking = ranking;
         this.finalFormula = finalFormula;
     }
+
+    static create(
+        studentBaseInfoId: number,
+        finalScore: number,
+        ranking: number,
+        finalFormula?: string,
+    ): StudentScoreResult {
+        return new StudentScoreResult(
+            studentBaseInfoId,
+            0, // recruitmentSeasonId - will be set later
+            finalScore,
+            new Date(),
+            undefined,
+            ranking,
+            finalFormula,
+        );
+    }
 }
 
 export class SubjectScoreCalculationDetail {
@@ -158,5 +177,22 @@ export class SubjectScoreCalculationDetail {
         this.convertedScore = data.convertedScore;
         this.convertedBaseValue = data.convertedBaseValue;
         this.conversionFormula = data.conversionFormula;
+    }
+
+    static create(
+        subjectScoreId: number,
+        subject: Subject,
+        isReflected: boolean,
+        nonReflectionReason?: string | null,
+        convertedScore?: number,
+    ): SubjectScoreCalculationDetail {
+        return new SubjectScoreCalculationDetail({
+            subjectScoreId,
+            isReflected,
+            nonReflectionReason,
+            convertedScore,
+            convertedBaseValue: null,
+            conversionFormula: null,
+        });
     }
 }

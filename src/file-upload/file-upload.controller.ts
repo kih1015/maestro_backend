@@ -82,12 +82,14 @@ export class FileUploadController {
     })
     @ApiResponse({ status: 400, description: 'Invalid file type or missing parameters' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @UseInterceptors(FileInterceptor('file', {
-        limits: {
-            fileSize: 5 * 1024 * 1024 * 1024, // 5GB
-            files: 1,
-        },
-    }))
+    @UseInterceptors(
+        FileInterceptor('file', {
+            limits: {
+                fileSize: 5 * 1024 * 1024 * 1024, // 5GB
+                files: 1,
+            },
+        }),
+    )
     async uploadFile(
         @UploadedFile() file: Express.Multer.File,
         @Query('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
@@ -98,12 +100,16 @@ export class FileUploadController {
         this.logger.debug(`Request headers: ${JSON.stringify(req.headers)}`);
         this.logger.debug(`Content-Type: ${req.headers['content-type']}`);
         this.logger.debug(`Query params: recruitmentSeasonId=${recruitmentSeasonId}, fileName=${fileName}`);
-        this.logger.debug(`File info: ${file ? `name=${file.originalname}, size=${file.size}, mimetype=${file.mimetype}` : 'No file'}`);
-        this.logger.debug(`Request body keys: ${Object.keys(req.body || {})}`);
+        this.logger.debug(
+            `File info: ${file ? `name=${file.originalname}, size=${file.size}, mimetype=${file.mimetype}` : 'No file'}`,
+        );
+        this.logger.debug(`Request body keys: ${Object.keys(req.body || {}).join(', ')}`);
 
         if (!file) {
             this.logger.error('No file provided in request');
-            this.logger.error('Make sure the frontend is sending the file with field name "file" in multipart/form-data format');
+            this.logger.error(
+                'Make sure the frontend is sending the file with field name "file" in multipart/form-data format',
+            );
             throw new BadRequestException('File is required');
         }
 

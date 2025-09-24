@@ -33,7 +33,9 @@ export class TempFileStorageService {
     async saveFile(file: Express.Multer.File, fileName?: string): Promise<{ path: string; size: number }> {
         try {
             this.logger.debug('Starting file save process');
-            this.logger.debug(`File info: originalname=${file.originalname}, mimetype=${file.mimetype}, size=${file.size}`);
+            this.logger.debug(
+                `File info: originalname=${file.originalname}, mimetype=${file.mimetype}, size=${file.size}`,
+            );
             this.logger.debug(`Buffer exists: ${!!file.buffer}, Buffer length: ${file.buffer?.length || 0}`);
 
             if (!file.buffer || file.buffer.length === 0) {
