@@ -1,0 +1,82 @@
+import { Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import { Readable } from 'stream';
+
+@Injectable()
+export class TempFileStorageService {
+    private ensureTempDir(): string {
+        const tempDir = path.join(process.cwd(), 'temp', 'uploads');
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+        }
+        return tempDir;
+    }
+
+    private sanitizeFileName(fileName: string): string {
+        return fileName.replace(/[^a-zA-Z0-9.-]/g, '_');
+    }
+
+    async saveFile(file: Express.Multer.File, fileName?: string): Promise<{ path: string; size: number }> {
+        const tempDir = this.ensureTempDir();
+        const sanitized = this.sanitizeFileName(fileName || file.originalname || 'upload');
+        const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
+
+        await fs.promises.writeFile(tempPath, file.buffer);
+        const stats = await fs.promises.stat(tempPath);
+        return { path: tempPath, size: stats.size };
+    }
+
+    async saveBuffer(buffer: Buffer, fileName: string): Promise<{ path: string; size: number }> {
+        const tempDir = this.ensureTempDir();
+        const sanitized = this.sanitizeFileName(fileName || 'upload');
+        const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
+
+        await fs.promises.writeFile(tempPath, buffer);
+        const stats = await fs.promises.stat(tempPath);
+        return { path: tempPath, size: stats.size };
+    }
+
+    async saveStream(stream: Readable, fileName: string): Promise<{ path: string; size: number }> {
+        const tempDir = this.ensureTempDir();
+        const sanitized = this.sanitizeFileName(fileName || 'upload');
+        const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
+
+        await this.pipeToFile(stream, tempPath);
+        const stats = await fs.promises.stat(tempPath);
+        return { path: tempPath, size: stats.size };
+    }
+
+    async remove(filePath: string): Promise<void> {
+        try {
+            if (!filePath || !fs.existsSync(filePath)) return;
+
+            let retries = 3;
+            while (retries > 0) {
+                try {
+                    fs.unlinkSync(filePath);
+                    break;
+                } catch (err) {
+                    if ((err as NodeJS.ErrnoException)?.code === 'EBUSY' && retries > 1) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        retries -= 1;
+                    } else {
+                        throw err;
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to remove temp file:', e);
+        }
+    }
+
+    private async pipeToFile(readable: Readable, targetPath: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            const writeStream = fs.createWriteStream(targetPath);
+            readable.on('error', reject);
+            writeStream.on('error', reject);
+            writeStream.on('finish', resolve);
+            readable.pipe(writeStream);
+        });
+    }
+}
