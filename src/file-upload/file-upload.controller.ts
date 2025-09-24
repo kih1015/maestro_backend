@@ -8,21 +8,32 @@ import {
     BadRequestException,
     UseGuards,
     ParseIntPipe,
+    Req,
+    Sse,
+    MessageEvent,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { FileUploadService } from './file-upload.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { EventsService } from '../events/events.service';
 import { FileUploadSummaryDto } from './dto/file-upload-summary.dto';
 import { UploadFileRequestDto } from './dto/upload-file-request.dto';
-import { UploadProgress } from './entities/upload-progress.entity';
+
+interface AuthenticatedRequest extends Request {
+    user: { sub: number; email: string };
+}
 
 @ApiTags('file-upload')
 @Controller('file-upload')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FileUploadController {
-    constructor(private readonly fileUploadService: FileUploadService) {}
+    constructor(
+        private readonly fileUploadService: FileUploadService,
+        private readonly eventsService: EventsService,
+    ) {}
 
     @Post('upload')
     @ApiOperation({ summary: 'Upload SQLite database file' })
@@ -72,12 +83,14 @@ export class FileUploadController {
     async uploadFile(
         @UploadedFile() file: Express.Multer.File,
         @Query('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
-        @Query('fileName') fileName?: string,
+        @Query('fileName') fileName: string,
+        @Req() req: AuthenticatedRequest,
     ): Promise<{ success: boolean; data: FileUploadSummaryDto }> {
         if (!file) {
             throw new BadRequestException('File is required');
         }
 
+        const userId = req.user.sub;
         const request = new UploadFileRequestDto();
         Object.assign(request, {
             recruitmentSeasonId,
@@ -85,14 +98,7 @@ export class FileUploadController {
             fileSize: file.size,
         });
 
-        // For this simplified implementation, we'll process synchronously
-        // In production, you might want to use a queue system for background processing
-        const progressCallback = (progress: UploadProgress) => {
-            // In a real implementation, this would broadcast via WebSocket or SSE
-            console.log(`Upload progress: ${progress.percentage}% - ${progress.message}`);
-        };
-
-        const result = await this.fileUploadService.uploadAndMigrate(request, file, progressCallback);
+        const result = await this.fileUploadService.uploadAndMigrate(request, file, userId);
 
         return {
             success: true,
@@ -140,5 +146,23 @@ export class FileUploadController {
             success: true,
             data: summary,
         };
+    }
+
+    @Sse('progress')
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Get upload progress via SSE' })
+    @ApiResponse({
+        status: 200,
+        description: 'SSE connection for upload progress',
+        headers: {
+            'Content-Type': { description: 'text/event-stream' },
+            'Cache-Control': { description: 'no-cache' },
+            Connection: { description: 'keep-alive' },
+        },
+    })
+    @ApiResponse({ status: 401, description: 'Unauthorized' })
+    getUploadProgress(@Req() req: AuthenticatedRequest): Observable<MessageEvent> {
+        const userId = req.user.sub;
+        return this.eventsService.subscribeToUser(userId);
     }
 }

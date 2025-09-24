@@ -8,9 +8,10 @@ import { StudentBaseInfoRepository } from './repositories/student-base-info.repo
 import { SubjectScoreRepository } from './repositories/subject-score.repository';
 import { SubjectGroupMappingRepository } from './repositories/subject-group-mapping.repository';
 import { PrismaModule } from '../prisma/prisma.module';
+import { EventsModule } from '../events/events.module';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [PrismaModule, EventsModule],
     controllers: [FileUploadController, SubjectGroupMappingController],
     providers: [
         FileUploadService,

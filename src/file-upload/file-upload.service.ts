@@ -3,6 +3,7 @@ import { Database } from 'sqlite3';
 import { StudentBaseInfoRepository } from './repositories/student-base-info.repository';
 import { SubjectScoreRepository } from './repositories/subject-score.repository';
 import { TempFileStorageService } from './temp-file-storage.service';
+import { EventsService } from '../events/events.service';
 import { StudentBaseInfo } from './entities/student-base-info.entity';
 import { SubjectScore } from './entities/subject-score.entity';
 import { RecruitmentCode } from './entities/recruitment-code.entity';
@@ -67,13 +68,33 @@ export class FileUploadService {
         private readonly studentBaseInfoRepository: StudentBaseInfoRepository,
         private readonly subjectScoreRepository: SubjectScoreRepository,
         private readonly tempFileStorageService: TempFileStorageService,
+        private readonly eventsService: EventsService,
     ) {}
 
     async uploadAndMigrate(
         request: UploadFileRequestDto,
         file: Express.Multer.File,
-        progressCallback: (progress: UploadProgress) => void,
+        userId: number,
     ): Promise<FileUploadSummaryDto> {
+        const progressCallback = (progress: UploadProgress) => {
+            // Send upload progress via SSE
+            this.eventsService.sendToUser(userId, 'upload.progress', {
+                recruitmentSeasonId: request.recruitmentSeasonId,
+                status: progress.status,
+                percentage: progress.percentage,
+                message: progress.message,
+                current: progress.processedRecords,
+                total: progress.totalRecords,
+                error: progress.error,
+            });
+        };
+
+        // Send start event
+        this.eventsService.sendToUser(userId, 'upload.start', {
+            recruitmentSeasonId: request.recruitmentSeasonId,
+            message: 'File upload started',
+        });
+
         progressCallback(UploadProgress.pending());
 
         try {
@@ -102,6 +123,14 @@ export class FileUploadService {
 
             progressCallback(UploadProgress.completed(totalStudents, 'Migration completed successfully'));
 
+            // Send completion event
+            this.eventsService.sendToUser(userId, 'upload.done', {
+                recruitmentSeasonId: request.recruitmentSeasonId,
+                completed: totalStudents,
+                total: totalStudents,
+                message: 'File upload and migration completed successfully',
+            });
+
             return new FileUploadSummaryDto({
                 recruitmentSeasonId: request.recruitmentSeasonId,
                 totalStudents,
@@ -111,6 +140,14 @@ export class FileUploadService {
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
             progressCallback(UploadProgress.failed(errorMessage));
+
+            // Send error event
+            this.eventsService.sendToUser(userId, 'upload.error', {
+                recruitmentSeasonId: request.recruitmentSeasonId,
+                message: errorMessage,
+                error: errorMessage,
+            });
+
             throw error;
         }
     }

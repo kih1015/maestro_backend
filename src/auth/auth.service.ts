@@ -34,9 +34,4 @@ export class AuthService {
             accessToken,
         };
     }
-
-    async validateUser(payload: { sub: number; email: string }) {
-        const user = await this.userService.findById(payload.sub);
-        return { sub: user.id, email: user.email };
-    }
 }
