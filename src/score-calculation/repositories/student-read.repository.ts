@@ -234,56 +234,149 @@ export class StudentReadRepository implements IStudentReadRepository {
             },
         });
 
-        // Build sort clause
-        let orderBy: Record<string, unknown> = { id: 'asc' };
+        // Build sort clause - always put students with calculations first, uncalculated at the end
+        let orderBy: Record<string, unknown>[] = [];
+
         if (sort) {
             switch (sort) {
                 case SortOrder.SCORE_ASC:
-                    orderBy = { student_score_results: { finalScore: 'asc' } };
+                    orderBy = [
+                        { student_score_results: { finalScore: 'asc' } },
+                        { id: 'asc' },
+                    ];
                     break;
                 case SortOrder.SCORE_DESC:
-                    orderBy = { student_score_results: { finalScore: 'desc' } };
+                    orderBy = [
+                        { student_score_results: { finalScore: 'desc' } },
+                        { id: 'asc' },
+                    ];
                     break;
+                default:
+                    orderBy = [
+                        { student_score_results: { finalScore: 'desc' } },
+                        { id: 'asc' },
+                    ];
+                    break;
+            }
+        } else {
+            // Default sorting: completed calculations first, then by id
+            orderBy = [{ student_score_results: { finalScore: 'desc' } }, { id: 'asc' }];
+        }
+
+        // Build filter conditions
+        let filterConditions = Prisma.empty;
+
+        if (query) {
+            filterConditions = Prisma.sql`
+                AND (sbi."identifyNumber" ILIKE ${`%${query}%`}
+                OR sbi."examNumber" ILIKE ${`%${query}%`})
+            `;
+        }
+
+        if (filters) {
+            if (filters.graduateYearFrom || filters.graduateYearTo) {
+                if (filters.graduateYearFrom && filters.graduateYearTo) {
+                    filterConditions = Prisma.sql`${filterConditions} AND sbi."graduateYear" >= ${filters.graduateYearFrom} AND sbi."graduateYear" <= ${filters.graduateYearTo}`;
+                } else if (filters.graduateYearFrom) {
+                    filterConditions = Prisma.sql`${filterConditions} AND sbi."graduateYear" >= ${filters.graduateYearFrom}`;
+                } else if (filters.graduateYearTo) {
+                    filterConditions = Prisma.sql`${filterConditions} AND sbi."graduateYear" <= ${filters.graduateYearTo}`;
+                }
+            }
+
+            if (filters.graduateGrade) {
+                const gradeArray = Array.isArray(filters.graduateGrade) ? filters.graduateGrade : [filters.graduateGrade];
+                filterConditions = Prisma.sql`${filterConditions} AND sbi."graduateGrade" = ANY(${gradeArray})`;
+            }
+
+            if (filters.recruitmentTypeCode) {
+                const typeArray = Array.isArray(filters.recruitmentTypeCode) ? filters.recruitmentTypeCode : [filters.recruitmentTypeCode];
+                filterConditions = Prisma.sql`${filterConditions} AND sbi."recruitmentTypeCode" = ANY(${typeArray})`;
+            }
+
+            if (filters.recruitmentUnitCode) {
+                const unitArray = Array.isArray(filters.recruitmentUnitCode) ? filters.recruitmentUnitCode : [filters.recruitmentUnitCode];
+                filterConditions = Prisma.sql`${filterConditions} AND sbi."recruitmentUnitCode" = ANY(${unitArray})`;
+            }
+
+            if (filters.applicantScCode) {
+                const scArray = Array.isArray(filters.applicantScCode) ? filters.applicantScCode : [filters.applicantScCode];
+                filterConditions = Prisma.sql`${filterConditions} AND sbi."applicantScCode" = ANY(${scArray})`;
+            }
+
+            if (filters.calculationStatus) {
+                const statusArray = Array.isArray(filters.calculationStatus) ? filters.calculationStatus : [filters.calculationStatus];
+
+                if (statusArray.includes('completed') && !statusArray.includes('pending') && !statusArray.includes('not_completed')) {
+                    filterConditions = Prisma.sql`${filterConditions} AND ssr."finalScore" IS NOT NULL`;
+                } else if ((statusArray.includes('pending') || statusArray.includes('not_completed')) && !statusArray.includes('completed')) {
+                    filterConditions = Prisma.sql`${filterConditions} AND ssr."finalScore" IS NULL`;
+                }
             }
         }
 
-        // Get paginated results
-        const students = await this.prisma.student_base_infos.findMany({
-            where: whereClause,
-            include: {
-                student_score_results: true,
-                recruitment_seasons: {
-                    include: {
-                        recruitment_units: true,
-                        admission_types: true,
-                    },
+        // Get paginated results - use raw SQL to handle nulls last properly
+        const studentsRaw = await this.prisma.$queryRaw<Array<{
+            id: number;
+            identifyNumber: string;
+            examNumber: string | null;
+            graduateYear: string;
+            graduateGrade: string | null;
+            recruitmentTypeCode: string;
+            recruitmentUnitCode: string;
+            applicantScCode: string | null;
+            recruitmentSeasonId: number;
+            finalScore: number | null;
+            recruitmentUnitName: string | null;
+            recruitmentTypeName: string | null;
+        }>>`
+            SELECT
+                sbi.id,
+                sbi."identifyNumber",
+                sbi."examNumber",
+                sbi."graduateYear",
+                sbi."graduateGrade",
+                sbi."recruitmentTypeCode",
+                sbi."recruitmentUnitCode",
+                sbi."applicantScCode",
+                sbi."recruitmentSeasonId",
+                ssr."finalScore",
+                ru."unitName" as "recruitmentUnitName",
+                at."typeName" as "recruitmentTypeName"
+            FROM student_base_infos sbi
+            LEFT JOIN student_score_results ssr ON sbi.id = ssr."studentBaseInfoId"
+            LEFT JOIN recruitment_seasons rs ON sbi."recruitmentSeasonId" = rs.id
+            LEFT JOIN recruitment_units ru ON rs.id = ru."recruitmentSeasonId"
+                AND sbi."recruitmentUnitCode" = ru."unitCode"::text
+            LEFT JOIN admission_types at ON rs.id = at."recruitmentSeasonId"
+                AND sbi."recruitmentTypeCode" = at."typeCode"::text
+            WHERE sbi."recruitmentSeasonId" = ${recruitmentSeasonId}
+            ${filterConditions}
+            ORDER BY
+                CASE WHEN ssr."finalScore" IS NULL THEN 1 ELSE 0 END,
+                ${sort === SortOrder.SCORE_ASC ?
+                    Prisma.sql`ssr."finalScore" ASC` :
+                    Prisma.sql`ssr."finalScore" DESC`
                 },
-            },
-            orderBy,
-            skip: (page - 1) * pageSize,
-            take: pageSize,
-        });
+                sbi.id ASC
+            LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
+        `;
+
+        const students = studentsRaw;
 
         const items = students.map(student => {
-            const recruitmentUnit = student.recruitment_seasons.recruitment_units.find(
-                unit => unit.unitCode.toString() === student.recruitmentUnitCode,
-            );
-            const admissionType = student.recruitment_seasons.admission_types.find(
-                type => type.typeCode.toString() === student.recruitmentTypeCode,
-            );
-
             return {
                 id: student.id,
                 identifyNumber: student.identifyNumber,
                 examNumber: student.examNumber || '',
                 graduateYear: student.graduateYear,
-                graduateGrade: student.graduateGrade,
+                graduateGrade: student.graduateGrade || undefined,
                 recruitmentTypeCode: student.recruitmentTypeCode,
-                recruitmentTypeName: admissionType?.typeName,
+                recruitmentTypeName: student.recruitmentTypeName || undefined,
                 recruitmentUnitCode: student.recruitmentUnitCode,
-                recruitmentUnitName: recruitmentUnit?.unitName,
-                applicantScCode: student.applicantScCode,
-                finalScore: student.student_score_results?.finalScore,
+                recruitmentUnitName: student.recruitmentUnitName || undefined,
+                applicantScCode: student.applicantScCode || undefined,
+                finalScore: student.finalScore || undefined,
             };
         });
 
