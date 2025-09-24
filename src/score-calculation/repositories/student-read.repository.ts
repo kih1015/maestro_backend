@@ -4,6 +4,7 @@ import { IStudentReadRepository, StudentFilters } from '../interfaces/student-re
 import { Student, Subject } from '../entities/student.entity';
 import { StudentFactory } from '../entities/student-factory.entity';
 import { SortOrder } from '../dto/list-students.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class StudentReadRepository implements IStudentReadRepository {
@@ -28,30 +29,86 @@ export class StudentReadRepository implements IStudentReadRepository {
     }
 
     async streamStudents(recruitmentSeasonId: number, lastId: number | null, batchSize: number): Promise<Student[]> {
-        const whereClause = {
-            recruitmentSeasonId,
-            ...(lastId && { id: { gt: lastId } }),
-        };
+        const idCondition = lastId !== null ? Prisma.sql`AND sbi.id > ${lastId}` : Prisma.empty;
 
-        const students = await this.prisma.student_base_infos.findMany({
-            where: whereClause,
-            include: {
-                subject_scores: true,
-                recruitment_seasons: true,
-            },
-            orderBy: { id: 'asc' },
-            take: batchSize,
-        });
+        interface RawStudentRow {
+            id: number;
+            identifyNumber: string;
+            recruitmentTypeCode: string;
+            recruitmentUnitCode: string;
+            graduateYear: string;
+            applicantScCode: string | null;
+            graduateGrade: string | null;
+            subjectScores: Array<{
+                id: number;
+                seqNumber: number;
+                subjectName: string;
+                subjectCode: string;
+                subjectSeparationCode: string | null;
+                rankingGrade: string | null;
+                achievement: string | null;
+                assessment: string;
+                originalScore: string | null;
+                unit: string | null;
+                grade: number;
+                term: number;
+                studentCount: number;
+                rank: number;
+                sameRank: number;
+                subjectGroup: { name: string } | null;
+            }>;
+        }
 
-        return students.map(student => {
-            const subjects = student.subject_scores.map(
+        const result = await this.prisma.$queryRaw<RawStudentRow[]>`
+            SELECT
+                sbi.*,
+                json_agg(
+                    json_build_object(
+                        'id', ss.id,
+                        'seqNumber', ss."seqNumber",
+                        'subjectName', ss."subjectName",
+                        'subjectCode', ss."subjectCode",
+                        'subjectSeparationCode', ss."subjectSeparationCode",
+                        'rankingGrade', ss."rankingGrade",
+                        'achievement', ss.achievement,
+                        'assessment', ss.assessment,
+                        'originalScore', ss."originalScore",
+                        'unit', ss.unit,
+                        'grade', ss.grade,
+                        'term', ss.term,
+                        'studentCount', ss."studentCount",
+                        'rank', ss.rank,
+                        'sameRank', ss."sameRank",
+                        'subjectGroup', CASE WHEN sgm."subjectGroup" IS NOT NULL
+                                           THEN json_build_object('name', sgm."subjectGroup")
+                                           ELSE NULL END
+                    )
+                    ORDER BY ss.id
+                ) as "subjectScores"
+            FROM student_base_infos sbi
+            LEFT JOIN subject_scores ss ON sbi.id = ss."studentBaseInfoId"
+            LEFT JOIN subject_group_mappings sgm ON (
+                sbi."recruitmentSeasonId" = sgm."recruitmentSeasonId" AND
+                ss."organizationCode" = sgm."curriculumCode" AND
+                ss."courseCode" = sgm."courseCode" AND
+                ss."subjectCode" = sgm."subjectCode"
+            )
+            WHERE sbi."recruitmentSeasonId" = ${recruitmentSeasonId}
+            ${idCondition}
+            GROUP BY sbi.id
+            ORDER BY sbi.id ASC
+            LIMIT ${batchSize}
+        `;
+
+        return result.map(student => {
+            const subjects = student.subjectScores.map(
                 subject =>
                     new Subject({
                         id: subject.id,
                         seqNumber: subject.seqNumber,
                         subjectName: subject.subjectName,
                         subjectCode: subject.subjectCode,
-                        subjectGroup: subject.subjectSeparationCode, // Using separation code as group for now
+                        subjectGroup: subject.subjectGroup?.name ?? null,
                         subjectSeparationCode: subject.subjectSeparationCode || '',
                         rankingGrade: subject.rankingGrade || '',
                         achievement: subject.achievement || '',
@@ -60,9 +117,9 @@ export class StudentReadRepository implements IStudentReadRepository {
                         unit: subject.unit || '',
                         grade: subject.grade,
                         term: subject.term,
-                        studentCount: subject.studentCount,
-                        rank: subject.rank,
-                        sameRank: subject.sameRank,
+                        studentCount: subject.studentCount?.toString(),
+                        rank: subject.rank?.toString(),
+                        sameRank: subject.sameRank?.toString(),
                     }),
             );
 
@@ -72,8 +129,8 @@ export class StudentReadRepository implements IStudentReadRepository {
                 recruitmentTypeCode: student.recruitmentTypeCode,
                 recruitmentUnitCode: student.recruitmentUnitCode,
                 graduateYear: student.graduateYear,
-                applicantScCode: student.applicantScCode,
-                graduateGrade: student.graduateGrade,
+                applicantScCode: student.applicantScCode || '',
+                graduateGrade: student.graduateGrade || '',
                 subjectScores: subjects,
                 recruitmentSeasonId: recruitmentSeasonId,
             });
@@ -216,27 +273,84 @@ export class StudentReadRepository implements IStudentReadRepository {
     }
 
     async findByIdentifyNumber(recruitmentSeasonId: number, identifyNumber: string): Promise<Student | null> {
-        const student = await this.prisma.student_base_infos.findFirst({
-            where: {
-                recruitmentSeasonId,
-                identifyNumber,
-            },
-            include: {
-                subject_scores: true,
-                recruitment_seasons: true,
-            },
-        });
+        interface RawStudentRow {
+            id: number;
+            identifyNumber: string;
+            recruitmentTypeCode: string;
+            recruitmentUnitCode: string;
+            graduateYear: string;
+            applicantScCode: string | null;
+            graduateGrade: string | null;
+            subjectScores: Array<{
+                id: number;
+                seqNumber: number;
+                subjectName: string;
+                subjectCode: string;
+                subjectSeparationCode: string | null;
+                rankingGrade: string | null;
+                achievement: string | null;
+                assessment: string;
+                originalScore: string | null;
+                unit: string | null;
+                grade: number;
+                term: number;
+                studentCount: number;
+                rank: number;
+                sameRank: number;
+                subjectGroup: { name: string } | null;
+            }>;
+        }
 
-        if (!student) return null;
+        const result = await this.prisma.$queryRaw<RawStudentRow[]>`
+            SELECT
+                sbi.*,
+                json_agg(
+                    json_build_object(
+                        'id', ss.id,
+                        'seqNumber', ss."seqNumber",
+                        'subjectName', ss."subjectName",
+                        'subjectCode', ss."subjectCode",
+                        'subjectSeparationCode', ss."subjectSeparationCode",
+                        'rankingGrade', ss."rankingGrade",
+                        'achievement', ss.achievement,
+                        'assessment', ss.assessment,
+                        'originalScore', ss."originalScore",
+                        'unit', ss.unit,
+                        'grade', ss.grade,
+                        'term', ss.term,
+                        'studentCount', ss."studentCount",
+                        'rank', ss.rank,
+                        'sameRank', ss."sameRank",
+                        'subjectGroup', CASE WHEN sgm."subjectGroup" IS NOT NULL
+                                           THEN json_build_object('name', sgm."subjectGroup")
+                                           ELSE NULL END
+                    )
+                    ORDER BY ss.id
+                ) as "subjectScores"
+            FROM student_base_infos sbi
+            LEFT JOIN subject_scores ss ON sbi.id = ss."studentBaseInfoId"
+            LEFT JOIN subject_group_mappings sgm ON (
+                sbi."recruitmentSeasonId" = sgm."recruitmentSeasonId" AND
+                ss."organizationCode" = sgm."curriculumCode" AND
+                ss."courseCode" = sgm."courseCode" AND
+                ss."subjectCode" = sgm."subjectCode"
+            )
+            WHERE sbi."recruitmentSeasonId" = ${recruitmentSeasonId}
+            AND sbi."identifyNumber" = ${identifyNumber}
+            GROUP BY sbi.id
+        `;
 
-        const subjects = student.subject_scores.map(
+        if (result.length === 0) return null;
+
+        const student = result[0];
+        const subjects = student.subjectScores.map(
             subject =>
                 new Subject({
                     id: subject.id,
                     seqNumber: subject.seqNumber,
                     subjectName: subject.subjectName,
                     subjectCode: subject.subjectCode,
-                    subjectGroup: subject.subjectSeparationCode, // Using separation code as group for now
+                    subjectGroup: subject.subjectGroup?.name ?? null,
                     subjectSeparationCode: subject.subjectSeparationCode || '',
                     rankingGrade: subject.rankingGrade || '',
                     achievement: subject.achievement || '',
@@ -245,9 +359,9 @@ export class StudentReadRepository implements IStudentReadRepository {
                     unit: subject.unit || '',
                     grade: subject.grade,
                     term: subject.term,
-                    studentCount: subject.studentCount,
-                    rank: subject.rank,
-                    sameRank: subject.sameRank,
+                    studentCount: subject.studentCount?.toString(),
+                    rank: subject.rank?.toString(),
+                    sameRank: subject.sameRank?.toString(),
                 }),
         );
 
@@ -257,8 +371,8 @@ export class StudentReadRepository implements IStudentReadRepository {
             recruitmentTypeCode: student.recruitmentTypeCode,
             recruitmentUnitCode: student.recruitmentUnitCode,
             graduateYear: student.graduateYear,
-            applicantScCode: student.applicantScCode,
-            graduateGrade: student.graduateGrade,
+            applicantScCode: student.applicantScCode || '',
+            graduateGrade: student.graduateGrade || '',
             subjectScores: subjects,
             recruitmentSeasonId: recruitmentSeasonId,
         });
