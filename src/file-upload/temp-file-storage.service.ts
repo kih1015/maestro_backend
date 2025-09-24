@@ -1,16 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
 
 @Injectable()
 export class TempFileStorageService {
+    private readonly logger = new Logger(TempFileStorageService.name);
+
     private ensureTempDir(): string {
         const tempDir = path.join(process.cwd(), 'temp', 'uploads');
-        if (!fs.existsSync(tempDir)) {
-            fs.mkdirSync(tempDir, { recursive: true });
+        this.logger.debug(`Ensuring temp directory exists: ${tempDir}`);
+
+        try {
+            if (!fs.existsSync(tempDir)) {
+                this.logger.debug('Creating temp directory...');
+                fs.mkdirSync(tempDir, { recursive: true });
+                this.logger.debug('Temp directory created successfully');
+            } else {
+                this.logger.debug('Temp directory already exists');
+            }
+            return tempDir;
+        } catch (error) {
+            this.logger.error('Failed to create temp directory', error);
+            throw error;
         }
-        return tempDir;
     }
 
     private sanitizeFileName(fileName: string): string {
@@ -18,13 +31,32 @@ export class TempFileStorageService {
     }
 
     async saveFile(file: Express.Multer.File, fileName?: string): Promise<{ path: string; size: number }> {
-        const tempDir = this.ensureTempDir();
-        const sanitized = this.sanitizeFileName(fileName || file.originalname || 'upload');
-        const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
+        try {
+            this.logger.debug('Starting file save process');
+            this.logger.debug(`File info: originalname=${file.originalname}, mimetype=${file.mimetype}, size=${file.size}`);
+            this.logger.debug(`Buffer exists: ${!!file.buffer}, Buffer length: ${file.buffer?.length || 0}`);
 
-        await fs.promises.writeFile(tempPath, file.buffer);
-        const stats = await fs.promises.stat(tempPath);
-        return { path: tempPath, size: stats.size };
+            if (!file.buffer || file.buffer.length === 0) {
+                throw new Error('File buffer is empty or missing');
+            }
+
+            const tempDir = this.ensureTempDir();
+            const sanitized = this.sanitizeFileName(fileName || file.originalname || 'upload');
+            const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
+
+            this.logger.debug(`Saving file to: ${tempPath}`);
+
+            await fs.promises.writeFile(tempPath, file.buffer);
+            this.logger.debug('File written successfully');
+
+            const stats = await fs.promises.stat(tempPath);
+            this.logger.debug(`File saved - size: ${stats.size} bytes`);
+
+            return { path: tempPath, size: stats.size };
+        } catch (error) {
+            this.logger.error('Failed to save file', error);
+            throw error;
+        }
     }
 
     async saveBuffer(buffer: Buffer, fileName: string): Promise<{ path: string; size: number }> {

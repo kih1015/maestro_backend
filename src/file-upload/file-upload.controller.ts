@@ -11,6 +11,7 @@ import {
     Req,
     Sse,
     MessageEvent,
+    Logger,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -30,6 +31,8 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class FileUploadController {
+    private readonly logger = new Logger(FileUploadController.name);
+
     constructor(
         private readonly fileUploadService: FileUploadService,
         private readonly eventsService: EventsService,
@@ -79,14 +82,28 @@ export class FileUploadController {
     })
     @ApiResponse({ status: 400, description: 'Invalid file type or missing parameters' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @UseInterceptors(FileInterceptor('file'))
+    @UseInterceptors(FileInterceptor('file', {
+        limits: {
+            fileSize: 5 * 1024 * 1024 * 1024, // 5GB
+            files: 1,
+        },
+    }))
     async uploadFile(
         @UploadedFile() file: Express.Multer.File,
         @Query('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
         @Query('fileName') fileName: string,
         @Req() req: AuthenticatedRequest,
     ): Promise<{ success: boolean; data: FileUploadSummaryDto }> {
+        this.logger.log('Upload request received');
+        this.logger.debug(`Request headers: ${JSON.stringify(req.headers)}`);
+        this.logger.debug(`Content-Type: ${req.headers['content-type']}`);
+        this.logger.debug(`Query params: recruitmentSeasonId=${recruitmentSeasonId}, fileName=${fileName}`);
+        this.logger.debug(`File info: ${file ? `name=${file.originalname}, size=${file.size}, mimetype=${file.mimetype}` : 'No file'}`);
+        this.logger.debug(`Request body keys: ${Object.keys(req.body || {})}`);
+
         if (!file) {
+            this.logger.error('No file provided in request');
+            this.logger.error('Make sure the frontend is sending the file with field name "file" in multipart/form-data format');
             throw new BadRequestException('File is required');
         }
 
