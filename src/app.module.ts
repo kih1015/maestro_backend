@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { AdmissionsModule } from './admissions/admissions.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
 import { EventsModule } from './events/events.module';
+import { ScoreCalculationModule } from './score-calculation/score-calculation.module';
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { EventsModule } from './events/events.module';
         AdmissionsModule,
         FileUploadModule,
         EventsModule,
+        ScoreCalculationModule,
     ],
 })
 export class AppModule {}
