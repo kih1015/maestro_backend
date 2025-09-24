@@ -56,10 +56,10 @@ export class ScoreCalculationController {
     @ApiResponse({ status: 500, description: 'Internal server error' })
     calculateScores(
         @Body(ValidationPipe) dto: CalculateScoresDto,
-        @Request() req: { user?: { userId: number } },
+        @Request() req: { user?: { sub: number; email: string } },
     ): CalculateScoresResponseDto {
         const seasonId = dto.recruitmentSeasonId;
-        const userId = req.user?.userId; // JWT payload에서 사용자 ID 추출
+        const userId = req.user?.sub; // JWT payload에서 사용자 ID 추출
 
         // Check if calculation is already running
         if (this.jobRunner.get(seasonId)) {
