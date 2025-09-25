@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import { StudentReadRepository } from '../repositories/student-read.repository';
+import { Injectable, Inject } from '@nestjs/common';
+import type { IStudentExportRepository } from '../interfaces/student-export-repository.interface';
+import { STUDENT_EXPORT_REPOSITORY } from '../score-calculation.module';
 import { ExportScoresDto } from '../dto/export.dto';
 import * as XLSX from 'xlsx';
 
 @Injectable()
 export class ScoreExportUseCase {
-    constructor(private readonly studentRepository: StudentReadRepository) {}
+    constructor(
+        @Inject(STUDENT_EXPORT_REPOSITORY)
+        private readonly studentRepository: IStudentExportRepository,
+    ) {}
 
     async exportScores(dto: ExportScoresDto): Promise<Buffer> {
         const rows = await this.studentRepository.exportFinalScores(dto.recruitmentSeasonId);

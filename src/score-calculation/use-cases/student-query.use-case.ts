@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { StudentReadRepository } from '../repositories/student-read.repository';
-import { SubjectScoreCalculationDetailRepository } from '../repositories/subject-score-calculation-detail.repository';
+import { Injectable, Inject } from '@nestjs/common';
+import type { IStudentQueryRepository } from '../interfaces/student-query-repository.interface';
+import type { ISubjectDetailReadRepository } from '../interfaces/subject-detail-read-repository.interface';
+import { STUDENT_QUERY_REPOSITORY, SUBJECT_DETAIL_READ_REPOSITORY } from '../score-calculation.module';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 import { ListStudentsDto } from '../dto/list-students.dto';
 import { GetStudentDetailDto } from '../dto/student-detail.dto';
@@ -9,8 +10,10 @@ import { StudentFilters } from '../interfaces/student-read-repository.interface'
 @Injectable()
 export class StudentQueryUseCase {
     constructor(
-        private readonly studentRepository: StudentReadRepository,
-        private readonly subjectDetailRepository: SubjectScoreCalculationDetailRepository,
+        @Inject(STUDENT_QUERY_REPOSITORY)
+        private readonly studentRepository: IStudentQueryRepository,
+        @Inject(SUBJECT_DETAIL_READ_REPOSITORY)
+        private readonly subjectDetailRepository: ISubjectDetailReadRepository,
     ) {}
 
     async listStudents(dto: ListStudentsDto) {

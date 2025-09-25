@@ -14,7 +14,7 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiProduces } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ScoreCalculationUseCase, CalculateScoresInput } from './use-cases/score-calculation.use-case';
+import { ScoreCalculationUseCase } from './use-cases/score-calculation.use-case';
 import { StudentQueryUseCase } from './use-cases/student-query.use-case';
 import { ScoreExportUseCase } from './use-cases/score-export.use-case';
 import { SummaryUseCase } from './use-cases/summary.use-case';
