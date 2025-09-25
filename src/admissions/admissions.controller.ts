@@ -11,7 +11,10 @@ import {
     ValidationPipe,
     UseGuards,
 } from '@nestjs/common';
-import { AdmissionsService } from './admissions.service';
+import { CreateRecruitmentSeasonService } from './use-cases/create-recruitment-season.service';
+import { GetRecruitmentSeasonsService } from './use-cases/get-recruitment-seasons.service';
+import { UpdateRecruitmentSeasonService } from './use-cases/update-recruitment-season.service';
+import { DeleteRecruitmentSeasonService } from './use-cases/delete-recruitment-season.service';
 import { CreateRecruitmentSeasonDto } from './dto/create-recruitment-season.dto';
 import { UpdateRecruitmentSeasonDto } from './dto/update-recruitment-season.dto';
 import { RecruitmentSeasonResponseDto } from './dto/recruitment-season-response.dto';
@@ -34,7 +37,12 @@ import {
 @UseGuards(JwtAuthGuard)
 @AdmissionsControllerSwagger
 export class AdmissionsController {
-    constructor(private readonly admissionsService: AdmissionsService) {}
+    constructor(
+        private readonly createRecruitmentSeasonService: CreateRecruitmentSeasonService,
+        private readonly getRecruitmentSeasonsService: GetRecruitmentSeasonsService,
+        private readonly updateRecruitmentSeasonService: UpdateRecruitmentSeasonService,
+        private readonly deleteRecruitmentSeasonService: DeleteRecruitmentSeasonService,
+    ) {}
 
     /**
      * 새로운 모집 시즌을 생성합니다.
@@ -49,7 +57,7 @@ export class AdmissionsController {
     async createRecruitmentSeason(
         @Body(ValidationPipe) createDto: CreateRecruitmentSeasonDto,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
-        const season = await this.admissionsService.createRecruitmentSeason({
+        const season = await this.createRecruitmentSeasonService.execute({
             universityCode: createDto.universityCode,
             admissionYear: createDto.admissionPeriod.admissionYear,
             admissionName: createDto.admissionPeriod.admissionName,
@@ -76,7 +84,7 @@ export class AdmissionsController {
     async getRecruitmentSeasons(
         @Query('universityCode') universityCode?: string,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto[] }> {
-        const seasons = await this.admissionsService.getAllRecruitmentSeasons(universityCode);
+        const seasons = await this.getRecruitmentSeasonsService.getAllRecruitmentSeasons(universityCode);
         const data = seasons.map(season => this.mapToResponseDto(season));
         return {
             success: true,
@@ -95,7 +103,7 @@ export class AdmissionsController {
     async getRecruitmentSeasonById(
         @Param('id', ParseIntPipe) id: number,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto }> {
-        const season = await this.admissionsService.getRecruitmentSeasonById(id);
+        const season = await this.getRecruitmentSeasonsService.getRecruitmentSeasonById(id);
         const data = this.mapToResponseDto(season);
         return {
             success: true,
@@ -119,7 +127,7 @@ export class AdmissionsController {
         @Param('id', ParseIntPipe) id: number,
         @Body(ValidationPipe) updateDto: UpdateRecruitmentSeasonDto,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
-        const season = await this.admissionsService.updateRecruitmentSeason(id, {
+        const season = await this.updateRecruitmentSeasonService.execute(id, {
             admissionYear: updateDto.admissionPeriod.admissionYear,
             admissionName: updateDto.admissionPeriod.admissionName,
             admissionTypes: updateDto.admissionTypes,
@@ -146,7 +154,7 @@ export class AdmissionsController {
     async deleteRecruitmentSeason(
         @Param('id', ParseIntPipe) id: number,
     ): Promise<{ success: boolean; message: string }> {
-        await this.admissionsService.deleteRecruitmentSeason(id);
+        await this.deleteRecruitmentSeasonService.execute(id);
         return {
             success: true,
             message: 'Recruitment season deleted successfully',
