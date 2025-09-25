@@ -87,12 +87,12 @@ export class FileUploadController {
             },
         }),
     )
-    async uploadFile(
+    uploadFile(
         @UploadedFile() file: Express.Multer.File,
         @Query('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
         @Query('fileName') fileName: string,
         @Req() req: AuthenticatedRequest,
-    ): Promise<{ success: boolean; data: FileUploadSummaryDto }> {
+    ): { success: boolean; data: { sessionId: string; message: string } } {
         if (!file) {
             throw new BadRequestException('File is required');
         }
@@ -105,11 +105,14 @@ export class FileUploadController {
             fileSize: file.size,
         });
 
-        const result = await this.fileUploadService.uploadAndMigrate(request, file, userId);
+        const sessionId = this.fileUploadService.startUploadAndMigrate(request, file, userId);
 
         return {
             success: true,
-            data: result,
+            data: {
+                sessionId,
+                message: 'File upload started successfully',
+            },
         };
     }
 

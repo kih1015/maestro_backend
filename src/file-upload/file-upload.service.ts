@@ -64,12 +64,38 @@ interface SqliteSubjectScore {
 
 @Injectable()
 export class FileUploadService {
+    private readonly jobRunner = new Map<string, boolean>();
+
     constructor(
         private readonly studentBaseInfoRepository: StudentBaseInfoRepository,
         private readonly subjectScoreRepository: SubjectScoreRepository,
         private readonly tempFileStorageService: TempFileStorageService,
         private readonly eventsService: EventsService,
     ) {}
+
+    startUploadAndMigrate(request: UploadFileRequestDto, file: Express.Multer.File, userId: number): string {
+        const sessionId = `upload_${request.recruitmentSeasonId}_${Date.now()}`;
+
+        // Check if upload is already running for this season
+        const existingSessionKey = Array.from(this.jobRunner.keys()).find(key =>
+            key.includes(`_${request.recruitmentSeasonId}_`),
+        );
+
+        if (existingSessionKey) {
+            return existingSessionKey;
+        }
+
+        // Set job as running
+        this.jobRunner.set(sessionId, true);
+
+        // Start upload and migration in background
+        void this.uploadAndMigrate(request, file, userId).finally(() => {
+            // Clear job status when done
+            this.jobRunner.delete(sessionId);
+        });
+
+        return sessionId;
+    }
 
     async uploadAndMigrate(
         request: UploadFileRequestDto,
@@ -179,19 +205,30 @@ export class FileUploadService {
         recruitmentSeasonId: number,
         progressCallback: (progress: UploadProgress) => void,
     ): Promise<{ totalStudents: number; totalSubjectScores: number }> {
+        const db = await this.openDatabase(filePath);
+        try {
+            return await this.migrateData(db, recruitmentSeasonId, progressCallback);
+        } finally {
+            await this.closeDatabase(db);
+        }
+    }
+
+    private openDatabase(filePath: string): Promise<Database> {
         return new Promise((resolve, reject) => {
             const db = new Database(filePath, err => {
                 if (err) {
                     reject(new Error(`Failed to open SQLite database: ${err.message}`));
-                    return;
+                } else {
+                    resolve(db);
                 }
+            });
+        });
+    }
 
-                this.migrateData(db, recruitmentSeasonId, progressCallback)
-                    .then(resolve)
-                    .catch(reject)
-                    .finally(() => {
-                        db.close();
-                    });
+    private closeDatabase(db: Database): Promise<void> {
+        return new Promise(resolve => {
+            db.close(() => {
+                resolve();
             });
         });
     }
@@ -219,7 +256,7 @@ export class FileUploadService {
         };
     }
 
-    private async getTableCount(db: Database, tableName: string): Promise<number> {
+    private getTableCount(db: Database, tableName: string): Promise<number> {
         return new Promise((resolve, reject) => {
             db.get(`SELECT COUNT(*) as count FROM ${tableName}`, (err, row: { count: number }) => {
                 if (err) {
@@ -228,6 +265,38 @@ export class FileUploadService {
                     resolve(row.count);
                 }
             });
+        });
+    }
+
+    private queryStudentBatch(db: Database, lastRowId: number, pageSize: number): Promise<SqliteStudentBaseInfo[]> {
+        return new Promise((resolve, reject) => {
+            db.all(
+                `SELECT rowid as rowid, * FROM StudentBaseInfo WHERE rowid > ? ORDER BY rowid LIMIT ?`,
+                [lastRowId, pageSize],
+                (err, results: SqliteStudentBaseInfo[]) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(results || []);
+                    }
+                },
+            );
+        });
+    }
+
+    private querySubjectScoreBatch(db: Database, lastRowId: number, pageSize: number): Promise<SqliteSubjectScore[]> {
+        return new Promise((resolve, reject) => {
+            db.all(
+                `SELECT rowid as rowid, * FROM SubjectScore WHERE rowid > ? ORDER BY rowid LIMIT ?`,
+                [lastRowId, pageSize],
+                (err, results: SqliteSubjectScore[]) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(results || []);
+                    }
+                },
+            );
         });
     }
 
@@ -244,16 +313,7 @@ export class FileUploadService {
         let lastRowId = 0;
 
         while (true) {
-            const rows: SqliteStudentBaseInfo[] = await new Promise((resolve, reject) => {
-                db.all(
-                    `SELECT rowid as rowid, * FROM StudentBaseInfo WHERE rowid > ? ORDER BY rowid LIMIT ?`,
-                    [lastRowId, pageSize],
-                    (err, results: SqliteStudentBaseInfo[]) => {
-                        if (err) reject(err);
-                        else resolve(results || []);
-                    },
-                );
-            });
+            const rows = await this.queryStudentBatch(db, lastRowId, pageSize);
 
             if (rows.length === 0) break;
 
@@ -321,16 +381,7 @@ export class FileUploadService {
         let lastRowId = 0;
 
         while (true) {
-            const rows: SqliteSubjectScore[] = await new Promise((resolve, reject) => {
-                db.all(
-                    `SELECT rowid as rowid, * FROM SubjectScore WHERE rowid > ? ORDER BY rowid LIMIT ?`,
-                    [lastRowId, pageSize],
-                    (err, results: SqliteSubjectScore[]) => {
-                        if (err) reject(err);
-                        else resolve(results || []);
-                    },
-                );
-            });
+            const rows = await this.querySubjectScoreBatch(db, lastRowId, pageSize);
 
             if (rows.length === 0) break;
 

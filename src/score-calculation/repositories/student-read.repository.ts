@@ -240,22 +240,13 @@ export class StudentReadRepository implements IStudentReadRepository {
         if (sort) {
             switch (sort) {
                 case SortOrder.SCORE_ASC:
-                    orderBy = [
-                        { student_score_results: { finalScore: 'asc' } },
-                        { id: 'asc' },
-                    ];
+                    orderBy = [{ student_score_results: { finalScore: 'asc' } }, { id: 'asc' }];
                     break;
                 case SortOrder.SCORE_DESC:
-                    orderBy = [
-                        { student_score_results: { finalScore: 'desc' } },
-                        { id: 'asc' },
-                    ];
+                    orderBy = [{ student_score_results: { finalScore: 'desc' } }, { id: 'asc' }];
                     break;
                 default:
-                    orderBy = [
-                        { student_score_results: { finalScore: 'desc' } },
-                        { id: 'asc' },
-                    ];
+                    orderBy = [{ student_score_results: { finalScore: 'desc' } }, { id: 'asc' }];
                     break;
             }
         } else {
@@ -285,51 +276,70 @@ export class StudentReadRepository implements IStudentReadRepository {
             }
 
             if (filters.graduateGrade) {
-                const gradeArray = Array.isArray(filters.graduateGrade) ? filters.graduateGrade : [filters.graduateGrade];
+                const gradeArray = Array.isArray(filters.graduateGrade)
+                    ? filters.graduateGrade
+                    : [filters.graduateGrade];
                 filterConditions = Prisma.sql`${filterConditions} AND sbi."graduateGrade" = ANY(${gradeArray})`;
             }
 
             if (filters.recruitmentTypeCode) {
-                const typeArray = Array.isArray(filters.recruitmentTypeCode) ? filters.recruitmentTypeCode : [filters.recruitmentTypeCode];
+                const typeArray = Array.isArray(filters.recruitmentTypeCode)
+                    ? filters.recruitmentTypeCode
+                    : [filters.recruitmentTypeCode];
                 filterConditions = Prisma.sql`${filterConditions} AND sbi."recruitmentTypeCode" = ANY(${typeArray})`;
             }
 
             if (filters.recruitmentUnitCode) {
-                const unitArray = Array.isArray(filters.recruitmentUnitCode) ? filters.recruitmentUnitCode : [filters.recruitmentUnitCode];
+                const unitArray = Array.isArray(filters.recruitmentUnitCode)
+                    ? filters.recruitmentUnitCode
+                    : [filters.recruitmentUnitCode];
                 filterConditions = Prisma.sql`${filterConditions} AND sbi."recruitmentUnitCode" = ANY(${unitArray})`;
             }
 
             if (filters.applicantScCode) {
-                const scArray = Array.isArray(filters.applicantScCode) ? filters.applicantScCode : [filters.applicantScCode];
+                const scArray = Array.isArray(filters.applicantScCode)
+                    ? filters.applicantScCode
+                    : [filters.applicantScCode];
                 filterConditions = Prisma.sql`${filterConditions} AND sbi."applicantScCode" = ANY(${scArray})`;
             }
 
             if (filters.calculationStatus) {
-                const statusArray = Array.isArray(filters.calculationStatus) ? filters.calculationStatus : [filters.calculationStatus];
+                const statusArray = Array.isArray(filters.calculationStatus)
+                    ? filters.calculationStatus
+                    : [filters.calculationStatus];
 
-                if (statusArray.includes('completed') && !statusArray.includes('pending') && !statusArray.includes('not_completed')) {
+                if (
+                    statusArray.includes('completed') &&
+                    !statusArray.includes('pending') &&
+                    !statusArray.includes('not_completed')
+                ) {
                     filterConditions = Prisma.sql`${filterConditions} AND ssr."finalScore" IS NOT NULL`;
-                } else if ((statusArray.includes('pending') || statusArray.includes('not_completed')) && !statusArray.includes('completed')) {
+                } else if (
+                    (statusArray.includes('pending') || statusArray.includes('not_completed')) &&
+                    !statusArray.includes('completed')
+                ) {
                     filterConditions = Prisma.sql`${filterConditions} AND ssr."finalScore" IS NULL`;
                 }
             }
         }
 
         // Get paginated results - use raw SQL to handle nulls last properly
-        const studentsRaw = await this.prisma.$queryRaw<Array<{
-            id: number;
-            identifyNumber: string;
-            examNumber: string | null;
-            graduateYear: string;
-            graduateGrade: string | null;
-            recruitmentTypeCode: string;
-            recruitmentUnitCode: string;
-            applicantScCode: string | null;
-            recruitmentSeasonId: number;
-            finalScore: number | null;
-            recruitmentUnitName: string | null;
-            recruitmentTypeName: string | null;
-        }>>`
+        const studentsRaw = await this.prisma.$queryRaw<
+            Array<{
+                id: number;
+                identifyNumber: string;
+                examNumber: string | null;
+                graduateYear: string;
+                graduateGrade: string | null;
+                recruitmentTypeCode: string;
+                recruitmentUnitCode: string;
+                applicantScCode: string | null;
+                recruitmentSeasonId: number;
+                finalScore: number | null;
+                recruitmentUnitName: string | null;
+                recruitmentTypeName: string | null;
+            }>
+        >`
             SELECT
                 sbi.id,
                 sbi."identifyNumber",
@@ -354,10 +364,7 @@ export class StudentReadRepository implements IStudentReadRepository {
             ${filterConditions}
             ORDER BY
                 CASE WHEN ssr."finalScore" IS NULL THEN 1 ELSE 0 END,
-                ${sort === SortOrder.SCORE_ASC ?
-                    Prisma.sql`ssr."finalScore" ASC` :
-                    Prisma.sql`ssr."finalScore" DESC`
-                },
+                ${sort === SortOrder.SCORE_ASC ? Prisma.sql`ssr."finalScore" ASC` : Prisma.sql`ssr."finalScore" DESC`},
                 sbi.id ASC
             LIMIT ${pageSize} OFFSET ${(page - 1) * pageSize}
         `;
