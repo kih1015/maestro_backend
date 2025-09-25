@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AdmissionsRepository } from './admissions.repository';
-import { RecruitmentSeason, AdmissionType, RecruitmentUnit } from './entities/recruitment-season.entity';
+import { RecruitmentSeason } from './entities/recruitment-season.entity';
 import {
     CreateRecruitmentSeasonData,
     UpdateRecruitmentSeasonData,

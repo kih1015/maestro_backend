@@ -2,27 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RecruitmentSeason } from './entities/recruitment-season.entity';
 import { RecruitmentSeasonRepositoryInterface } from './interfaces/recruitment-season.repository.interface';
-
-/**
- * Prisma에서 조인된 모집 시즌 데이터를 나타내는 인터페이스
- * 전형 유형과 모집 단위 정보를 포함한 완전한 모집 시즌 데이터 구조입니다.
- */
-interface PrismaRecruitmentSeasonWithRelations {
-    id: number;
-    universityCode: string;
-    admissionYear: number;
-    admissionName: string;
-    createdAt: Date;
-    updatedAt: Date;
-    admission_types: Array<{
-        typeName: string;
-        typeCode: number;
-    }>;
-    recruitment_units: Array<{
-        unitName: string;
-        unitCode: number;
-    }>;
-}
+import { Prisma } from '@prisma/client';
 
 /**
  * 모집 시즌 데이터베이스 액세스를 담당하는 리포지토리 클래스
@@ -199,7 +179,14 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
      * @param data Prisma에서 조회된 모집 시즌 데이터 (관련 데이터 포함)
      * @returns 변환된 모집 시즌 엔티티
      */
-    private mapToEntity(data: PrismaRecruitmentSeasonWithRelations): RecruitmentSeason {
+    private mapToEntity(
+        data: Prisma.recruitment_seasonsGetPayload<{
+            include: {
+                admission_types: true;
+                recruitment_units: true;
+            };
+        }>,
+    ): RecruitmentSeason {
         return RecruitmentSeason.of({
             id: data.id,
             universityCode: data.universityCode,
