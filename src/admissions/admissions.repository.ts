@@ -78,24 +78,7 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
      */
     async create(recruitmentSeason: RecruitmentSeason): Promise<RecruitmentSeason> {
         const result = await this.prisma.recruitment_seasons.create({
-            data: {
-                universityCode: recruitmentSeason.universityCode,
-                admissionYear: recruitmentSeason.admissionYear,
-                admissionName: recruitmentSeason.admissionName,
-                updatedAt: new Date(),
-                admission_types: {
-                    create: recruitmentSeason.admissionTypes.map(type => ({
-                        typeName: type.typeName,
-                        typeCode: type.typeCode,
-                    })),
-                },
-                recruitment_units: {
-                    create: recruitmentSeason.recruitmentUnits.map(unit => ({
-                        unitName: unit.unitName,
-                        unitCode: unit.unitCode,
-                    })),
-                },
-            },
+            data: this.mapToPersistence(recruitmentSeason),
             include: {
                 admission_types: true,
                 recruitment_units: true,
@@ -124,23 +107,7 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
         // Update the recruitment season with new data
         const result = await this.prisma.recruitment_seasons.update({
             where: { id },
-            data: {
-                admissionYear: recruitmentSeason.admissionYear,
-                admissionName: recruitmentSeason.admissionName,
-                updatedAt: new Date(),
-                admission_types: {
-                    create: recruitmentSeason.admissionTypes.map(type => ({
-                        typeName: type.typeName,
-                        typeCode: type.typeCode,
-                    })),
-                },
-                recruitment_units: {
-                    create: recruitmentSeason.recruitmentUnits.map(unit => ({
-                        unitName: unit.unitName,
-                        unitCode: unit.unitCode,
-                    })),
-                },
-            },
+            data: this.mapToPersistenceForUpdate(recruitmentSeason),
             include: {
                 admission_types: true,
                 recruitment_units: true,
@@ -171,6 +138,59 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
             where: { id },
         });
         return count > 0;
+    }
+
+    /**
+     * 도메인 엔티티를 영속성 엔티티(Prisma 데이터)로 변환합니다.
+     * 비즈니스 도메인 모델에서 데이터베이스 스키마로 변환하는 매핑 로직을 처리합니다.
+     * @param entity 변환할 모집 시즌 도메인 엔티티
+     * @returns Prisma create 작업에 사용할 데이터 객체
+     */
+    private mapToPersistence(entity: RecruitmentSeason): Prisma.recruitment_seasonsCreateInput {
+        return {
+            universityCode: entity.universityCode,
+            admissionYear: entity.admissionYear,
+            admissionName: entity.admissionName,
+            updatedAt: new Date(),
+            admission_types: {
+                create: entity.admissionTypes.map(type => ({
+                    typeName: type.typeName,
+                    typeCode: type.typeCode,
+                })),
+            },
+            recruitment_units: {
+                create: entity.recruitmentUnits.map(unit => ({
+                    unitName: unit.unitName,
+                    unitCode: unit.unitCode,
+                })),
+            },
+        };
+    }
+
+    /**
+     * 도메인 엔티티를 영속성 엔티티(Prisma 데이터)로 변환합니다 (업데이트용).
+     * 업데이트 시에는 universityCode는 변경하지 않고, 관련 데이터를 재생성합니다.
+     * @param entity 변환할 모집 시즌 도메인 엔티티
+     * @returns Prisma update 작업에 사용할 데이터 객체
+     */
+    private mapToPersistenceForUpdate(entity: RecruitmentSeason): Prisma.recruitment_seasonsUpdateInput {
+        return {
+            admissionYear: entity.admissionYear,
+            admissionName: entity.admissionName,
+            updatedAt: new Date(),
+            admission_types: {
+                create: entity.admissionTypes.map(type => ({
+                    typeName: type.typeName,
+                    typeCode: type.typeCode,
+                })),
+            },
+            recruitment_units: {
+                create: entity.recruitmentUnits.map(unit => ({
+                    unitName: unit.unitName,
+                    unitCode: unit.unitCode,
+                })),
+            },
+        };
     }
 
     /**
