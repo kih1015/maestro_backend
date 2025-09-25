@@ -14,7 +14,10 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiProduces } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ScoreCalculationService } from './score-calculation.service';
+import { ScoreCalculationUseCase, CalculateScoresInput } from './use-cases/score-calculation.use-case';
+import { StudentQueryUseCase } from './use-cases/student-query.use-case';
+import { ScoreExportUseCase } from './use-cases/score-export.use-case';
+import { SummaryUseCase } from './use-cases/summary.use-case';
 import { CalculateScoresDto } from './dto/calculate-scores.dto';
 import { ListStudentsDto } from './dto/list-students.dto';
 import { GetStudentDetailDto } from './dto/student-detail.dto';
@@ -35,7 +38,12 @@ import {
 export class ScoreCalculationController {
     private readonly jobRunner = new Map<number, boolean>(); // Simple job runner for demo
 
-    constructor(private readonly scoreCalculationService: ScoreCalculationService) {}
+    constructor(
+        private readonly scoreCalculationUseCase: ScoreCalculationUseCase,
+        private readonly studentQueryUseCase: StudentQueryUseCase,
+        private readonly scoreExportUseCase: ScoreExportUseCase,
+        private readonly summaryUseCase: SummaryUseCase,
+    ) {}
 
     @Post()
     @ApiOperation({
@@ -74,7 +82,7 @@ export class ScoreCalculationController {
             this.jobRunner.set(seasonId, true);
 
             // Start calculation in background with user ID for SSE events
-            void this.scoreCalculationService
+            void this.scoreCalculationUseCase
                 .calculateScores({ recruitmentSeasonId: seasonId }, { userId })
                 .finally(() => {
                     // Clear job status when done
@@ -115,7 +123,7 @@ export class ScoreCalculationController {
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
     async getSummary(@Query(ValidationPipe) dto: GetSummaryDto): Promise<SummaryResponseDto> {
-        return this.scoreCalculationService.getSummary(dto);
+        return this.summaryUseCase.getSummary(dto);
     }
 
     @Get('student')
@@ -163,7 +171,7 @@ export class ScoreCalculationController {
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 500, description: 'Internal server error' })
     async listStudents(@Query(ValidationPipe) dto: ListStudentsDto): Promise<ListStudentsResponseDto> {
-        return this.scoreCalculationService.listStudents(dto);
+        return this.studentQueryUseCase.listStudents(dto);
     }
 
     @Get('student/detail')
@@ -203,7 +211,7 @@ export class ScoreCalculationController {
     async getStudentDetail(
         @Query(ValidationPipe) dto: GetStudentDetailDto,
     ): Promise<StudentScoreDetailResponseDto | ErrorResponseDto> {
-        const result = await this.scoreCalculationService.getStudentDetail(dto);
+        const result = await this.studentQueryUseCase.getStudentDetail(dto);
 
         if (!result.success) {
             throw new HttpException(result.error || 'Student not found', HttpStatus.NOT_FOUND);
@@ -244,7 +252,7 @@ export class ScoreCalculationController {
     @ApiResponse({ status: 500, description: 'Internal server error' })
     @ApiProduces('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     async exportScores(@Query(ValidationPipe) dto: ExportScoresDto, @Res() res: Response): Promise<void> {
-        const xlsxBuffer = await this.scoreCalculationService.exportScores(dto);
+        const xlsxBuffer = await this.scoreExportUseCase.exportScores(dto);
 
         res.set({
             'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
