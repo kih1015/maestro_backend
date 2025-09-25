@@ -9,11 +9,8 @@ import {
     UseGuards,
     ParseIntPipe,
     Req,
-    Sse,
-    MessageEvent,
     Logger,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { FileUploadService } from './file-upload.service';
@@ -96,20 +93,7 @@ export class FileUploadController {
         @Query('fileName') fileName: string,
         @Req() req: AuthenticatedRequest,
     ): Promise<{ success: boolean; data: FileUploadSummaryDto }> {
-        this.logger.log('Upload request received');
-        this.logger.debug(`Request headers: ${JSON.stringify(req.headers)}`);
-        this.logger.debug(`Content-Type: ${req.headers['content-type']}`);
-        this.logger.debug(`Query params: recruitmentSeasonId=${recruitmentSeasonId}, fileName=${fileName}`);
-        this.logger.debug(
-            `File info: ${file ? `name=${file.originalname}, size=${file.size}, mimetype=${file.mimetype}` : 'No file'}`,
-        );
-        this.logger.debug(`Request body keys: ${Object.keys(req.body || {}).join(', ')}`);
-
         if (!file) {
-            this.logger.error('No file provided in request');
-            this.logger.error(
-                'Make sure the frontend is sending the file with field name "file" in multipart/form-data format',
-            );
             throw new BadRequestException('File is required');
         }
 
@@ -169,23 +153,5 @@ export class FileUploadController {
             success: true,
             data: summary,
         };
-    }
-
-    @Sse('progress')
-    @UseGuards(JwtAuthGuard)
-    @ApiOperation({ summary: 'Get upload progress via SSE' })
-    @ApiResponse({
-        status: 200,
-        description: 'SSE connection for upload progress',
-        headers: {
-            'Content-Type': { description: 'text/event-stream' },
-            'Cache-Control': { description: 'no-cache' },
-            Connection: { description: 'keep-alive' },
-        },
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    getUploadProgress(@Req() req: AuthenticatedRequest): Observable<MessageEvent> {
-        const userId = req.user.sub;
-        return this.eventsService.subscribeToUser(userId);
     }
 }
