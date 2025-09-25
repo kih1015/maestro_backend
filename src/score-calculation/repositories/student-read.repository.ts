@@ -235,23 +235,18 @@ export class StudentReadRepository implements IStudentReadRepository {
         });
 
         // Build sort clause - always put students with calculations first, uncalculated at the end
-        let orderBy: Record<string, unknown>[] = [];
 
         if (sort) {
             switch (sort) {
                 case SortOrder.SCORE_ASC:
-                    orderBy = [{ student_score_results: { finalScore: 'asc' } }, { id: 'asc' }];
                     break;
                 case SortOrder.SCORE_DESC:
-                    orderBy = [{ student_score_results: { finalScore: 'desc' } }, { id: 'asc' }];
                     break;
                 default:
-                    orderBy = [{ student_score_results: { finalScore: 'desc' } }, { id: 'asc' }];
                     break;
             }
         } else {
-            // Default sorting: completed calculations first, then by id
-            orderBy = [{ student_score_results: { finalScore: 'desc' } }, { id: 'asc' }];
+            /* empty */
         }
 
         // Build filter conditions
