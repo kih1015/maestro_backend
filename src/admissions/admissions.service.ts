@@ -24,12 +24,6 @@ export class AdmissionsService implements RecruitmentSeasonServiceInterface {
      * @throws ConflictException 전형 유형 또는 모집 단위의 코드나 이름이 중복될 경우
      */
     async createRecruitmentSeason(data: CreateRecruitmentSeasonData): Promise<RecruitmentSeason> {
-        // Validate uniqueness of admission types
-        this.validateAdmissionTypesUniqueness(data.admissionTypes);
-
-        // Validate uniqueness of recruitment units
-        this.validateRecruitmentUnitsUniqueness(data.recruitmentUnits);
-
         const recruitmentSeason = RecruitmentSeason.of({
             id: 0, // Will be set by database
             universityCode: data.universityCode,
@@ -87,12 +81,6 @@ export class AdmissionsService implements RecruitmentSeasonServiceInterface {
             throw new NotFoundException('Recruitment season not found');
         }
 
-        // Validate uniqueness of admission types
-        this.validateAdmissionTypesUniqueness(data.admissionTypes);
-
-        // Validate uniqueness of recruitment units
-        this.validateRecruitmentUnitsUniqueness(data.recruitmentUnits);
-
         const updatedSeason = existingSeason.update({
             admissionYear: data.admissionYear,
             admissionName: data.admissionName,
@@ -116,43 +104,5 @@ export class AdmissionsService implements RecruitmentSeasonServiceInterface {
         }
 
         await this.admissionsRepository.delete(id);
-    }
-
-    /**
-     * 전형 유형 목록의 중복성을 검증합니다.
-     * 전형 유형의 이름과 코드가 고유한지 확인합니다.
-     * @param admissionTypes 검증할 전형 유형 목록
-     * @throws ConflictException 전형 유형의 이름 또는 코드가 중복될 경우
-     */
-    private validateAdmissionTypesUniqueness(admissionTypes: AdmissionType[]): void {
-        const typeNames = admissionTypes.map(type => type.typeName);
-        const typeCodes = admissionTypes.map(type => type.typeCode);
-
-        if (new Set(typeNames).size !== typeNames.length) {
-            throw new ConflictException('Admission type names must be unique');
-        }
-
-        if (new Set(typeCodes).size !== typeCodes.length) {
-            throw new ConflictException('Admission type codes must be unique');
-        }
-    }
-
-    /**
-     * 모집 단위 목록의 중복성을 검증합니다.
-     * 모집 단위의 이름과 코드가 고유한지 확인합니다.
-     * @param recruitmentUnits 검증할 모집 단위 목록
-     * @throws ConflictException 모집 단위의 이름 또는 코드가 중복될 경우
-     */
-    private validateRecruitmentUnitsUniqueness(recruitmentUnits: RecruitmentUnit[]): void {
-        const unitNames = recruitmentUnits.map(unit => unit.unitName);
-        const unitCodes = recruitmentUnits.map(unit => unit.unitCode);
-
-        if (new Set(unitNames).size !== unitNames.length) {
-            throw new ConflictException('Recruitment unit names must be unique');
-        }
-
-        if (new Set(unitCodes).size !== unitCodes.length) {
-            throw new ConflictException('Recruitment unit codes must be unique');
-        }
     }
 }
