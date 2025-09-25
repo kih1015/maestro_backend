@@ -1,24 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IStudentReadRepository, StudentFilters } from '../interfaces/student-read-repository.interface';
-import { IStudentCountRepository } from '../interfaces/student-count-repository.interface';
-import { IStudentStreamRepository } from '../interfaces/student-stream-repository.interface';
-import { IStudentQueryRepository } from '../interfaces/student-query-repository.interface';
-import { IStudentExportRepository } from '../interfaces/student-export-repository.interface';
 import { Student, Subject } from '../entities/student.entity';
 import { StudentFactory } from '../entities/student-factory.entity';
 import { SortOrder } from '../dto/list-students.dto';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
-export class StudentReadRepository
-    implements
-        IStudentReadRepository,
-        IStudentCountRepository,
-        IStudentStreamRepository,
-        IStudentQueryRepository,
-        IStudentExportRepository
-{
+export class StudentReadRepository implements IStudentReadRepository {
     constructor(private prisma: PrismaService) {}
 
     async countStudents(recruitmentSeasonId: number): Promise<number> {
