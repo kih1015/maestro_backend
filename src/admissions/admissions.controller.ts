@@ -11,22 +11,28 @@ import {
     ValidationPipe,
     UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { AdmissionsService } from './admissions.service';
 import { CreateRecruitmentSeasonDto } from './dto/create-recruitment-season.dto';
 import { UpdateRecruitmentSeasonDto } from './dto/update-recruitment-season.dto';
 import { RecruitmentSeasonResponseDto } from './dto/recruitment-season-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RecruitmentSeason } from './entities/recruitment-season.entity';
+import {
+    AdmissionsControllerSwagger,
+    CreateRecruitmentSeasonSwagger,
+    GetRecruitmentSeasonsSwagger,
+    GetRecruitmentSeasonByIdSwagger,
+    UpdateRecruitmentSeasonSwagger,
+    DeleteRecruitmentSeasonSwagger,
+} from './admissions.swagger';
 
 /**
  * 입학 관련 API를 처리하는 컨트롤러 클래스
  * 모집 시즌, 전형 유형, 모집 단위 등을 관리합니다.
  */
-@ApiTags('admissions')
 @Controller('admissions')
 @UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
+@AdmissionsControllerSwagger
 export class AdmissionsController {
     constructor(private readonly admissionsService: AdmissionsService) {}
 
@@ -39,16 +45,7 @@ export class AdmissionsController {
      * @throws ValidationException 입력 데이터 검증에 실패할 경우
      */
     @Post('seasons')
-    @ApiOperation({ summary: 'Create recruitment season' })
-    @ApiResponse({
-        status: 201,
-        description: 'Recruitment season created successfully',
-        type: RecruitmentSeasonResponseDto,
-    })
-    @ApiResponse({ status: 400, description: 'Validation failed' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 409, description: 'Conflict - duplicate codes or names' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @CreateRecruitmentSeasonSwagger
     async createRecruitmentSeason(
         @Body(ValidationPipe) createDto: CreateRecruitmentSeasonDto,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
@@ -75,20 +72,7 @@ export class AdmissionsController {
      * @returns 모집 시즌 목록과 성공 상태
      */
     @Get('seasons')
-    @ApiOperation({ summary: 'Get recruitment seasons' })
-    @ApiQuery({
-        name: 'universityCode',
-        required: false,
-        description: 'Filter by university code',
-        example: 'GACHON',
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Recruitment seasons retrieved successfully',
-        type: [RecruitmentSeasonResponseDto],
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @GetRecruitmentSeasonsSwagger
     async getRecruitmentSeasons(
         @Query('universityCode') universityCode?: string,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto[] }> {
@@ -107,16 +91,7 @@ export class AdmissionsController {
      * @throws NotFoundException 해당 ID의 모집 시즌을 찾을 수 없을 경우
      */
     @Get('seasons/:id')
-    @ApiOperation({ summary: 'Get recruitment season by ID' })
-    @ApiParam({ name: 'id', description: 'Recruitment season ID', example: 1 })
-    @ApiResponse({
-        status: 200,
-        description: 'Recruitment season retrieved successfully',
-        type: RecruitmentSeasonResponseDto,
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 404, description: 'Recruitment season not found' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @GetRecruitmentSeasonByIdSwagger
     async getRecruitmentSeasonById(
         @Param('id', ParseIntPipe) id: number,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto }> {
@@ -139,18 +114,7 @@ export class AdmissionsController {
      * @throws ValidationException 입력 데이터 검증에 실패할 경우
      */
     @Put('seasons/:id')
-    @ApiOperation({ summary: 'Update recruitment season' })
-    @ApiParam({ name: 'id', description: 'Recruitment season ID', example: 1 })
-    @ApiResponse({
-        status: 200,
-        description: 'Recruitment season updated successfully',
-        type: RecruitmentSeasonResponseDto,
-    })
-    @ApiResponse({ status: 400, description: 'Validation failed' })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 404, description: 'Recruitment season not found' })
-    @ApiResponse({ status: 409, description: 'Conflict - duplicate codes or names' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @UpdateRecruitmentSeasonSwagger
     async updateRecruitmentSeason(
         @Param('id', ParseIntPipe) id: number,
         @Body(ValidationPipe) updateDto: UpdateRecruitmentSeasonDto,
@@ -178,15 +142,7 @@ export class AdmissionsController {
      * @throws NotFoundException 해당 ID의 모집 시즌을 찾을 수 없을 경우
      */
     @Delete('seasons/:id')
-    @ApiOperation({ summary: 'Delete recruitment season' })
-    @ApiParam({ name: 'id', description: 'Recruitment season ID', example: 1 })
-    @ApiResponse({
-        status: 200,
-        description: 'Recruitment season deleted successfully',
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 404, description: 'Recruitment season not found' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @DeleteRecruitmentSeasonSwagger
     async deleteRecruitmentSeason(
         @Param('id', ParseIntPipe) id: number,
     ): Promise<{ success: boolean; message: string }> {
