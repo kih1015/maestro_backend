@@ -127,8 +127,7 @@ export class GCNStudent extends Student {
 
     private isUpToThirdFirstSemester(grade: number, term: number): boolean {
         if (grade < 3) return true;
-        if (grade === 3 && term === 1) return true;
-        return false;
+        return grade === 3 && term === 1;
     }
 
     private unitValue(unit?: string | null): number {

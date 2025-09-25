@@ -10,14 +10,4 @@ export interface IStudentScoreResultRepository {
      * Delete all results for a recruitment season
      */
     deleteByRecruitmentSeasonId(recruitmentSeasonId: number): Promise<void>;
-
-    /**
-     * Find result by student base info ID
-     */
-    findByStudentId(studentBaseInfoId: number): Promise<StudentScoreResult | null>;
-
-    /**
-     * Update existing result
-     */
-    update(id: number, result: Partial<StudentScoreResult>): Promise<StudentScoreResult>;
 }

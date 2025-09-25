@@ -31,44 +31,4 @@ export class StudentScoreResultRepository implements IStudentScoreResultReposito
             },
         });
     }
-
-    async findByStudentId(studentBaseInfoId: number): Promise<StudentScoreResult | null> {
-        const result = await this.prisma.student_score_results.findFirst({
-            where: {
-                studentBaseInfoId,
-            },
-        });
-
-        if (!result) return null;
-
-        return new StudentScoreResult(
-            result.studentBaseInfoId,
-            0, // recruitmentSeasonId not available from this table
-            result.finalScore,
-            result.createdAt,
-            result.id,
-            result.ranking,
-            result.finalFormula || undefined,
-        );
-    }
-
-    async update(id: number, result: Partial<StudentScoreResult>): Promise<StudentScoreResult> {
-        const updated = await this.prisma.student_score_results.update({
-            where: { id },
-            data: {
-                ...(result.finalScore !== undefined && { finalScore: result.finalScore }),
-                updatedAt: new Date(),
-            },
-        });
-
-        return new StudentScoreResult(
-            updated.studentBaseInfoId,
-            0, // recruitmentSeasonId not available from this table
-            updated.finalScore,
-            updated.updatedAt,
-            updated.id,
-            updated.ranking,
-            updated.finalFormula || undefined,
-        );
-    }
 }

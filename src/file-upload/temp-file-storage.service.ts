@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
-import { Readable } from 'stream';
 
 @Injectable()
 export class TempFileStorageService {
@@ -61,26 +60,6 @@ export class TempFileStorageService {
         }
     }
 
-    async saveBuffer(buffer: Buffer, fileName: string): Promise<{ path: string; size: number }> {
-        const tempDir = this.ensureTempDir();
-        const sanitized = this.sanitizeFileName(fileName || 'upload');
-        const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
-
-        await fs.promises.writeFile(tempPath, buffer);
-        const stats = await fs.promises.stat(tempPath);
-        return { path: tempPath, size: stats.size };
-    }
-
-    async saveStream(stream: Readable, fileName: string): Promise<{ path: string; size: number }> {
-        const tempDir = this.ensureTempDir();
-        const sanitized = this.sanitizeFileName(fileName || 'upload');
-        const tempPath = path.join(tempDir, `${Date.now()}_${sanitized}`);
-
-        await this.pipeToFile(stream, tempPath);
-        const stats = await fs.promises.stat(tempPath);
-        return { path: tempPath, size: stats.size };
-    }
-
     async remove(filePath: string): Promise<void> {
         try {
             if (!filePath || !fs.existsSync(filePath)) return;
@@ -102,15 +81,5 @@ export class TempFileStorageService {
         } catch (e) {
             console.warn('Failed to remove temp file:', e);
         }
-    }
-
-    private async pipeToFile(readable: Readable, targetPath: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            const writeStream = fs.createWriteStream(targetPath);
-            readable.on('error', reject);
-            writeStream.on('error', reject);
-            writeStream.on('finish', resolve);
-            readable.pipe(writeStream);
-        });
     }
 }

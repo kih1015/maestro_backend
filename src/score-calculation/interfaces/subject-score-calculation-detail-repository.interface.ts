@@ -20,9 +20,4 @@ export interface ISubjectScoreCalculationDetailRepository {
      * Find detail by subject score ID
      */
     findBySubjectScoreId(subjectScoreId: number): Promise<SubjectScoreCalculationDetail | null>;
-
-    /**
-     * Update existing detail
-     */
-    update(id: number, detail: Partial<SubjectScoreCalculationDetail>): Promise<SubjectScoreCalculationDetail>;
 }

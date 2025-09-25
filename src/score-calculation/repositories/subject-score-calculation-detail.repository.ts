@@ -80,34 +80,4 @@ export class SubjectScoreCalculationDetailRepository implements ISubjectScoreCal
             conversionFormula: detail.conversionFormula,
         });
     }
-
-    async update(id: number, detail: Partial<SubjectScoreCalculationDetail>): Promise<SubjectScoreCalculationDetail> {
-        const updated = await this.prisma.subject_score_calculation_details.update({
-            where: { id },
-            data: {
-                ...(detail.isReflected !== undefined && { isReflected: detail.isReflected }),
-                ...(detail.nonReflectionReason !== undefined && { nonReflectionReason: detail.nonReflectionReason }),
-                ...(detail.convertedScore !== undefined && { convertedScore: detail.convertedScore }),
-                ...(detail.convertedBaseValue !== undefined && {
-                    convertedBaseValue: detail.convertedBaseValue as
-                        | 'GRADE'
-                        | 'ACHIEVEMENT'
-                        | 'PERCENTILE'
-                        | 'Z_SCORE'
-                        | null,
-                }),
-                ...(detail.conversionFormula !== undefined && { conversionFormula: detail.conversionFormula }),
-            },
-        });
-
-        return new SubjectScoreCalculationDetail({
-            id: updated.id,
-            subjectScoreId: updated.subjectScoreId,
-            isReflected: updated.isReflected,
-            nonReflectionReason: updated.nonReflectionReason,
-            convertedScore: updated.convertedScore,
-            convertedBaseValue: updated.convertedBaseValue as string,
-            conversionFormula: updated.conversionFormula,
-        });
-    }
 }
