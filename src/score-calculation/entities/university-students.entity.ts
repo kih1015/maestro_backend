@@ -9,6 +9,7 @@ import {
     FinalScoreCalculationHandler,
 } from '../handlers/gcn-handlers';
 import { ScoreCalculationContext } from '../handlers/base-handler';
+import { GCNAdmissionConfig } from './gcn-admission-rules';
 
 export class GCNStudent extends Student {
     public override calculate(): void {
@@ -21,13 +22,15 @@ export class GCNStudent extends Student {
     }
 
     private createHandlerChain() {
-        const validationHandler = new GCNValidationHandler();
+        const config = new GCNAdmissionConfig();
+
+        const validationHandler = new GCNValidationHandler(config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler();
-        const subjectGroupHandler = new SubjectGroupFilterHandler();
-        const courseGroupHandler = new CourseGroupFilterHandler();
-        const excludedSubjectHandler = new ExcludedSubjectHandler();
-        const scoreConversionHandler = new ScoreConversionHandler();
-        const finalScoreHandler = new FinalScoreCalculationHandler();
+        const subjectGroupHandler = new SubjectGroupFilterHandler(config.subjectConfigs);
+        const courseGroupHandler = new CourseGroupFilterHandler(config.courseGroupConfigs);
+        const excludedSubjectHandler = new ExcludedSubjectHandler(config.excludedSubjectConfig);
+        const scoreConversionHandler = new ScoreConversionHandler(config.scoreConversionConfigs);
+        const finalScoreHandler = new FinalScoreCalculationHandler(config.finalScoreConfig);
 
         validationHandler
             .setNext(semesterHandler)

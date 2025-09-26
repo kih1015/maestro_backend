@@ -1,0 +1,35 @@
+import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+
+export class SemesterReflectionHandler extends BaseScoreHandler {
+    protected process(context: ScoreCalculationContext): void {
+        const student = context.student;
+
+        for (const s of student.subjectScores) {
+            const include = this.isUpToThirdFirstSemester(s.grade, s.term);
+            s.calculationDetail = SubjectScoreCalculationDetail.create(
+                s.id,
+                s,
+                include,
+                include ? null : '3학년 2학기 미반영',
+            );
+        }
+
+        if (student.graduateGrade === '2') {
+            for (const s of student.subjectScores) {
+                if (s.grade === 2 && s.term === 2) {
+                    s.calculationDetail = SubjectScoreCalculationDetail.create(
+                        s.id,
+                        s,
+                        false,
+                        '조기졸업자 2학년 2학기 미반영',
+                    );
+                }
+            }
+        }
+    }
+
+    private isUpToThirdFirstSemester(grade: number, term: number): boolean {
+        if (grade < 3) return true;
+        return grade === 3 && term === 1;
+    }
+}
