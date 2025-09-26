@@ -13,11 +13,11 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { FileUploadService } from './file-upload.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { EventsService } from '../events/events.service';
-import { FileUploadSummaryDto } from './dto/file-upload-summary.dto';
-import { UploadFileRequestDto } from './dto/upload-file-request.dto';
+import { FileUploadService } from '../services/file-upload.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { EventsService } from '../../events/events.service';
+import { FileUploadSummaryDto } from '../dto/file-upload-summary.dto';
+import { UploadFileRequestDto } from '../dto/upload-file-request.dto';
 
 interface AuthenticatedRequest extends Request {
     user: { sub: number; email: string };

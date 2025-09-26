@@ -11,15 +11,15 @@ import {
     ValidationPipe,
     UseGuards,
 } from '@nestjs/common';
-import { CreateRecruitmentSeasonService } from './use-cases/create-recruitment-season.service';
-import { GetRecruitmentSeasonsService } from './use-cases/get-recruitment-seasons.service';
-import { UpdateRecruitmentSeasonService } from './use-cases/update-recruitment-season.service';
-import { DeleteRecruitmentSeasonService } from './use-cases/delete-recruitment-season.service';
-import { CreateRecruitmentSeasonDto } from './dto/create-recruitment-season.dto';
-import { UpdateRecruitmentSeasonDto } from './dto/update-recruitment-season.dto';
-import { RecruitmentSeasonResponseDto } from './dto/recruitment-season-response.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RecruitmentSeason } from './entities/recruitment-season.entity';
+import { CreateRecruitmentSeasonService } from '../use-cases/create-recruitment-season.service';
+import { GetRecruitmentSeasonsService } from '../use-cases/get-recruitment-seasons.service';
+import { UpdateRecruitmentSeasonService } from '../use-cases/update-recruitment-season.service';
+import { DeleteRecruitmentSeasonService } from '../use-cases/delete-recruitment-season.service';
+import { CreateRecruitmentSeasonDto } from '../dto/create-recruitment-season.dto';
+import { UpdateRecruitmentSeasonDto } from '../dto/update-recruitment-season.dto';
+import { RecruitmentSeasonResponseDto } from '../dto/recruitment-season-response.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RecruitmentSeason } from '../entities/recruitment-season.entity';
 import {
     AdmissionsControllerSwagger,
     CreateRecruitmentSeasonSwagger,

@@ -1,10 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { TempFileStorageService } from './temp-file-storage.service';
-import { EventsService } from '../events/events.service';
-import { DbMigrationService } from '../db-migration/db-migration.service';
-import { MigrationRequestDto } from '../db-migration/dto/migration-request.dto';
-import { FileUploadSummaryDto } from './dto/file-upload-summary.dto';
-import { UploadFileRequestDto } from './dto/upload-file-request.dto';
+import { EventsService } from '../../events/events.service';
+import { DbMigrationService } from '../../db-migration/services/db-migration.service';
+import { MigrationRequestDto } from '../../db-migration/dto/migration-request.dto';
+import { FileUploadSummaryDto } from '../dto/file-upload-summary.dto';
+import { UploadFileRequestDto } from '../dto/upload-file-request.dto';
 
 @Injectable()
 export class FileUploadService {

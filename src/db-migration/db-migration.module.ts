@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DbMigrationService } from './db-migration.service';
+import { DbMigrationService } from './services/db-migration.service';
 import { PostgresMigrationService } from './services/postgres-migration.service';
 import { SqliteReaderService } from './services/sqlite-reader.service';
 import { EventsModule } from '../events/events.module';

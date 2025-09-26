@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { SubjectGroupMapping } from '../entities/subject-group-mapping.entity';
-import { SubjectGroupMappingRepositoryInterface } from '../interfaces/subject-group-mapping.repository.interface';
 
 @Injectable()
-export class SubjectGroupMappingRepository implements SubjectGroupMappingRepositoryInterface {
+export class SubjectGroupMappingRepository {
     constructor(private readonly prisma: PrismaService) {}
 
     async saveMany(mappings: SubjectGroupMapping[]): Promise<SubjectGroupMapping[]> {

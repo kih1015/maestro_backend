@@ -1,10 +1,10 @@
 import { Injectable, NotFoundException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
-import { UserRepository } from './user.repository';
-import { UserResponseDto } from './dto/user-response.dto';
-import { CreateUserDto } from './dto/create-user.dto';
-import { LoginUserDto } from './dto/login-user.dto';
-import { User } from './user.entity';
+import { UserRepository } from '../repositories/user.repository';
+import { UserResponseDto } from '../dto/user-response.dto';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { LoginUserDto } from '../dto/login-user.dto';
+import { User } from '../entities/user.entity';
 
 @Injectable()
 export class UserService {

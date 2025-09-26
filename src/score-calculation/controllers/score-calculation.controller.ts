@@ -13,23 +13,23 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiProduces } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ScoreCalculationUseCase } from './use-cases/score-calculation.use-case';
-import { StudentQueryUseCase } from './use-cases/student-query.use-case';
-import { ScoreExportUseCase } from './use-cases/score-export.use-case';
-import { SummaryUseCase } from './use-cases/summary.use-case';
-import { CalculateScoresDto } from './dto/calculate-scores.dto';
-import { ListStudentsDto } from './dto/list-students.dto';
-import { GetStudentDetailDto } from './dto/student-detail.dto';
-import { GetSummaryDto } from './dto/summary.dto';
-import { ExportScoresDto } from './dto/export.dto';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { ScoreCalculationUseCase } from '../services/score-calculation.use-case';
+import { StudentQueryUseCase } from '../services/student-query.use-case';
+import { ScoreExportUseCase } from '../services/score-export.use-case';
+import { SummaryUseCase } from '../services/summary.use-case';
+import { CalculateScoresDto } from '../dto/calculate-scores.dto';
+import { ListStudentsDto } from '../dto/list-students.dto';
+import { GetStudentDetailDto } from '../dto/student-detail.dto';
+import { GetSummaryDto } from '../dto/summary.dto';
+import { ExportScoresDto } from '../dto/export.dto';
 import {
     CalculateScoresResponseDto,
     SummaryResponseDto,
     ListStudentsResponseDto,
     StudentScoreDetailResponseDto,
     ErrorResponseDto,
-} from './dto/response.dto';
+} from '../dto/response.dto';
 
 @ApiTags('score-calculation')
 @Controller('score-calculation')

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { SubjectGroupMappingRepository } from './repositories/subject-group-mapping.repository';
+import { SubjectGroupMappingRepository } from '../repositories/subject-group-mapping.repository';
 import { TempFileStorageService } from './temp-file-storage.service';
-import { SubjectGroupMapping } from './entities/subject-group-mapping.entity';
-import { SubjectGroupMappingResponseDto } from './dto/subject-group-mapping-response.dto';
-import { SubjectGroupMappingSummaryDto } from './dto/subject-group-mapping-summary.dto';
+import { SubjectGroupMapping } from '../entities/subject-group-mapping.entity';
+import { SubjectGroupMappingResponseDto } from '../dto/subject-group-mapping-response.dto';
+import { SubjectGroupMappingSummaryDto } from '../dto/subject-group-mapping-summary.dto';
 import * as XLSX from 'xlsx';
 
 @Injectable()

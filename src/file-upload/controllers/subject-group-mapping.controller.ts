@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { SubjectGroupMappingService } from './subject-group-mapping.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { SubjectGroupMappingResponseDto } from './dto/subject-group-mapping-response.dto';
-import { SubjectGroupMappingSummaryDto } from './dto/subject-group-mapping-summary.dto';
+import { SubjectGroupMappingService } from '../services/subject-group-mapping.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { SubjectGroupMappingResponseDto } from '../dto/subject-group-mapping-response.dto';
+import { SubjectGroupMappingSummaryDto } from '../dto/subject-group-mapping-summary.dto';
 
 @ApiTags('subject-group-mapping')
 @Controller('subject-group-mapping')

@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ScoreCalculationController } from './score-calculation.controller';
+import { ScoreCalculationController } from './controllers/score-calculation.controller';
 import { StudentReadRepository } from './repositories/student-read.repository';
 import { StudentScoreResultRepository } from './repositories/student-score-result.repository';
 import { SubjectScoreCalculationDetailRepository } from './repositories/subject-score-calculation-detail.repository';
 import { PrismaModule } from '../prisma/prisma.module';
 import { EventsModule } from '../events/events.module';
-import { ScoreCalculationUseCase } from './use-cases/score-calculation.use-case';
-import { StudentQueryUseCase } from './use-cases/student-query.use-case';
-import { ScoreExportUseCase } from './use-cases/score-export.use-case';
-import { SummaryUseCase } from './use-cases/summary.use-case';
+import { ScoreCalculationUseCase } from './services/score-calculation.use-case';
+import { StudentQueryUseCase } from './services/student-query.use-case';
+import { ScoreExportUseCase } from './services/score-export.use-case';
+import { SummaryUseCase } from './services/summary.use-case';
 
 // Provider tokens for dependency injection
 export const STUDENT_READ_REPOSITORY = 'STUDENT_READ_REPOSITORY';

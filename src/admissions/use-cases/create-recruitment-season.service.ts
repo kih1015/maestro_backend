@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AdmissionsRepository } from '../admissions.repository';
+import { AdmissionsRepository } from '../repositories/admissions.repository';
 import { RecruitmentSeason } from '../entities/recruitment-season.entity';
 import { CreateRecruitmentSeasonData } from '../interfaces/recruitment-season.service.interface';
 

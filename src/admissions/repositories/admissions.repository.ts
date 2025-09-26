@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { RecruitmentSeason } from './entities/recruitment-season.entity';
-import { RecruitmentSeasonRepositoryInterface } from './interfaces/recruitment-season.repository.interface';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RecruitmentSeason } from '../entities/recruitment-season.entity';
+import { RecruitmentSeasonRepositoryInterface } from '../interfaces/recruitment-season.repository.interface';
 import { Prisma } from '@prisma/client';
 
 /**

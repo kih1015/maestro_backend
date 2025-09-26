@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AdmissionsController } from './admissions.controller';
-import { AdmissionsRepository } from './admissions.repository';
+import { AdmissionsController } from './controllers/admissions.controller';
+import { AdmissionsRepository } from './repositories/admissions.repository';
 import { CreateRecruitmentSeasonService } from './use-cases/create-recruitment-season.service';
 import { GetRecruitmentSeasonsService } from './use-cases/get-recruitment-seasons.service';
 import { UpdateRecruitmentSeasonService } from './use-cases/update-recruitment-season.service';

@@ -1,14 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { SqliteReaderService } from './services/sqlite-reader.service';
-import {
-    PostgresMigrationService,
-    PostgresStudentBaseInfo,
-    PostgresSubjectScore,
-} from './services/postgres-migration.service';
-import { RecruitmentCode } from './entities/recruitment-code.entity';
-import { MigrationProgress, MigrationResult } from './interfaces/migration-progress.interface';
-import { MigrationRequestDto } from './dto/migration-request.dto';
-import { EventsService } from '../events/events.service';
+import { SqliteReaderService } from './sqlite-reader.service';
+import { PostgresMigrationService, PostgresStudentBaseInfo, PostgresSubjectScore } from './postgres-migration.service';
+import { RecruitmentCode } from '../entities/recruitment-code.entity';
+import { MigrationProgress, MigrationResult } from '../interfaces/migration-progress.interface';
+import { MigrationRequestDto } from '../dto/migration-request.dto';
+import { EventsService } from '../../events/events.service';
 import { Database } from 'sqlite3';
 
 @Injectable()
@@ -52,12 +48,14 @@ export class DbMigrationService {
                 message: 'Cleared existing data',
             });
 
-            // Process the SQLite file
-            const result = await this.processSqliteFile(
-                request.sqliteFilePath,
-                request.recruitmentSeasonId,
-                progressCallback,
-            );
+            // Process the SQLite file directly
+            const db = await this.sqliteReaderService.openDatabase(request.sqliteFilePath);
+            let result: { totalStudents: number; totalSubjectScores: number };
+            try {
+                result = await this.migrateData(db, request.recruitmentSeasonId, progressCallback);
+            } finally {
+                await this.sqliteReaderService.closeDatabase(db);
+            }
 
             progressCallback({
                 status: 'completed',
@@ -114,19 +112,6 @@ export class DbMigrationService {
             totalStudents,
             totalSubjectScores,
         };
-    }
-
-    private async processSqliteFile(
-        filePath: string,
-        recruitmentSeasonId: number,
-        progressCallback: (progress: MigrationProgress) => void,
-    ): Promise<{ totalStudents: number; totalSubjectScores: number }> {
-        const db = await this.sqliteReaderService.openDatabase(filePath);
-        try {
-            return await this.migrateData(db, recruitmentSeasonId, progressCallback);
-        } finally {
-            await this.sqliteReaderService.closeDatabase(db);
-        }
     }
 
     private async migrateData(

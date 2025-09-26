@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from '../user/user.service';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { LoginUserDto } from '../user/dto/login-user.dto';
-import { UserResponseDto } from '../user/dto/user-response.dto';
+import { UserService } from '../../user/services/user.service';
+import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { LoginUserDto } from '../../user/dto/login-user.dto';
+import { UserResponseDto } from '../../user/dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
