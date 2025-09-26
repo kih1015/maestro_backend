@@ -36,7 +36,7 @@ export class FileUploadController {
     ) {}
 
     @Post('upload')
-    @ApiOperation({ summary: 'Upload SQLite database file' })
+    @ApiOperation({ summary: 'Upload SQLite database file and start migration' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -62,7 +62,7 @@ export class FileUploadController {
     })
     @ApiResponse({
         status: 201,
-        description: 'File upload started successfully',
+        description: 'File upload and migration started successfully',
         schema: {
             type: 'object',
             properties: {
@@ -71,7 +71,7 @@ export class FileUploadController {
                     type: 'object',
                     properties: {
                         sessionId: { type: 'string', example: 'upload_1_1234567890' },
-                        message: { type: 'string', example: 'File upload started successfully' },
+                        message: { type: 'string', example: 'File upload and migration started successfully' },
                     },
                 },
             },
@@ -111,13 +111,13 @@ export class FileUploadController {
             success: true,
             data: {
                 sessionId,
-                message: 'File upload started successfully',
+                message: 'File upload and migration started successfully',
             },
         };
     }
 
     @Get('summary')
-    @ApiOperation({ summary: 'Get upload summary for recruitment season' })
+    @ApiOperation({ summary: 'Get migration summary for recruitment season' })
     @ApiQuery({
         name: 'recruitmentSeasonId',
         required: true,
@@ -127,12 +127,12 @@ export class FileUploadController {
     })
     @ApiResponse({
         status: 200,
-        description: 'Upload summary retrieved successfully',
+        description: 'Migration summary retrieved successfully',
         type: FileUploadSummaryDto,
     })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 404, description: 'No upload data found for the specified season' })
-    async getUploadSummary(
+    @ApiResponse({ status: 404, description: 'No migration data found for the specified season' })
+    async getMigrationSummary(
         @Query('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
     ): Promise<{ success: boolean; data: FileUploadSummaryDto }> {
         const summary = await this.fileUploadService.getUploadSummary(recruitmentSeasonId);

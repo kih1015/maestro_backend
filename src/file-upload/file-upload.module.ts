@@ -4,23 +4,15 @@ import { SubjectGroupMappingController } from './subject-group-mapping.controlle
 import { FileUploadService } from './file-upload.service';
 import { SubjectGroupMappingService } from './subject-group-mapping.service';
 import { TempFileStorageService } from './temp-file-storage.service';
-import { StudentBaseInfoRepository } from './repositories/student-base-info.repository';
-import { SubjectScoreRepository } from './repositories/subject-score.repository';
 import { SubjectGroupMappingRepository } from './repositories/subject-group-mapping.repository';
 import { PrismaModule } from '../prisma/prisma.module';
 import { EventsModule } from '../events/events.module';
+import { DbMigrationModule } from '../db-migration/db-migration.module';
 
 @Module({
-    imports: [PrismaModule, EventsModule],
+    imports: [PrismaModule, EventsModule, DbMigrationModule],
     controllers: [FileUploadController, SubjectGroupMappingController],
-    providers: [
-        FileUploadService,
-        SubjectGroupMappingService,
-        TempFileStorageService,
-        StudentBaseInfoRepository,
-        SubjectScoreRepository,
-        SubjectGroupMappingRepository,
-    ],
+    providers: [FileUploadService, SubjectGroupMappingService, TempFileStorageService, SubjectGroupMappingRepository],
     exports: [FileUploadService, SubjectGroupMappingService, TempFileStorageService],
 })
 export class FileUploadModule {}

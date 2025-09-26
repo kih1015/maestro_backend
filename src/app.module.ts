@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { AdmissionsModule } from './admissions/admissions.module';
 import { FileUploadModule } from './file-upload/file-upload.module';
+import { DbMigrationModule } from './db-migration/db-migration.module';
 import { EventsModule } from './events/events.module';
 import { ScoreCalculationModule } from './score-calculation/score-calculation.module';
 
@@ -18,6 +19,7 @@ import { ScoreCalculationModule } from './score-calculation/score-calculation.mo
         UserModule,
         AdmissionsModule,
         FileUploadModule,
+        DbMigrationModule,
         EventsModule,
         ScoreCalculationModule,
     ],
