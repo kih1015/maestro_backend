@@ -10,10 +10,11 @@ import { ExcludedSubjectHandler } from '../handlers/excluded-subject-handler';
 import { ScoreConversionHandler } from '../handlers/score-conversion-handler';
 import { FinalScoreCalculationHandler } from '../handlers/final-score-calculation-handler';
 import { Injectable } from '@nestjs/common';
+import { CalculatorEnum } from './calculator.enum';
 
 @Injectable()
 export class GacheonCalculator implements Calculator {
-    readonly type = 'Gacheon';
+    readonly type = CalculatorEnum.GACHEON;
     private readonly config = new GacheonConfig();
 
     calculate(student: Student): void {

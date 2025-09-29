@@ -6,6 +6,7 @@ import { StudentScoreResult, SubjectScoreCalculationDetail } from '../entities/s
 import { EventsService } from '../../events/events.service';
 import { Calculator } from '../calculator/calculator';
 import { CALCULATORS } from '../score-calculation.module';
+import { CalculatorEnum } from '../calculator/calculator.enum';
 
 export interface CalculateScoresInput {
     readonly recruitmentSeasonId: number;
@@ -29,7 +30,9 @@ export class ScoreCalculationUseCase {
     ): Promise<{
         calculated: number;
     }> {
-        const calculator: Calculator | undefined = this.calculators.find(calculator => calculator.type === 'Gacheon');
+        const calculator: Calculator | undefined = this.calculators.find(
+            calculator => calculator.type === CalculatorEnum.GACHEON,
+        );
         const userId = options?.userId;
         const emit = (eventType: string, data: unknown) => {
             if (!userId) return;
