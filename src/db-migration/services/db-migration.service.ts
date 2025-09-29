@@ -1,14 +1,14 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SqliteReaderRepository } from '../repository/sqlite-reader.repository';
 import {
     PostgresMigrationRepository,
     PostgresStudentBaseInfo,
     PostgresSubjectScore,
 } from '../repository/postgres-migration.repository';
-import { RecruitmentCode } from '../entities/recruitment-code.entity';
 import { MigrationProgress, MigrationResult } from '../interfaces/migration-progress.interface';
 import { MigrationRequestDto } from '../dto/migration-request.dto';
 import { EventsService } from '../../events/events.service';
+import { DbMigrationBusiness } from '../business/db-migration.business';
 import { Database } from 'sqlite3';
 
 @Injectable()
@@ -17,6 +17,7 @@ export class DbMigrationService {
         private readonly sqliteReaderRepository: SqliteReaderRepository,
         private readonly postgresMigrationRepository: PostgresMigrationRepository,
         private readonly eventsService: EventsService,
+        private readonly dbMigrationBusiness: DbMigrationBusiness,
     ) {}
 
     async migrate(request: MigrationRequestDto): Promise<MigrationResult> {
@@ -32,25 +33,17 @@ export class DbMigrationService {
             });
         };
 
-        progressCallback({
-            status: 'pending',
-            percentage: 0,
-            message: 'Starting migration...',
-        });
+        progressCallback(this.dbMigrationBusiness.createMigrationProgress('pending', 0, 'Starting migration...'));
 
         try {
             // Validate file type
-            if (!request.sqliteFilePath.endsWith('.db3') && !request.sqliteFilePath.endsWith('.db')) {
-                throw new BadRequestException('Only SQLite database files (.db3, .db) are allowed');
-            }
+            this.dbMigrationBusiness.validateSqliteFile(request.sqliteFilePath);
 
             // Clear existing data
             await this.postgresMigrationRepository.clearExistingData(request.recruitmentSeasonId);
-            progressCallback({
-                status: 'processing',
-                percentage: 10,
-                message: 'Cleared existing data',
-            });
+            progressCallback(
+                this.dbMigrationBusiness.createMigrationProgress('processing', 10, 'Cleared existing data'),
+            );
 
             // Process the SQLite file directly
             const db = await this.sqliteReaderRepository.openDatabase(request.sqliteFilePath);
@@ -61,13 +54,15 @@ export class DbMigrationService {
                 await this.sqliteReaderRepository.closeDatabase(db);
             }
 
-            progressCallback({
-                status: 'completed',
-                percentage: 100,
-                message: 'Migration completed successfully',
-                processedRecords: result.totalStudents,
-                totalRecords: result.totalStudents,
-            });
+            progressCallback(
+                this.dbMigrationBusiness.createMigrationProgress(
+                    'completed',
+                    100,
+                    'Migration completed successfully',
+                    result.totalStudents,
+                    result.totalStudents,
+                ),
+            );
 
             // Send completion event
             this.eventsService.sendToUser(request.userId, 'upload.done', {
@@ -83,12 +78,16 @@ export class DbMigrationService {
             };
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-            progressCallback({
-                status: 'failed',
-                percentage: 0,
-                message: errorMessage,
-                error: errorMessage,
-            });
+            progressCallback(
+                this.dbMigrationBusiness.createMigrationProgress(
+                    'failed',
+                    0,
+                    errorMessage,
+                    undefined,
+                    undefined,
+                    errorMessage,
+                ),
+            );
 
             // Send error event
             this.eventsService.sendToUser(request.userId, 'upload.error', {
@@ -127,13 +126,15 @@ export class DbMigrationService {
         const studentCount = await this.sqliteReaderRepository.getTableCount(db, 'StudentBaseInfo');
         const subjectScoreCount = await this.sqliteReaderRepository.getTableCount(db, 'SubjectScore');
 
-        progressCallback({
-            status: 'processing',
-            percentage: 20,
-            message: 'Starting data migration...',
-            processedRecords: 0,
-            totalRecords: studentCount + subjectScoreCount,
-        });
+        progressCallback(
+            this.dbMigrationBusiness.createMigrationProgress(
+                'processing',
+                20,
+                'Starting data migration...',
+                0,
+                studentCount + subjectScoreCount,
+            ),
+        );
 
         // Migrate students
         const studentMap = await this.migrateStudentBaseInfo(db, recruitmentSeasonId, progressCallback);
@@ -166,30 +167,9 @@ export class DbMigrationService {
 
             const studentEntities: PostgresStudentBaseInfo[] = [];
             for (const student of rows) {
-                try {
-                    const recruitmentCode = RecruitmentCode.fromMogib2(student.Mogib2);
-                    const studentEntity: PostgresStudentBaseInfo = {
-                        recruitmentSeasonId,
-                        recruitmentTypeCode: recruitmentCode.typeCode,
-                        recruitmentUnitCode: recruitmentCode.unitCode,
-                        identifyNumber: student.IdentifyNumber,
-                        socialNumber: student.SocialNumber,
-                        schoolCode: student.SchoolCode,
-                        collegeAdmissionYear: student.CollegeAdmissionYear,
-                        seleScCode: student.SeleScCode,
-                        applicantScCode: student.ApplicantScCode,
-                        graduateYear: student.GraduateYear,
-                        graduateGrade: student.GraduateGrade,
-                        masterSchoolYN: student.MasterSchoolYN,
-                        specializedSchoolYN: student.SpecializedSchoolYN,
-                        correctionRegisterYN: student.CorrectionRegisterYN,
-                        examNumber: student.ExamNumber,
-                        uniqueFileName: student.UniqueFileName,
-                        pictureFileName: student.PictureFileName,
-                    };
+                const studentEntity = this.dbMigrationBusiness.transformStudentBaseInfo(student, recruitmentSeasonId);
+                if (studentEntity) {
                     studentEntities.push(studentEntity);
-                } catch (error) {
-                    console.warn(`Skipping invalid student record: ${error}`);
                 }
             }
 
@@ -197,7 +177,11 @@ export class DbMigrationService {
                 const savedStudents =
                     await this.postgresMigrationRepository.insertStudentBaseInfoBatch(studentEntities);
                 for (const s of savedStudents) {
-                    const key = `${s.recruitmentTypeCode}-${s.recruitmentUnitCode}:${s.identifyNumber}`;
+                    const key = this.dbMigrationBusiness.createStudentMapKey(
+                        s.recruitmentTypeCode,
+                        s.recruitmentUnitCode,
+                        s.identifyNumber,
+                    );
                     if (s.id) {
                         studentMap.set(key, s.id);
                     }
@@ -208,16 +192,18 @@ export class DbMigrationService {
             lastRowId = (rows[rows.length - 1].rowid as number) || lastRowId;
 
             const now = Date.now();
-            if (now - lastProgressAt >= 1000) {
+            if (this.dbMigrationBusiness.shouldUpdateProgress(lastProgressAt)) {
                 lastProgressAt = now;
-                const percentage = Math.floor((processed / total) * 50) + 20; // 20-70% for student migration
-                progressCallback({
-                    status: 'processing',
-                    percentage,
-                    message: `Migrated ${processed}/${total} student records`,
-                    processedRecords: processed,
-                    totalRecords: total,
-                });
+                const percentage = this.dbMigrationBusiness.calculateProgressPercentage(processed, total, 20, 50);
+                progressCallback(
+                    this.dbMigrationBusiness.createMigrationProgress(
+                        'processing',
+                        percentage,
+                        `Migrated ${processed}/${total} student records`,
+                        processed,
+                        total,
+                    ),
+                );
             }
         }
 
@@ -242,45 +228,9 @@ export class DbMigrationService {
 
             const scoreEntities: PostgresSubjectScore[] = [];
             for (const score of rows) {
-                try {
-                    const recruitmentCode = RecruitmentCode.fromMogib2(score.Mogib2);
-                    const key = `${recruitmentCode.typeCode}-${recruitmentCode.unitCode}:${score.IdentifyNumber}`;
-                    const studentBaseInfoId = studentMap.get(key);
-
-                    if (studentBaseInfoId) {
-                        const scoreEntity: PostgresSubjectScore = {
-                            studentBaseInfoId,
-                            seqNumber: score.SeqNumber,
-                            socialNumber: score.SocialNumber,
-                            schoolCode: score.SchoolCode,
-                            year: score.Year,
-                            grade: score.Grade,
-                            organizationCode: score.OrganizationCode,
-                            organizationName: score.OrganizationName,
-                            courseCode: score.CourceCode,
-                            courseName: score.CourceName,
-                            subjectCode: score.SubjectCode,
-                            subjectName: score.SubjectName,
-                            term: score.Term,
-                            unit: score.Unit,
-                            assessment: score.Assessment,
-                            rank: score.Rank,
-                            sameRank: score.SameRank,
-                            studentCount: score.StudentCount,
-                            originalScore: score.OriginalScore,
-                            avgScore: score.AvgScore,
-                            standardDeviation: score.StandardDeviation,
-                            rankingGrade: score.RankingGrade,
-                            rankingGradeCode: score.RankingGradeCode,
-                            achievement: score.Achievement,
-                            achievementCode: score.AchievementCode,
-                            achievementRatio: score.AchievementRatio,
-                            subjectSeparationCode: score.SubjectSeparationCode,
-                        };
-                        scoreEntities.push(scoreEntity);
-                    }
-                } catch (error) {
-                    console.warn(`Skipping invalid subject score record: ${error}`);
+                const scoreEntity = this.dbMigrationBusiness.transformSubjectScore(score, studentMap);
+                if (scoreEntity) {
+                    scoreEntities.push(scoreEntity);
                 }
             }
 
@@ -292,16 +242,18 @@ export class DbMigrationService {
             lastRowId = (rows[rows.length - 1].rowid as number) || lastRowId;
 
             const now = Date.now();
-            if (now - lastProgressAt >= 1000) {
+            if (this.dbMigrationBusiness.shouldUpdateProgress(lastProgressAt)) {
                 lastProgressAt = now;
-                const percentage = Math.floor((processed / total) * 30) + 70; // 70-100% for subject score migration
-                progressCallback({
-                    status: 'processing',
-                    percentage,
-                    message: `Migrated ${processed}/${total} subject score records`,
-                    processedRecords: processed,
-                    totalRecords: total,
-                });
+                const percentage = this.dbMigrationBusiness.calculateProgressPercentage(processed, total, 70, 30);
+                progressCallback(
+                    this.dbMigrationBusiness.createMigrationProgress(
+                        'processing',
+                        percentage,
+                        `Migrated ${processed}/${total} subject score records`,
+                        processed,
+                        total,
+                    ),
+                );
             }
         }
     }
