@@ -8,6 +8,7 @@ import {
     BadRequestException,
     UseGuards,
     ParseIntPipe,
+    Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiQuery, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
@@ -64,7 +65,7 @@ export class SubjectGroupMappingController {
     @UseInterceptors(FileInterceptor('file'))
     async uploadExcel(
         @UploadedFile() file: Express.Multer.File,
-        @Query('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
+        @Body('recruitmentSeasonId', ParseIntPipe) recruitmentSeasonId: number,
     ): Promise<{ success: boolean; data: { totalRows: number } }> {
         if (!file) {
             throw new BadRequestException('파일이 필요합니다.');
