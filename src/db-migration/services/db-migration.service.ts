@@ -1,6 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { SqliteReaderRepository } from '../repository/sqlite-reader.repository';
-import { PostgresMigrationRepository, PostgresStudentBaseInfo, PostgresSubjectScore } from '../repository/postgres-migration.repository';
+import {
+    PostgresMigrationRepository,
+    PostgresStudentBaseInfo,
+    PostgresSubjectScore,
+} from '../repository/postgres-migration.repository';
 import { RecruitmentCode } from '../entities/recruitment-code.entity';
 import { MigrationProgress, MigrationResult } from '../interfaces/migration-progress.interface';
 import { MigrationRequestDto } from '../dto/migration-request.dto';
@@ -10,8 +14,8 @@ import { Database } from 'sqlite3';
 @Injectable()
 export class DbMigrationService {
     constructor(
-        private readonly sqliteReaderService: SqliteReaderRepository,
-        private readonly postgresMigrationService: PostgresMigrationRepository,
+        private readonly sqliteReaderRepository: SqliteReaderRepository,
+        private readonly postgresMigrationRepository: PostgresMigrationRepository,
         private readonly eventsService: EventsService,
     ) {}
 
@@ -41,7 +45,7 @@ export class DbMigrationService {
             }
 
             // Clear existing data
-            await this.postgresMigrationService.clearExistingData(request.recruitmentSeasonId);
+            await this.postgresMigrationRepository.clearExistingData(request.recruitmentSeasonId);
             progressCallback({
                 status: 'processing',
                 percentage: 10,
@@ -49,12 +53,12 @@ export class DbMigrationService {
             });
 
             // Process the SQLite file directly
-            const db = await this.sqliteReaderService.openDatabase(request.sqliteFilePath);
+            const db = await this.sqliteReaderRepository.openDatabase(request.sqliteFilePath);
             let result: { totalStudents: number; totalSubjectScores: number };
             try {
                 result = await this.migrateData(db, request.recruitmentSeasonId, progressCallback);
             } finally {
-                await this.sqliteReaderService.closeDatabase(db);
+                await this.sqliteReaderRepository.closeDatabase(db);
             }
 
             progressCallback({
@@ -100,13 +104,13 @@ export class DbMigrationService {
     async getMigrationSummary(
         recruitmentSeasonId: number,
     ): Promise<{ totalStudents: number; totalSubjectScores: number } | null> {
-        const totalStudents = await this.postgresMigrationService.getStudentCount(recruitmentSeasonId);
+        const totalStudents = await this.postgresMigrationRepository.getStudentCount(recruitmentSeasonId);
 
         if (totalStudents === 0) {
             return null;
         }
 
-        const totalSubjectScores = await this.postgresMigrationService.getSubjectScoreCount(recruitmentSeasonId);
+        const totalSubjectScores = await this.postgresMigrationRepository.getSubjectScoreCount(recruitmentSeasonId);
 
         return {
             totalStudents,
@@ -120,8 +124,8 @@ export class DbMigrationService {
         progressCallback: (progress: MigrationProgress) => void,
     ): Promise<{ totalStudents: number; totalSubjectScores: number }> {
         // Get counts
-        const studentCount = await this.sqliteReaderService.getTableCount(db, 'StudentBaseInfo');
-        const subjectScoreCount = await this.sqliteReaderService.getTableCount(db, 'SubjectScore');
+        const studentCount = await this.sqliteReaderRepository.getTableCount(db, 'StudentBaseInfo');
+        const subjectScoreCount = await this.sqliteReaderRepository.getTableCount(db, 'SubjectScore');
 
         progressCallback({
             status: 'processing',
@@ -150,13 +154,13 @@ export class DbMigrationService {
     ): Promise<Map<string, number>> {
         const studentMap = new Map<string, number>();
         const pageSize = 1000;
-        const total = await this.sqliteReaderService.getTableCount(db, 'StudentBaseInfo');
+        const total = await this.sqliteReaderRepository.getTableCount(db, 'StudentBaseInfo');
         let processed = 0;
         let lastProgressAt = 0;
         let lastRowId = 0;
 
         while (true) {
-            const rows = await this.sqliteReaderService.queryStudentBatch(db, lastRowId, pageSize);
+            const rows = await this.sqliteReaderRepository.queryStudentBatch(db, lastRowId, pageSize);
 
             if (rows.length === 0) break;
 
@@ -190,7 +194,8 @@ export class DbMigrationService {
             }
 
             if (studentEntities.length > 0) {
-                const savedStudents = await this.postgresMigrationService.insertStudentBaseInfoBatch(studentEntities);
+                const savedStudents =
+                    await this.postgresMigrationRepository.insertStudentBaseInfoBatch(studentEntities);
                 for (const s of savedStudents) {
                     const key = `${s.recruitmentTypeCode}-${s.recruitmentUnitCode}:${s.identifyNumber}`;
                     if (s.id) {
@@ -225,13 +230,13 @@ export class DbMigrationService {
         progressCallback: (progress: MigrationProgress) => void,
     ): Promise<void> {
         const pageSize = 1000;
-        const total = await this.sqliteReaderService.getTableCount(db, 'SubjectScore');
+        const total = await this.sqliteReaderRepository.getTableCount(db, 'SubjectScore');
         let processed = 0;
         let lastProgressAt = 0;
         let lastRowId = 0;
 
         while (true) {
-            const rows = await this.sqliteReaderService.querySubjectScoreBatch(db, lastRowId, pageSize);
+            const rows = await this.sqliteReaderRepository.querySubjectScoreBatch(db, lastRowId, pageSize);
 
             if (rows.length === 0) break;
 
@@ -280,7 +285,7 @@ export class DbMigrationService {
             }
 
             if (scoreEntities.length > 0) {
-                await this.postgresMigrationService.insertSubjectScoreBatch(scoreEntities);
+                await this.postgresMigrationRepository.insertSubjectScoreBatch(scoreEntities);
             }
 
             processed += rows.length;

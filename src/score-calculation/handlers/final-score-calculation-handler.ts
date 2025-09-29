@@ -1,4 +1,5 @@
 import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { Student, StudentScoreResult } from '../entities/student.entity';
 
 export interface FinalScoreConfig {
     readonly jiguynAdmissionCode: string;

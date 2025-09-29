@@ -1,4 +1,5 @@
 import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export interface ConvertScoreInput {
     admission: string;

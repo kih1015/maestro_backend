@@ -1,4 +1,5 @@
 import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { StudentScoreResult } from '../entities/student.entity';
 
 export interface ValidationConfig {
     readonly supportedAdmissions: string[];

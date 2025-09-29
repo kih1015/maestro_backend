@@ -1,4 +1,5 @@
 import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export class SemesterReflectionHandler extends BaseScoreHandler {
     protected process(context: ScoreCalculationContext): void {
