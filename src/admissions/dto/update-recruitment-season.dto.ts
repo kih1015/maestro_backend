@@ -1,9 +1,10 @@
-import { ValidateNested, ArrayMinSize } from 'class-validator';
+import { ValidateNested, ArrayMinSize, IsEnum, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { AdmissionPeriodDto } from './admission-period.dto';
 import { AdmissionTypeDto } from './admission-type.dto';
 import { RecruitmentUnitDto } from './recruitment-unit.dto';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 
 /**
  * 모집 시즌 수정 요청을 위한 DTO 클래스
@@ -12,22 +13,40 @@ import { RecruitmentUnitDto } from './recruitment-unit.dto';
  */
 export class UpdateRecruitmentSeasonDto {
     /** 수정할 입학 기간 정보 (연도 및 시기 이름) */
-    @ApiProperty({ type: AdmissionPeriodDto, description: 'Admission period information' })
+    @ApiProperty({ type: AdmissionPeriodDto, description: 'Admission period information', required: false })
     @ValidateNested()
     @Type(() => AdmissionPeriodDto)
-    admissionPeriod: AdmissionPeriodDto;
+    @IsOptional()
+    admissionPeriod?: AdmissionPeriodDto;
+
+    /** 수정할 계산기 타입 */
+    @ApiProperty({
+        enum: CalculatorEnum,
+        example: CalculatorEnum.GACHEON,
+        description: 'Calculator type for score calculation',
+        required: false,
+    })
+    @IsEnum(CalculatorEnum)
+    @IsOptional()
+    calculatorType?: CalculatorEnum;
 
     /** 수정할 전형 유형 목록 (중복 불가, 최소 1개 이상) */
-    @ApiProperty({ type: [AdmissionTypeDto], description: 'List of admission types (must be unique)' })
+    @ApiProperty({ type: [AdmissionTypeDto], description: 'List of admission types (must be unique)', required: false })
     @ValidateNested({ each: true })
     @Type(() => AdmissionTypeDto)
     @ArrayMinSize(1)
-    admissionTypes: AdmissionTypeDto[];
+    @IsOptional()
+    admissionTypes?: AdmissionTypeDto[];
 
     /** 수정할 모집 단위 목록 (중복 불가, 최소 1개 이상) */
-    @ApiProperty({ type: [RecruitmentUnitDto], description: 'List of recruitment units (must be unique)' })
+    @ApiProperty({
+        type: [RecruitmentUnitDto],
+        description: 'List of recruitment units (must be unique)',
+        required: false,
+    })
     @ValidateNested({ each: true })
     @Type(() => RecruitmentUnitDto)
     @ArrayMinSize(1)
-    recruitmentUnits: RecruitmentUnitDto[];
+    @IsOptional()
+    recruitmentUnits?: RecruitmentUnitDto[];
 }

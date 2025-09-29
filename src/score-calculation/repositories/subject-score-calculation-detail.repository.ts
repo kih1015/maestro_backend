@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ISubjectScoreCalculationDetailRepository } from '../interfaces/subject-score-calculation-detail-repository.interface';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 @Injectable()
-export class SubjectScoreCalculationDetailRepository implements ISubjectScoreCalculationDetailRepository {
+export class SubjectScoreCalculationDetailRepository {
     constructor(private prisma: PrismaService) {}
 
     async saveMany(details: SubjectScoreCalculationDetail[]): Promise<void> {

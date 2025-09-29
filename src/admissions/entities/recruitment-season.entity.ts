@@ -1,4 +1,5 @@
 import { ConflictException } from '@nestjs/common';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 
 /**
  * 전형 유형을 나타내는 인터페이스
@@ -34,6 +35,8 @@ export class RecruitmentSeason {
      * @param universityCode 대학 코드 (예: 'GACHON')
      * @param admissionYear 입학 연도 (예: 2024)
      * @param admissionName 입학 시기 이름 (예: '정시', '수시')
+     * @param calculatorType 점수 계산에 사용할 계산기 타입
+     * @param userId 모집 시즌을 생성한 사용자 ID
      * @param admissionTypes 해당 모집에서 사용되는 전형 유형 목록
      * @param recruitmentUnits 해당 모집에서 선발하는 모집 단위 목록
      * @param createdAt 생성 일시
@@ -44,6 +47,8 @@ export class RecruitmentSeason {
         public readonly universityCode: string,
         public readonly admissionYear: number,
         public readonly admissionName: string,
+        public readonly calculatorType: CalculatorEnum,
+        public readonly userId: number,
         public readonly admissionTypes: AdmissionType[],
         public readonly recruitmentUnits: RecruitmentUnit[],
         public readonly createdAt: Date,
@@ -61,6 +66,8 @@ export class RecruitmentSeason {
         universityCode: string;
         admissionYear: number;
         admissionName: string;
+        calculatorType: CalculatorEnum;
+        userId: number;
         admissionTypes: AdmissionType[];
         recruitmentUnits: RecruitmentUnit[];
         createdAt: Date;
@@ -74,6 +81,8 @@ export class RecruitmentSeason {
             data.universityCode,
             data.admissionYear,
             data.admissionName,
+            data.calculatorType,
+            data.userId,
             data.admissionTypes,
             data.recruitmentUnits,
             data.createdAt,
@@ -91,6 +100,7 @@ export class RecruitmentSeason {
     update(data: {
         admissionYear?: number;
         admissionName?: string;
+        calculatorType?: CalculatorEnum;
         admissionTypes?: AdmissionType[];
         recruitmentUnits?: RecruitmentUnit[];
     }): RecruitmentSeason {
@@ -105,6 +115,8 @@ export class RecruitmentSeason {
             this.universityCode,
             data.admissionYear ?? this.admissionYear,
             data.admissionName ?? this.admissionName,
+            data.calculatorType ?? this.calculatorType,
+            this.userId,
             updatedAdmissionTypes,
             updatedRecruitmentUnits,
             this.createdAt,

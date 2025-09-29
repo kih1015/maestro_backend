@@ -19,12 +19,6 @@ export const CreateRecruitmentSeasonSwagger = applyDecorators(
 
 export const GetRecruitmentSeasonsSwagger = applyDecorators(
     ApiOperation({ summary: 'Get recruitment seasons' }),
-    ApiQuery({
-        name: 'universityCode',
-        required: false,
-        description: 'Filter by university code',
-        example: 'GACHON',
-    }),
     ApiResponse({
         status: 200,
         description: 'Recruitment seasons retrieved successfully',

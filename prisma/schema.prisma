@@ -29,9 +29,12 @@ model recruitment_seasons {
   universityCode         String
   admissionYear          Int
   admissionName          String
+  calculatorType         CalculatorType           @default(GACHEON)
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
   id                     Int                      @id @default(autoincrement())
+  userId                 Int
+  users                  users                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   admission_types        admission_types[]
   recruitment_units      recruitment_units[]
   student_base_infos     student_base_infos[]
@@ -181,6 +184,7 @@ model users {
   updatedAt             DateTime
   id                    Int                     @id @default(autoincrement())
   password_reset_tokens password_reset_tokens[]
+  recruitment_seasons   recruitment_seasons[]
 }
 
 enum ConvertedBaseValue {
@@ -188,4 +192,8 @@ enum ConvertedBaseValue {
   ACHIEVEMENT
   PERCENTILE
   Z_SCORE
+}
+
+enum CalculatorType {
+  GACHEON
 }

@@ -5,18 +5,15 @@ import { SubjectScoreCalculationDetailRepository } from '../repositories/subject
 import { StudentScoreResult, SubjectScoreCalculationDetail } from '../entities/student.entity';
 import { EventsService } from '../../events/events.service';
 import { Calculator } from '../calculator/calculator';
-import { CALCULATORS } from '../score-calculation.module';
-import { CalculatorEnum } from '../calculator/calculator.enum';
-
-export interface CalculateScoresInput {
-    readonly recruitmentSeasonId: number;
-}
+import { CALCULATORS } from '../calculator/calculator.tokens';
+import { GetRecruitmentSeasonsService } from '../../admissions/use-cases/get-recruitment-seasons.service';
 
 @Injectable()
 export class ScoreCalculationUseCase {
     private readonly logger = new Logger(ScoreCalculationUseCase.name);
 
     constructor(
+        private readonly recruitmentService: GetRecruitmentSeasonsService,
         private readonly studentRepository: StudentReadRepository,
         private readonly scoreResultRepository: StudentScoreResultRepository,
         private readonly subjectDetailRepository: SubjectScoreCalculationDetailRepository,
@@ -25,28 +22,28 @@ export class ScoreCalculationUseCase {
     ) {}
 
     async calculateScores(
-        input: CalculateScoresInput,
-        options?: { userId?: number },
+        recruitmentSeasonId: number,
+        userId: number,
     ): Promise<{
         calculated: number;
     }> {
+        const recruitmentSeason = await this.recruitmentService.getRecruitmentSeasonById(recruitmentSeasonId);
+        const calculatorType = recruitmentSeason.calculatorType;
         const calculator: Calculator | undefined = this.calculators.find(
-            calculator => calculator.type === CalculatorEnum.GACHEON,
+            calculator => calculator.type === calculatorType,
         );
-        const userId = options?.userId;
         const emit = (eventType: string, data: unknown) => {
-            if (!userId) return;
             this.eventsService.sendToUser(userId, `score.${eventType}`, {
                 ...(data as any),
-                recruitmentSeasonId: input.recruitmentSeasonId,
+                recruitmentSeasonId: recruitmentSeasonId,
             });
         };
 
         const startedAtMs = Date.now();
-        this.logger.log(`[ScoreCalc] start season=${input.recruitmentSeasonId}`);
+        this.logger.log(`[ScoreCalc] start season=${recruitmentSeasonId}`);
 
-        const total = await this.studentRepository.countStudents(input.recruitmentSeasonId);
-        this.logger.log(`[ScoreCalc] season=${input.recruitmentSeasonId} totalStudents=${total}`);
+        const total = await this.studentRepository.countStudents(recruitmentSeasonId);
+        this.logger.log(`[ScoreCalc] season=${recruitmentSeasonId} totalStudents=${total}`);
 
         let calculated = 0;
         let processed = 0;
@@ -58,15 +55,15 @@ export class ScoreCalculationUseCase {
         });
 
         // Clear previous results/details for the season
-        await this.subjectDetailRepository.deleteByRecruitmentSeasonId(input.recruitmentSeasonId);
-        await this.scoreResultRepository.deleteByRecruitmentSeasonId(input.recruitmentSeasonId);
-        this.logger.log(`[ScoreCalc] season=${input.recruitmentSeasonId} previousDetails/ResultsCleared`);
+        await this.subjectDetailRepository.deleteByRecruitmentSeasonId(recruitmentSeasonId);
+        await this.scoreResultRepository.deleteByRecruitmentSeasonId(recruitmentSeasonId);
+        this.logger.log(`[ScoreCalc] season=${recruitmentSeasonId} previousDetails/ResultsCleared`);
 
         const batchSize = 100;
         let lastId: number | null = null;
 
         while (true) {
-            const batch = await this.studentRepository.streamStudents(input.recruitmentSeasonId, lastId, batchSize);
+            const batch = await this.studentRepository.streamStudents(recruitmentSeasonId, lastId, batchSize);
 
             if (batch.length === 0) break;
 
@@ -93,7 +90,7 @@ export class ScoreCalculationUseCase {
                     invalidFinalScore += 1;
                 } else {
                     // Set the recruitment season ID
-                    result.recruitmentSeasonId = input.recruitmentSeasonId;
+                    result.recruitmentSeasonId = recruitmentSeasonId;
                     result.studentBaseInfoId = student.id;
                     resultsBatch.push(result);
 
@@ -125,7 +122,7 @@ export class ScoreCalculationUseCase {
                     total,
                 });
                 this.logger.log(
-                    `[ScoreCalc] season=${input.recruitmentSeasonId} progress processed=${processed} calculated=${calculated}/${total}`,
+                    `[ScoreCalc] season=${recruitmentSeasonId} progress processed=${processed} calculated=${calculated}/${total}`,
                 );
             }
 
@@ -149,7 +146,7 @@ export class ScoreCalculationUseCase {
 
         const tookMs = Date.now() - startedAtMs;
         this.logger.log(
-            `[ScoreCalc] done season=${input.recruitmentSeasonId} processed=${processed} calculated=${calculated}/${total} missingCalculator=${missingCalculator} invalidFinalScore=${invalidFinalScore} tookMs=${tookMs}`,
+            `[ScoreCalc] done season=${recruitmentSeasonId} processed=${processed} calculated=${calculated}/${total} missingCalculator=${missingCalculator} invalidFinalScore=${invalidFinalScore} tookMs=${tookMs}`,
         );
 
         return { calculated };

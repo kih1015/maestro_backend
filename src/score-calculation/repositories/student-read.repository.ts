@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { IStudentReadRepository, StudentFilters } from '../interfaces/student-read-repository.interface';
 import { Student, Subject } from '../entities/student.entity';
 import { SortOrder } from '../dto/list-students.dto';
 import { Prisma } from '@prisma/client';
+import { StudentFilters } from '../services/student-query.use-case';
 
 @Injectable()
-export class StudentReadRepository implements IStudentReadRepository {
+export class StudentReadRepository {
     constructor(private prisma: PrismaService) {}
 
     async countStudents(recruitmentSeasonId: number): Promise<number> {

@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { RecruitmentSeason } from '../entities/recruitment-season.entity';
 import { RecruitmentSeasonRepositoryInterface } from '../interfaces/recruitment-season.repository.interface';
 import { Prisma } from '@prisma/client';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 
 /**
  * 모집 시즌 데이터베이스 액세스를 담당하는 리포지토리 클래스
@@ -58,6 +59,26 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
     async findByUniversityCode(universityCode: string): Promise<RecruitmentSeason[]> {
         const results = await this.prisma.recruitment_seasons.findMany({
             where: { universityCode },
+            include: {
+                admission_types: true,
+                recruitment_units: true,
+            },
+            orderBy: {
+                admissionYear: 'desc',
+            },
+        });
+
+        return results.map(result => this.mapToEntity(result));
+    }
+
+    /**
+     * 사용자 ID로 해당 사용자가 생성한 모집 시즌을 조회합니다.
+     * @param userId 조회할 사용자의 고유 식별자
+     * @returns 해당 사용자가 생성한 모집 시즌 목록
+     */
+    async findByUserId(userId: number): Promise<RecruitmentSeason[]> {
+        const results = await this.prisma.recruitment_seasons.findMany({
+            where: { userId: userId },
             include: {
                 admission_types: true,
                 recruitment_units: true,
@@ -151,7 +172,11 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
             universityCode: entity.universityCode,
             admissionYear: entity.admissionYear,
             admissionName: entity.admissionName,
+            calculatorType: entity.calculatorType,
             updatedAt: new Date(),
+            users: {
+                connect: { id: entity.userId },
+            },
             admission_types: {
                 create: entity.admissionTypes.map(type => ({
                     typeName: type.typeName,
@@ -177,6 +202,7 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
         return {
             admissionYear: entity.admissionYear,
             admissionName: entity.admissionName,
+            calculatorType: entity.calculatorType,
             updatedAt: new Date(),
             admission_types: {
                 create: entity.admissionTypes.map(type => ({
@@ -212,6 +238,8 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
             universityCode: data.universityCode,
             admissionYear: data.admissionYear,
             admissionName: data.admissionName,
+            calculatorType: data.calculatorType as CalculatorEnum,
+            userId: data.userId,
             admissionTypes: data.admission_types.map(type => ({
                 typeName: type.typeName,
                 typeCode: type.typeCode,

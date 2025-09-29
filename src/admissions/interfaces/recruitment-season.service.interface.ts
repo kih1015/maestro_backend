@@ -1,19 +1,23 @@
 import { RecruitmentSeason } from '../entities/recruitment-season.entity';
 import { AdmissionType, RecruitmentUnit } from '../entities/recruitment-season.entity';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 
 export interface CreateRecruitmentSeasonData {
     universityCode: string;
     admissionYear: number;
     admissionName: string;
+    calculatorType: CalculatorEnum;
+    userId: number;
     admissionTypes: AdmissionType[];
     recruitmentUnits: RecruitmentUnit[];
 }
 
 export interface UpdateRecruitmentSeasonData {
-    admissionYear: number;
-    admissionName: string;
-    admissionTypes: AdmissionType[];
-    recruitmentUnits: RecruitmentUnit[];
+    admissionYear?: number;
+    admissionName?: string;
+    calculatorType?: CalculatorEnum;
+    admissionTypes?: AdmissionType[];
+    recruitmentUnits?: RecruitmentUnit[];
 }
 
 export interface RecruitmentSeasonServiceInterface {

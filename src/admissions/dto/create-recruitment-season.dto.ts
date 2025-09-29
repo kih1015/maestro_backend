@@ -1,9 +1,10 @@
-import { IsString, IsNotEmpty, ValidateNested, ArrayMinSize, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, ValidateNested, ArrayMinSize, Matches, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { AdmissionPeriodDto } from './admission-period.dto';
 import { AdmissionTypeDto } from './admission-type.dto';
 import { RecruitmentUnitDto } from './recruitment-unit.dto';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 
 /**
  * 새로운 모집 시즌 생성 요청을 위한 DTO 클래스
@@ -23,6 +24,15 @@ export class CreateRecruitmentSeasonDto {
     @ValidateNested()
     @Type(() => AdmissionPeriodDto)
     admissionPeriod: AdmissionPeriodDto;
+
+    /** 점수 계산에 사용할 계산기 타입 */
+    @ApiProperty({
+        enum: CalculatorEnum,
+        example: CalculatorEnum.GACHEON,
+        description: 'Calculator type for score calculation',
+    })
+    @IsEnum(CalculatorEnum)
+    calculatorType: CalculatorEnum;
 
     /** 전형 유형 목록 (중복 불가, 최소 1개 이상) */
     @ApiProperty({ type: [AdmissionTypeDto], description: 'List of admission types (must be unique)' })

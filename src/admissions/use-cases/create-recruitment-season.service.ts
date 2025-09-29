@@ -13,6 +13,8 @@ export class CreateRecruitmentSeasonService {
             universityCode: data.universityCode,
             admissionYear: data.admissionYear,
             admissionName: data.admissionName,
+            calculatorType: data.calculatorType,
+            userId: data.userId,
             admissionTypes: data.admissionTypes,
             recruitmentUnits: data.recruitmentUnits,
             createdAt: new Date(),

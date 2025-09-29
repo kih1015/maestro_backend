@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { IStudentScoreResultRepository } from '../interfaces/student-score-result-repository.interface';
 import { StudentScoreResult } from '../entities/student.entity';
 
 @Injectable()
-export class StudentScoreResultRepository implements IStudentScoreResultRepository {
+export class StudentScoreResultRepository {
     constructor(private prisma: PrismaService) {}
 
     async createMany(results: StudentScoreResult[]): Promise<void> {

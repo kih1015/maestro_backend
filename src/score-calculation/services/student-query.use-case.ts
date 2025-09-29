@@ -4,7 +4,9 @@ import { SubjectScoreCalculationDetailRepository } from '../repositories/subject
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 import { ListStudentsDto } from '../dto/list-students.dto';
 import { GetStudentDetailDto } from '../dto/student-detail.dto';
-import { StudentFilters } from '../interfaces/student-read-repository.interface';
+import { StudentFiltersDto } from '../dto/student-filters.dto';
+
+export type StudentFilters = Omit<StudentFiltersDto, 'recruitmentSeasonId' | 'page' | 'pageSize' | 'q' | 'sort'>;
 
 @Injectable()
 export class StudentQueryUseCase {

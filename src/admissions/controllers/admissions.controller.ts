@@ -6,10 +6,10 @@ import {
     Delete,
     Body,
     Param,
-    Query,
     ParseIntPipe,
     ValidationPipe,
     UseGuards,
+    Request,
 } from '@nestjs/common';
 import { CreateRecruitmentSeasonService } from '../use-cases/create-recruitment-season.service';
 import { GetRecruitmentSeasonsService } from '../use-cases/get-recruitment-seasons.service';
@@ -18,6 +18,9 @@ import { DeleteRecruitmentSeasonService } from '../use-cases/delete-recruitment-
 import { CreateRecruitmentSeasonDto } from '../dto/create-recruitment-season.dto';
 import { UpdateRecruitmentSeasonDto } from '../dto/update-recruitment-season.dto';
 import { RecruitmentSeasonResponseDto } from '../dto/recruitment-season-response.dto';
+import { AdmissionTypeDto } from '../dto/admission-type.dto';
+import { RecruitmentUnitDto } from '../dto/recruitment-unit.dto';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RecruitmentSeason } from '../entities/recruitment-season.entity';
 import {
@@ -48,6 +51,7 @@ export class AdmissionsController {
      * 새로운 모집 시즌을 생성합니다.
      * 대학 코드, 입학 연도, 전형 유형, 모집 단위 정보를 포함하여 모집 시즌을 생성합니다.
      * @param createDto 모집 시즌 생성에 필요한 정보를 담은 DTO
+     * @param req
      * @returns 생성된 모집 시즌 정보와 성공 메시지
      * @throws ConflictException 전형 유형 또는 모집 단위의 코드나 이름이 중복될 경우
      * @throws ValidationException 입력 데이터 검증에 실패할 경우
@@ -56,11 +60,14 @@ export class AdmissionsController {
     @CreateRecruitmentSeasonSwagger
     async createRecruitmentSeason(
         @Body(ValidationPipe) createDto: CreateRecruitmentSeasonDto,
+        @Request() req: { user: { sub: number } },
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
         const season = await this.createRecruitmentSeasonService.execute({
             universityCode: createDto.universityCode,
             admissionYear: createDto.admissionPeriod.admissionYear,
             admissionName: createDto.admissionPeriod.admissionName,
+            calculatorType: createDto.calculatorType,
+            userId: req.user.sub,
             admissionTypes: createDto.admissionTypes,
             recruitmentUnits: createDto.recruitmentUnits,
         });
@@ -74,17 +81,17 @@ export class AdmissionsController {
     }
 
     /**
-     * 모집 시즌 목록을 조회합니다.
-     * 특정 대학 코드로 필터링하거나 전체 모집 시즌을 조회할 수 있습니다.
-     * @param universityCode 선택적 매개변수로, 특정 대학의 모집 시즌만 조회할 때 사용
-     * @returns 모집 시즌 목록과 성공 상태
+     * 사용자가 생성한 모집 시즌 목록을 조회합니다.
+     * JWT 토큰에서 사용자 ID를 추출하여 해당 사용자가 생성한 모집 시즌을 조회합니다.
+     * @param req 사용자 정보가 포함된 Request 객체
+     * @returns 사용자의 모집 시즌 목록과 성공 상태
      */
     @Get('seasons')
     @GetRecruitmentSeasonsSwagger
     async getRecruitmentSeasons(
-        @Query('universityCode') universityCode?: string,
+        @Request() req: { user: { sub: number } },
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto[] }> {
-        const seasons = await this.getRecruitmentSeasonsService.getAllRecruitmentSeasons(universityCode);
+        const seasons = await this.getRecruitmentSeasonsService.getRecruitmentSeasonsByUserId(req.user.sub);
         const data = seasons.map(season => this.mapToResponseDto(season));
         return {
             success: true,
@@ -127,12 +134,32 @@ export class AdmissionsController {
         @Param('id', ParseIntPipe) id: number,
         @Body(ValidationPipe) updateDto: UpdateRecruitmentSeasonDto,
     ): Promise<{ success: boolean; data: RecruitmentSeasonResponseDto; message: string }> {
-        const season = await this.updateRecruitmentSeasonService.execute(id, {
-            admissionYear: updateDto.admissionPeriod.admissionYear,
-            admissionName: updateDto.admissionPeriod.admissionName,
-            admissionTypes: updateDto.admissionTypes,
-            recruitmentUnits: updateDto.recruitmentUnits,
-        });
+        const updateData: Partial<{
+            admissionYear: number;
+            admissionName: string;
+            calculatorType: CalculatorEnum;
+            admissionTypes: AdmissionTypeDto[];
+            recruitmentUnits: RecruitmentUnitDto[];
+        }> = {};
+
+        if (updateDto.admissionPeriod) {
+            updateData.admissionYear = updateDto.admissionPeriod.admissionYear;
+            updateData.admissionName = updateDto.admissionPeriod.admissionName;
+        }
+
+        if (updateDto.calculatorType !== undefined) {
+            updateData.calculatorType = updateDto.calculatorType;
+        }
+
+        if (updateDto.admissionTypes !== undefined) {
+            updateData.admissionTypes = updateDto.admissionTypes;
+        }
+
+        if (updateDto.recruitmentUnits !== undefined) {
+            updateData.recruitmentUnits = updateDto.recruitmentUnits;
+        }
+
+        const season = await this.updateRecruitmentSeasonService.execute(id, updateData);
 
         const data = this.mapToResponseDto(season);
         return {

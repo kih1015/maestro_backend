@@ -6,12 +6,8 @@ import { RecruitmentSeason } from '../entities/recruitment-season.entity';
 export class GetRecruitmentSeasonsService {
     constructor(private admissionsRepository: AdmissionsRepository) {}
 
-    async getAllRecruitmentSeasons(universityCode?: string): Promise<RecruitmentSeason[]> {
-        if (universityCode) {
-            return await this.admissionsRepository.findByUniversityCode(universityCode);
-        } else {
-            return await this.admissionsRepository.findAll();
-        }
+    async getRecruitmentSeasonsByUserId(userId: number): Promise<RecruitmentSeason[]> {
+        return await this.admissionsRepository.findByUserId(userId);
     }
 
     async getRecruitmentSeasonById(id: number): Promise<RecruitmentSeason> {

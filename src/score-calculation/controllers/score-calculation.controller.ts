@@ -1,17 +1,17 @@
 import {
+    Body,
     Controller,
     Get,
-    Post,
-    Body,
-    Query,
-    ValidationPipe,
-    UseGuards,
     HttpException,
     HttpStatus,
-    Res,
+    Post,
+    Query,
     Request,
+    Res,
+    UseGuards,
+    ValidationPipe,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ScoreCalculationUseCase } from '../services/score-calculation.use-case';
@@ -25,16 +25,17 @@ import { GetSummaryDto } from '../dto/summary.dto';
 import { ExportScoresDto } from '../dto/export.dto';
 import {
     CalculateScoresResponseDto,
-    SummaryResponseDto,
+    ErrorResponseDto,
     ListStudentsResponseDto,
     StudentScoreDetailResponseDto,
-    ErrorResponseDto,
+    SummaryResponseDto,
 } from '../dto/response.dto';
 import { CalculateScoresDecorator } from '../decorators/calculate-scores.decorator';
 import { GetSummaryDecorator } from '../decorators/get-summary.decorator';
 import { ListStudentsDecorator } from '../decorators/list-students.decorator';
 import { GetStudentDetailDecorator } from '../decorators/get-student-detail.decorator';
 import { ExportScoresDecorator } from '../decorators/export-scores.decorator';
+import { CalculatorEnum } from '../calculator/calculator.enum';
 
 @ApiTags('score-calculation')
 @Controller('score-calculation')
@@ -54,12 +55,11 @@ export class ScoreCalculationController {
     @CalculateScoresDecorator()
     calculateScores(
         @Body(ValidationPipe) dto: CalculateScoresDto,
-        @Request() req: { user?: { sub: number; email: string } },
+        @Request() req: { user: { sub: number; email: string } },
     ): CalculateScoresResponseDto {
         const seasonId = dto.recruitmentSeasonId;
-        const userId = req.user?.sub; // JWT payload에서 사용자 ID 추출
+        const userId = req.user.sub;
 
-        // Check if calculation is already running
         if (this.jobRunner.get(seasonId)) {
             return {
                 success: true,
@@ -67,26 +67,16 @@ export class ScoreCalculationController {
             };
         }
 
-        try {
-            // Set job as running
-            this.jobRunner.set(seasonId, true);
+        this.jobRunner.set(seasonId, true);
 
-            // Start calculation in background with user ID for SSE events
-            void this.scoreCalculationUseCase
-                .calculateScores({ recruitmentSeasonId: seasonId }, { userId })
-                .finally(() => {
-                    // Clear job status when done
-                    this.jobRunner.delete(seasonId);
-                });
-
-            return {
-                success: true,
-                data: { message: 'Started' },
-            };
-        } catch (error) {
+        void this.scoreCalculationUseCase.calculateScores(seasonId, userId).finally(() => {
             this.jobRunner.delete(seasonId);
-            throw error;
-        }
+        });
+
+        return {
+            success: true,
+            data: { message: 'Started' },
+        };
     }
 
     @Get('summary')
@@ -127,5 +117,12 @@ export class ScoreCalculationController {
         });
 
         res.send(xlsxBuffer);
+    }
+
+    @ApiOperation({ summary: '지원하는 계산기 타입 목록' })
+    @ApiOkResponse({ description: '계산기 타입 문자열 배열', type: [String] })
+    @Get('calculators')
+    listCalculators(): CalculatorEnum[] {
+        return Object.values(CalculatorEnum);
     }
 }

@@ -10,11 +10,11 @@ import { StudentQueryUseCase } from './services/student-query.use-case';
 import { ScoreExportUseCase } from './services/score-export.use-case';
 import { SummaryUseCase } from './services/summary.use-case';
 import { GacheonCalculator } from './calculator/gacheon.calculator';
-
-export const CALCULATORS = Symbol('CALCULATORS');
+import { CALCULATORS } from './calculator/calculator.tokens';
+import { AdmissionsModule } from '../admissions/admissions.module';
 
 @Module({
-    imports: [PrismaModule, EventsModule],
+    imports: [PrismaModule, EventsModule, AdmissionsModule],
     controllers: [ScoreCalculationController],
     providers: [
         GacheonCalculator,
