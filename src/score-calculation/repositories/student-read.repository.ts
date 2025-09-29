@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IStudentReadRepository, StudentFilters } from '../interfaces/student-read-repository.interface';
 import { Student, Subject } from '../entities/student.entity';
-import { StudentFactory } from '../entities/student-factory.entity';
 import { SortOrder } from '../dto/list-students.dto';
 import { Prisma } from '@prisma/client';
 
@@ -123,7 +122,7 @@ export class StudentReadRepository implements IStudentReadRepository {
                     }),
             );
 
-            return StudentFactory.create({
+            return Student.create({
                 id: student.id,
                 identifyNumber: student.identifyNumber,
                 recruitmentTypeCode: student.recruitmentTypeCode,
@@ -132,7 +131,6 @@ export class StudentReadRepository implements IStudentReadRepository {
                 applicantScCode: student.applicantScCode || '',
                 graduateGrade: student.graduateGrade || '',
                 subjectScores: subjects,
-                recruitmentSeasonId: recruitmentSeasonId,
             });
         });
     }
@@ -478,7 +476,7 @@ export class StudentReadRepository implements IStudentReadRepository {
                 }),
         );
 
-        return StudentFactory.create({
+        return Student.create({
             id: student.id,
             identifyNumber: student.identifyNumber,
             recruitmentTypeCode: student.recruitmentTypeCode,
@@ -487,7 +485,6 @@ export class StudentReadRepository implements IStudentReadRepository {
             applicantScCode: student.applicantScCode || '',
             graduateGrade: student.graduateGrade || '',
             subjectScores: subjects,
-            recruitmentSeasonId: recruitmentSeasonId,
         });
     }
 

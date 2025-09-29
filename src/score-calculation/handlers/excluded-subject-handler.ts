@@ -21,7 +21,7 @@ export class ExcludedSubjectHandler extends BaseScoreHandler {
                     continue;
                 }
                 if (this.isExcludedSubject(s.subjectName)) {
-                    s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, s, false, '특정 공통 과목 미반영');
+                    s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '특정 공통 과목 미반영');
                 }
             }
         }

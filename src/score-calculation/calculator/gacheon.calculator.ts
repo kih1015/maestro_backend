@@ -1,6 +1,7 @@
-import { Student } from './student.entity';
+import { Calculator } from './calculator';
+import { Student } from '../entities/student.entity';
 import { ScoreCalculationContext } from '../handlers/base-handler';
-import GCNAdmissionConfig from './gcn-admission-rules';
+import GacheonConfig from '../config/gacheon.config';
 import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
 import { SemesterReflectionHandler } from '../handlers/semester-reflection-handler';
 import { SubjectGroupFilterHandler } from '../handlers/subject-group-filter-handler';
@@ -8,11 +9,16 @@ import { CourseGroupFilterHandler } from '../handlers/course-group-filter-handle
 import { ExcludedSubjectHandler } from '../handlers/excluded-subject-handler';
 import { ScoreConversionHandler } from '../handlers/score-conversion-handler';
 import { FinalScoreCalculationHandler } from '../handlers/final-score-calculation-handler';
+import { Injectable } from '@nestjs/common';
 
-export class GCNStudent extends Student {
-    public override calculate(): void {
+@Injectable()
+export class GacheonCalculator implements Calculator {
+    readonly type = 'Gacheon';
+    private readonly config = new GacheonConfig();
+
+    calculate(student: Student): void {
         const context: ScoreCalculationContext = {
-            student: this,
+            student: student,
             shouldContinue: true,
         };
 
@@ -20,15 +26,13 @@ export class GCNStudent extends Student {
     }
 
     private createHandlerChain() {
-        const config = new GCNAdmissionConfig();
-
-        const validationHandler = new GCNValidationHandler(config.validationConfig);
+        const validationHandler = new GCNValidationHandler(this.config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler();
-        const subjectGroupHandler = new SubjectGroupFilterHandler(config.subjectConfigs);
-        const courseGroupHandler = new CourseGroupFilterHandler(config.courseGroupConfigs);
-        const excludedSubjectHandler = new ExcludedSubjectHandler(config.excludedSubjectConfig);
-        const scoreConversionHandler = new ScoreConversionHandler(config.scoreConversionConfigs);
-        const finalScoreHandler = new FinalScoreCalculationHandler(config.finalScoreConfig);
+        const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
+        const courseGroupHandler = new CourseGroupFilterHandler(this.config.courseGroupConfigs);
+        const excludedSubjectHandler = new ExcludedSubjectHandler(this.config.excludedSubjectConfig);
+        const scoreConversionHandler = new ScoreConversionHandler(this.config.scoreConversionConfigs);
+        const finalScoreHandler = new FinalScoreCalculationHandler(this.config.finalScoreConfig);
 
         validationHandler
             .setNext(semesterHandler)

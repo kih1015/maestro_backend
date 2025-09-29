@@ -33,14 +33,6 @@ export class Student {
         this.scoreResult = scoreResult;
     }
 
-    /**
-     * Calculate final score and subject calculation details.
-     * This will be overridden by university-specific student subclasses.
-     */
-    calculate(): void {
-        throw new Error('calculate() not implemented for base Student');
-    }
-
     static create(props: {
         id?: number;
         identifyNumber: string;
@@ -181,7 +173,6 @@ export class SubjectScoreCalculationDetail {
 
     static create(
         subjectScoreId: number,
-        subject: Subject,
         isReflected: boolean,
         nonReflectionReason?: string | null,
         convertedScore?: number,

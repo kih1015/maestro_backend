@@ -9,7 +9,6 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
             const include = this.isUpToThirdFirstSemester(s.grade, s.term);
             s.calculationDetail = SubjectScoreCalculationDetail.create(
                 s.id,
-                s,
                 include,
                 include ? null : '3학년 2학기 미반영',
             );
@@ -20,7 +19,6 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
                 if (s.grade === 2 && s.term === 2) {
                     s.calculationDetail = SubjectScoreCalculationDetail.create(
                         s.id,
-                        s,
                         false,
                         '조기졸업자 2학년 2학기 미반영',
                     );

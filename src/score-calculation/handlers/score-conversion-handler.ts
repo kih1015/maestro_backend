@@ -46,7 +46,6 @@ export class ScoreConversionHandler extends BaseScoreHandler {
             });
             s.calculationDetail = SubjectScoreCalculationDetail.create(
                 s.id,
-                s,
                 result.convertible,
                 result.reason,
                 result.score,

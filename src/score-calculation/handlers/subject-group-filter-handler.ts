@@ -22,7 +22,7 @@ export class SubjectGroupFilterHandler extends BaseScoreHandler {
             if (s.calculationDetail && !s.calculationDetail.isReflected) continue;
             const group = s.subjectGroup ?? '';
             if (allowedGroups.indexOf(group) === -1) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, s, false, '비반영 교과군');
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '비반영 교과군');
             }
         }
     }

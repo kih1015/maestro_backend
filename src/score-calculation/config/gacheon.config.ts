@@ -5,7 +5,7 @@ import { SubjectConfig } from '../handlers/subject-group-filter-handler';
 import { CourseGroupConfig } from '../handlers/course-group-filter-handler';
 import { ScoreConversionConfig } from '../handlers/score-conversion-handler';
 
-class GCNAdmissionConfig {
+class GacheonConfig {
     // === 상수 코드 매핑 ===
     private static readonly ADMISSION_CODES = {
         지역균형: '61',
@@ -154,15 +154,15 @@ class GCNAdmissionConfig {
     getAdmissionCode(type: string): string {
         switch (type) {
             case '지역균형':
-                return GCNAdmissionConfig.ADMISSION_CODES.지역균형;
+                return GacheonConfig.ADMISSION_CODES.지역균형;
             case '학생부우수자':
-                return GCNAdmissionConfig.ADMISSION_CODES.학생부우수자;
+                return GacheonConfig.ADMISSION_CODES.학생부우수자;
             case '농어촌교과':
-                return GCNAdmissionConfig.ADMISSION_CODES.농어촌교과;
+                return GacheonConfig.ADMISSION_CODES.농어촌교과;
             case '특성화고교':
-                return GCNAdmissionConfig.ADMISSION_CODES.특성화고교;
+                return GacheonConfig.ADMISSION_CODES.특성화고교;
             case '실기우수자':
-                return GCNAdmissionConfig.ADMISSION_CODES.실기우수자;
+                return GacheonConfig.ADMISSION_CODES.실기우수자;
             default:
                 return '';
         }
@@ -171,13 +171,13 @@ class GCNAdmissionConfig {
     getUnitCode(type: string): string {
         switch (type) {
             case '인문계열':
-                return GCNAdmissionConfig.UNIT_CODES.인문계열;
+                return GacheonConfig.UNIT_CODES.인문계열;
             case '자연계열':
-                return GCNAdmissionConfig.UNIT_CODES.자연계열;
+                return GacheonConfig.UNIT_CODES.자연계열;
             case '의한약':
-                return GCNAdmissionConfig.UNIT_CODES.의한약;
+                return GacheonConfig.UNIT_CODES.의한약;
             case '예체능계열':
-                return GCNAdmissionConfig.UNIT_CODES.예체능계열;
+                return GacheonConfig.UNIT_CODES.예체능계열;
             default:
                 return '';
         }
@@ -186,15 +186,15 @@ class GCNAdmissionConfig {
     getSubjectSeparationCode(type: string): string {
         switch (type) {
             case '체육과목':
-                return GCNAdmissionConfig.SUBJECT_SEPARATION_CODES.체육과목;
+                return GacheonConfig.SUBJECT_SEPARATION_CODES.체육과목;
             case '진로선택':
-                return GCNAdmissionConfig.SUBJECT_SEPARATION_CODES.진로선택;
+                return GacheonConfig.SUBJECT_SEPARATION_CODES.진로선택;
             case '일반교과':
-                return GCNAdmissionConfig.SUBJECT_SEPARATION_CODES.일반교과;
+                return GacheonConfig.SUBJECT_SEPARATION_CODES.일반교과;
             default:
                 return '';
         }
     }
 }
 
-export default GCNAdmissionConfig;
+export default GacheonConfig;

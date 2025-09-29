@@ -9,33 +9,24 @@ import { ScoreCalculationUseCase } from './services/score-calculation.use-case';
 import { StudentQueryUseCase } from './services/student-query.use-case';
 import { ScoreExportUseCase } from './services/score-export.use-case';
 import { SummaryUseCase } from './services/summary.use-case';
+import { GacheonCalculator } from './calculator/gacheon.calculator';
 
-// Provider tokens for dependency injection
-export const STUDENT_READ_REPOSITORY = 'STUDENT_READ_REPOSITORY';
-export const STUDENT_SCORE_RESULT_REPOSITORY = 'STUDENT_SCORE_RESULT_REPOSITORY';
-export const SUBJECT_SCORE_CALCULATION_DETAIL_REPOSITORY = 'SUBJECT_SCORE_CALCULATION_DETAIL_REPOSITORY';
+export const CALCULATORS = Symbol('CALCULATORS');
 
 @Module({
     imports: [PrismaModule, EventsModule],
     controllers: [ScoreCalculationController],
     providers: [
+        GacheonCalculator,
+        {
+            provide: CALCULATORS,
+            useFactory: (gacheon: GacheonCalculator) => [gacheon],
+            inject: [GacheonCalculator],
+        },
         ScoreCalculationUseCase,
         StudentQueryUseCase,
         ScoreExportUseCase,
         SummaryUseCase,
-        {
-            provide: STUDENT_READ_REPOSITORY,
-            useClass: StudentReadRepository,
-        },
-        {
-            provide: STUDENT_SCORE_RESULT_REPOSITORY,
-            useClass: StudentScoreResultRepository,
-        },
-        {
-            provide: SUBJECT_SCORE_CALCULATION_DETAIL_REPOSITORY,
-            useClass: SubjectScoreCalculationDetailRepository,
-        },
-        // Also provide the concrete classes for direct injection
         StudentReadRepository,
         StudentScoreResultRepository,
         SubjectScoreCalculationDetailRepository,
