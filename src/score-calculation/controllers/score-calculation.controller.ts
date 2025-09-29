@@ -11,7 +11,7 @@ import {
     Res,
     Request,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiProduces } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ScoreCalculationUseCase } from '../services/score-calculation.use-case';
@@ -30,6 +30,11 @@ import {
     StudentScoreDetailResponseDto,
     ErrorResponseDto,
 } from '../dto/response.dto';
+import { CalculateScoresDecorator } from '../decorators/calculate-scores.decorator';
+import { GetSummaryDecorator } from '../decorators/get-summary.decorator';
+import { ListStudentsDecorator } from '../decorators/list-students.decorator';
+import { GetStudentDetailDecorator } from '../decorators/get-student-detail.decorator';
+import { ExportScoresDecorator } from '../decorators/export-scores.decorator';
 
 @ApiTags('score-calculation')
 @Controller('score-calculation')
@@ -46,22 +51,7 @@ export class ScoreCalculationController {
     ) {}
 
     @Post()
-    @ApiOperation({
-        summary: 'Calculate scores',
-        description: 'Start score calculation process for a recruitment season',
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Score calculation started or already running',
-        type: CalculateScoresResponseDto,
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Validation failed',
-        type: ErrorResponseDto,
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @CalculateScoresDecorator()
     calculateScores(
         @Body(ValidationPipe) dto: CalculateScoresDto,
         @Request() req: { user?: { sub: number; email: string } },
@@ -100,114 +90,19 @@ export class ScoreCalculationController {
     }
 
     @Get('summary')
-    @ApiOperation({
-        summary: 'Get calculation summary',
-        description: 'Get summary statistics for score calculation in a recruitment season',
-    })
-    @ApiQuery({
-        name: 'recruitmentSeasonId',
-        description: 'Recruitment season ID (required)',
-        example: 1,
-        type: Number,
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Summary retrieved successfully',
-        type: SummaryResponseDto,
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Validation failed',
-        type: ErrorResponseDto,
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @GetSummaryDecorator()
     async getSummary(@Query(ValidationPipe) dto: GetSummaryDto): Promise<SummaryResponseDto> {
         return this.summaryUseCase.getSummary(dto);
     }
 
     @Get('student')
-    @ApiOperation({
-        summary: 'List students with scores',
-        description: 'Get a paginated list of students with their calculated scores',
-    })
-    @ApiQuery({
-        name: 'recruitmentSeasonId',
-        description: 'Recruitment season ID (required)',
-        example: 1,
-        type: Number,
-    })
-    @ApiQuery({
-        name: 'page',
-        description: 'Page number for pagination',
-        example: 1,
-        required: false,
-        type: Number,
-    })
-    @ApiQuery({
-        name: 'pageSize',
-        description: 'Number of items per page (max 100)',
-        example: 10,
-        required: false,
-        type: Number,
-    })
-    @ApiQuery({
-        name: 'q',
-        description: 'Search query for student identification number or exam number',
-        example: '20240001',
-        required: false,
-        type: String,
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Students with scores retrieved successfully',
-        type: ListStudentsResponseDto,
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Validation failed',
-        type: ErrorResponseDto,
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @ListStudentsDecorator()
     async listStudents(@Query(ValidationPipe) dto: ListStudentsDto): Promise<ListStudentsResponseDto> {
         return this.studentQueryUseCase.listStudents(dto);
     }
 
     @Get('student/detail')
-    @ApiOperation({
-        summary: 'Get student score detail',
-        description: 'Get detailed score calculation information for a specific student',
-    })
-    @ApiQuery({
-        name: 'recruitmentSeasonId',
-        description: 'Recruitment season ID (required)',
-        example: 1,
-        type: Number,
-    })
-    @ApiQuery({
-        name: 'identifyNumber',
-        description: 'Student identification number (required)',
-        example: '20240001',
-        type: String,
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Student score detail retrieved successfully',
-        type: StudentScoreDetailResponseDto,
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Validation failed',
-        type: ErrorResponseDto,
-    })
-    @ApiResponse({
-        status: 404,
-        description: 'Student not found',
-        type: ErrorResponseDto,
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
+    @GetStudentDetailDecorator()
     async getStudentDetail(
         @Query(ValidationPipe) dto: GetStudentDetailDto,
     ): Promise<StudentScoreDetailResponseDto | ErrorResponseDto> {
@@ -221,36 +116,7 @@ export class ScoreCalculationController {
     }
 
     @Get('export')
-    @ApiOperation({
-        summary: 'Export scores to Excel',
-        description: 'Export calculated scores for a recruitment season to Excel file',
-    })
-    @ApiQuery({
-        name: 'recruitmentSeasonId',
-        description: 'Recruitment season ID (required)',
-        example: 1,
-        type: Number,
-    })
-    @ApiResponse({
-        status: 200,
-        description: 'Excel file with score results',
-        content: {
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': {
-                schema: {
-                    type: 'string',
-                    format: 'binary',
-                },
-            },
-        },
-    })
-    @ApiResponse({
-        status: 400,
-        description: 'Validation failed',
-        type: ErrorResponseDto,
-    })
-    @ApiResponse({ status: 401, description: 'Unauthorized' })
-    @ApiResponse({ status: 500, description: 'Internal server error' })
-    @ApiProduces('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    @ExportScoresDecorator()
     async exportScores(@Query(ValidationPipe) dto: ExportScoresDto, @Res() res: Response): Promise<void> {
         const xlsxBuffer = await this.scoreExportUseCase.exportScores(dto);
 
