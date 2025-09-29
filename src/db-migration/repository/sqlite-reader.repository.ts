@@ -53,7 +53,7 @@ export interface SqliteSubjectScore {
 }
 
 @Injectable()
-export class SqliteReaderService {
+export class SqliteReaderRepository {
     async openDatabase(filePath: string): Promise<Database> {
         return new Promise((resolve, reject) => {
             const db = new Database(filePath, err => {

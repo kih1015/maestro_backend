@@ -59,7 +59,7 @@ export interface PostgresSubjectScore {
 }
 
 @Injectable()
-export class PostgresMigrationService {
+export class PostgresMigrationRepository {
     private pool: Pool;
 
     constructor(private configService: ConfigService) {
