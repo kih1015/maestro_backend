@@ -1,15 +1,13 @@
 import { Student } from './student.entity';
-import {
-    GCNValidationHandler,
-    SemesterReflectionHandler,
-    SubjectGroupFilterHandler,
-    CourseGroupFilterHandler,
-    ExcludedSubjectHandler,
-    ScoreConversionHandler,
-    FinalScoreCalculationHandler,
-} from '../handlers/gcn-handlers';
 import { ScoreCalculationContext } from '../handlers/base-handler';
-import { GCNAdmissionConfig } from './gcn-admission-rules';
+import GCNAdmissionConfig from './gcn-admission-rules';
+import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
+import { SemesterReflectionHandler } from '../handlers/semester-reflection-handler';
+import { SubjectGroupFilterHandler } from '../handlers/subject-group-filter-handler';
+import { CourseGroupFilterHandler } from '../handlers/course-group-filter-handler';
+import { ExcludedSubjectHandler } from '../handlers/excluded-subject-handler';
+import { ScoreConversionHandler } from '../handlers/score-conversion-handler';
+import { FinalScoreCalculationHandler } from '../handlers/final-score-calculation-handler';
 
 export class GCNStudent extends Student {
     public override calculate(): void {

@@ -1,54 +1,11 @@
-export interface ConvertScoreInput {
-    admission: string;
-    unit: string;
-    courseGroup: string;
-    grade: number | null;
-    rawScore: number | null;
-}
+import { ValidationConfig } from '../handlers/gcn-validation-handler';
+import { ExcludedSubjectConfig } from '../handlers/excluded-subject-handler';
+import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
+import { SubjectConfig } from '../handlers/subject-group-filter-handler';
+import { CourseGroupConfig } from '../handlers/course-group-filter-handler';
+import { ScoreConversionConfig } from '../handlers/score-conversion-handler';
 
-export interface ConvertScoreResult {
-    convertible: boolean;
-    score: number;
-    reason: string;
-}
-
-export interface SubjectConfig {
-    admissions: string[];
-    units: string[];
-    reflectedSubjects: string[];
-}
-
-export interface CourseGroupConfig {
-    admissions: string[];
-    units: string[];
-    reflectedCourseGroups: string[];
-}
-
-export interface ScoreConversionConfig {
-    admissions: string[];
-    units: string[];
-    courseGroups?: string[];
-    gradeMapping: { [grade: number]: number };
-    rawScoreMapping?: { min: number; score: number }[];
-}
-
-export interface ValidationConfig {
-    readonly supportedAdmissions: string[];
-    readonly supportedUnits: string[];
-}
-
-export interface ExcludedSubjectConfig {
-    readonly commonExcludedSubjects: string[];
-    readonly exclusionAdmissionCode: string; // 제외 적용 전형 코드
-}
-
-export interface FinalScoreConfig {
-    readonly jiguynAdmissionCode: string; // 지역균형 전형 코드
-    readonly generalSubjectCode: string; // 일반교과 코드
-    readonly careerSubjectCode: string; // 진로선택 코드
-}
-
-export class GCNAdmissionConfig {
+class GCNAdmissionConfig {
     // === 상수 코드 매핑 ===
     private static readonly ADMISSION_CODES = {
         지역균형: '61',
@@ -239,3 +196,5 @@ export class GCNAdmissionConfig {
         }
     }
 }
+
+export default GCNAdmissionConfig;
