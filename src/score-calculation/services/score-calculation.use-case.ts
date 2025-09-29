@@ -29,8 +29,8 @@ export class ScoreCalculationUseCase {
     }> {
         const recruitmentSeason = await this.recruitmentService.getRecruitmentSeasonById(recruitmentSeasonId);
         const calculatorType = recruitmentSeason.calculatorType;
-        const calculator: Calculator | undefined = this.calculators.find(
-            calculator => calculator.type === calculatorType,
+        const calculator: Calculator | undefined = this.calculators.find(calculator =>
+            calculator.support(calculatorType),
         );
         const emit = (eventType: string, data: unknown) => {
             this.eventsService.sendToUser(userId, `score.${eventType}`, {

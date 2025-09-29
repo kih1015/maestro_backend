@@ -14,8 +14,12 @@ import { CalculatorEnum } from './calculator.enum';
 
 @Injectable()
 export class GacheonCalculator implements Calculator {
-    readonly type = CalculatorEnum.GACHEON;
+    private readonly type = CalculatorEnum.GACHEON;
     private readonly config = new GacheonConfig();
+
+    support(calculatorType: CalculatorEnum): boolean {
+        return calculatorType === this.type;
+    }
 
     calculate(student: Student): void {
         const context: ScoreCalculationContext = {
