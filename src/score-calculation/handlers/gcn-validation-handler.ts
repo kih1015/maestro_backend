@@ -2,11 +2,14 @@ import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
 import { StudentScoreResult } from '../entities/student.entity';
 
 export interface ValidationConfig {
-    readonly supportedAdmissions: string[];
-    readonly supportedUnits: string[];
+    readonly admissions: string[];
+    readonly units: string[];
 }
 
 export class GCNValidationHandler extends BaseScoreHandler {
+    private readonly subject = '전형-모집단위 필터';
+    private readonly description = '유효 전형-모집단위만 필터링합니다.';
+
     constructor(private readonly config: ValidationConfig) {
         super();
     }
@@ -29,10 +32,10 @@ export class GCNValidationHandler extends BaseScoreHandler {
     }
 
     private isValidAdmission(admission: string): boolean {
-        return this.config.supportedAdmissions.includes(admission);
+        return this.config.admissions.includes(admission);
     }
 
     private isValidUnit(unit: string): boolean {
-        return this.config.supportedUnits.includes(unit);
+        return this.config.units.includes(unit);
     }
 }

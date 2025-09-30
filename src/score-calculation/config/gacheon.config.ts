@@ -47,8 +47,8 @@ export class GacheonConfig {
 
     // === ValidationConfig 인터페이스 관련 설정 ===
     readonly validationConfig: ValidationConfig = {
-        supportedAdmissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
-        supportedUnits: [...GacheonConfig.ALL_UNIT_CODES],
+        admissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
+        units: [...GacheonConfig.ALL_UNIT_CODES],
     };
 
     // === ExcludedSubjectConfig 인터페이스 관련 설정 ===

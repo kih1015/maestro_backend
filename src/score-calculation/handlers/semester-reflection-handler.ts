@@ -2,6 +2,9 @@ import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export class SemesterReflectionHandler extends BaseScoreHandler {
+    private readonly subject = '반영 학기 필터';
+    private readonly description = '특정 학기를 필터링합니다.';
+
     protected process(context: ScoreCalculationContext): void {
         const student = context.student;
 

@@ -7,6 +7,9 @@ export interface FinalScoreConfig {
 }
 
 export class FinalScoreCalculationHandler extends BaseScoreHandler {
+    private readonly subject = '이수가중평균 계산';
+    private readonly description = '이수가중평균 점수를 계산합니다.';
+
     constructor(private readonly config: FinalScoreConfig[]) {
         super();
     }

@@ -9,6 +9,9 @@ export interface WeightedFinalScoreConfig {
 }
 
 export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
+    private readonly subject = '교과 편제 필터';
+    private readonly description = '교과 편제를 필터링합니다.';
+
     private static readonly GENERAL_SUBJECT_CODE = '01';
     private static readonly CAREER_SUBJECT_CODE = '02';
 

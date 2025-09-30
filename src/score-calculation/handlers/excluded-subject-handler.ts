@@ -8,6 +8,9 @@ export interface ExcludedSubjectConfig {
 }
 
 export class ExcludedSubjectHandler extends BaseScoreHandler {
+    private readonly subject = '과목명 필터';
+    private readonly description = '과목명을 기준으로 필터링합니다.';
+
     constructor(private readonly config: ExcludedSubjectConfig[]) {
         super();
     }

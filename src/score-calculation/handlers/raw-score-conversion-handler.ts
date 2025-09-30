@@ -9,6 +9,9 @@ export interface RawScoreConversionConfig {
 }
 
 export class RawScoreConversionHandler extends BaseScoreHandler {
+    private readonly subject = '원점수 환산';
+    private readonly description = '원점수를 기준 점수로 환산합니다.';
+
     constructor(private readonly config: RawScoreConversionConfig[]) {
         super();
     }

@@ -9,6 +9,9 @@ export interface GradeConversionConfig {
 }
 
 export class GradeConversionHandler extends BaseScoreHandler {
+    private readonly subject = '석차 등급 점수 환산';
+    private readonly description = '석차 등급을 기준 점수로 환산합니다.';
+
     constructor(private readonly config: GradeConversionConfig[]) {
         super();
     }

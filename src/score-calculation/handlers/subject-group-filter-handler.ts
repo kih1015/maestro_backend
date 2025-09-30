@@ -8,6 +8,9 @@ export interface SubjectConfig {
 }
 
 export class SubjectGroupFilterHandler extends BaseScoreHandler {
+    private readonly subject = '교과 편제 필터';
+    private readonly description = '교과 편제를 필터링합니다.';
+
     constructor(private readonly config: SubjectConfig[]) {
         super();
     }
