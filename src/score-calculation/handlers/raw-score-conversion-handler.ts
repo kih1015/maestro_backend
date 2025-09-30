@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export interface RawScoreConversionConfig {
@@ -58,5 +58,22 @@ export class RawScoreConversionHandler extends BaseScoreHandler {
 
     private isValidRawScore(s?: number | null): s is number {
         return typeof s === 'number' && s >= 0 && s <= 100;
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'converter',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+                includedGroup: c.subjectSeparations,
+                mappingTable: c.rawScoreMapping.map(m => ({
+                    key: `${m.min}점 이상`,
+                    value: `${m.score}점`,
+                })),
+            })),
+        };
     }
 }

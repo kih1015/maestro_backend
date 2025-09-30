@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { StudentScoreResult } from '../entities/student.entity';
 
 export interface ValidationConfig {
@@ -37,5 +37,19 @@ export class GCNValidationHandler extends BaseScoreHandler {
 
     private isValidUnit(unit: string): boolean {
         return this.config.units.includes(unit);
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'filter',
+            subject: this.subject,
+            description: this.description,
+            config: [
+                {
+                    admissions: this.config.admissions,
+                    units: this.config.units,
+                },
+            ],
+        };
     }
 }

@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export interface ExcludedSubjectConfig {
@@ -41,5 +41,18 @@ export class ExcludedSubjectHandler extends BaseScoreHandler {
 
     private findMatchingConfig(admission: string, unit: string): ExcludedSubjectConfig | undefined {
         return this.config.find(cfg => cfg.admissions.includes(admission) && cfg.units.includes(unit));
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'filter',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+                excludedGroup: c.commonExcludedSubjects,
+            })),
+        };
     }
 }

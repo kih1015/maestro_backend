@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { StudentScoreResult } from '../entities/student.entity';
 
 export interface FinalScoreConfig {
@@ -47,5 +47,17 @@ export class FinalScoreCalculationHandler extends BaseScoreHandler {
         const totalWeightedScore = pairs.reduce((acc, p) => acc + p.score * p.unit, 0);
         const totalWeight = pairs.reduce((acc, p) => acc + p.unit, 0);
         return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'calc',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+            })),
+        };
     }
 }

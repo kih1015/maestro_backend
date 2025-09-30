@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export interface GradeConversionConfig {
@@ -58,5 +58,22 @@ export class GradeConversionHandler extends BaseScoreHandler {
 
     private isValidGrade(g?: number | null): g is number {
         return typeof g === 'number' && Number.isInteger(g) && g >= 1 && g <= 9;
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'converter',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+                includedGroup: c.subjectSeparations,
+                mappingTable: Object.entries(c.gradeMapping).map(([key, value]) => ({
+                    key: `${key}등급`,
+                    value: `${value}점`,
+                })),
+            })),
+        };
     }
 }

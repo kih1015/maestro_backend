@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { StudentScoreResult } from '../entities/student.entity';
 
 export interface WeightedFinalScoreConfig {
@@ -9,8 +9,8 @@ export interface WeightedFinalScoreConfig {
 }
 
 export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
-    private readonly subject = '교과 편제 필터';
-    private readonly description = '교과 편제를 필터링합니다.';
+    private readonly subject = '가중 이수가중평균 계산';
+    private readonly description = '일반/전문 교과에 가중치를 적용한 이수가중평균을 계산합니다.';
 
     private static readonly GENERAL_SUBJECT_CODE = '01';
     private static readonly CAREER_SUBJECT_CODE = '02';
@@ -70,5 +70,21 @@ export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
         const totalWeightedScore = pairs.reduce((acc, p) => acc + p.score * p.unit, 0);
         const totalWeight = pairs.reduce((acc, p) => acc + p.unit, 0);
         return totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'calc',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+                mappingTable: [
+                    { key: '일반교과 가중치', value: `${c.generalWeight}` },
+                    { key: '전문교과 가중치', value: `${c.careerWeight}` },
+                ],
+            })),
+        };
     }
 }

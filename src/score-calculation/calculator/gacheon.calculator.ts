@@ -1,6 +1,6 @@
 import { Calculator } from './calculator';
 import { Student } from '../entities/student.entity';
-import { ScoreCalculationContext } from '../handlers/base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from '../handlers/base-handler';
 import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
 import { SemesterReflectionHandler } from '../handlers/semester-reflection-handler';
 import { SubjectGroupFilterHandler } from '../handlers/subject-group-filter-handler';
@@ -18,21 +18,9 @@ import { WeightedFinalScoreCalculationHandler } from '../handlers/weighted-final
 export class GacheonCalculator implements Calculator {
     private readonly type = CalculatorEnum.GACHEON;
     private readonly config = new GacheonConfig();
+    private readonly handler: BaseScoreHandler;
 
-    support(calculatorType: CalculatorEnum): boolean {
-        return calculatorType === this.type;
-    }
-
-    calculate(student: Student): void {
-        const context: ScoreCalculationContext = {
-            student: student,
-            shouldContinue: true,
-        };
-
-        this.createHandlerChain().handle(context);
-    }
-
-    private createHandlerChain() {
+    constructor() {
         const validationHandler = new GCNValidationHandler(this.config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler(this.config.semesterReflectionConfig);
         const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
@@ -53,6 +41,23 @@ export class GacheonCalculator implements Calculator {
             .setNext(finalScoreHandler)
             .setNext(weightedScoreHandler);
 
-        return validationHandler;
+        this.handler = validationHandler;
+    }
+
+    support(calculatorType: CalculatorEnum): boolean {
+        return calculatorType === this.type;
+    }
+
+    calculate(student: Student): void {
+        const context: ScoreCalculationContext = {
+            student: student,
+            shouldContinue: true,
+        };
+
+        this.handler.handle(context);
+    }
+
+    getCalculatorInfo(): HandlerInfo[] {
+        return this.handler.listInfo();
     }
 }

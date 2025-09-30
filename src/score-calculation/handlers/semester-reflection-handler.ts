@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export interface SemesterReflectionConfig {
@@ -56,5 +56,25 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
 
     private findMatchingConfig(admission: string, unit: string): SemesterReflectionConfig | undefined {
         return this.config.find(cfg => cfg.admissions.includes(admission) && cfg.units.includes(unit));
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'filter',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+                mappingTable: [
+                    { key: '최대 학년', value: `${c.maxGrade}학년` },
+                    { key: '최대 학기', value: `${c.maxTerm}학기` },
+                    {
+                        key: '조기졸업자 2학년 2학기 제외',
+                        value: c.excludeEarlyGraduateSecondGradeSecondTerm ? '예' : '아니오',
+                    },
+                ],
+            })),
+        };
     }
 }

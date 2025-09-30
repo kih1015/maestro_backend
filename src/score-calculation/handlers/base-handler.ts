@@ -6,6 +6,19 @@ export interface ScoreCalculationContext {
     metadata?: Record<string, any>;
 }
 
+export interface HandlerInfo {
+    type: 'filter' | 'converter' | 'calc';
+    subject: string;
+    description: string;
+    config: Array<{
+        admissions: string[];
+        units: string[];
+        excludedGroup?: string[];
+        includedGroup?: string[];
+        mappingTable?: Array<{ key: string; value: string }>;
+    }>;
+}
+
 export abstract class BaseScoreHandler {
     private nextHandler?: BaseScoreHandler;
 
@@ -25,4 +38,16 @@ export abstract class BaseScoreHandler {
     }
 
     protected abstract process(context: ScoreCalculationContext): void;
+
+    public listInfo(): HandlerInfo[] {
+        const info: HandlerInfo[] = [];
+
+        while (this.nextHandler) {
+            info.push(this.nextHandler.getInfo());
+        }
+
+        return info;
+    }
+
+    public abstract getInfo(): HandlerInfo;
 }

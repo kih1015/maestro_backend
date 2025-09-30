@@ -1,4 +1,4 @@
-import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
 export interface SubjectConfig {
@@ -33,5 +33,18 @@ export class SubjectGroupFilterHandler extends BaseScoreHandler {
     private getReflectedSubjects(admission: string, unit: string): string[] {
         const config = this.config.find(config => config.admissions.includes(admission) && config.units.includes(unit));
         return config ? config.reflectedSubjects : [];
+    }
+
+    public getInfo(): HandlerInfo {
+        return {
+            type: 'filter',
+            subject: this.subject,
+            description: this.description,
+            config: this.config.map(c => ({
+                admissions: c.admissions,
+                units: c.units,
+                includedGroup: c.reflectedSubjects,
+            })),
+        };
     }
 }
