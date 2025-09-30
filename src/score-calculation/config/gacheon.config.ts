@@ -2,10 +2,11 @@ import { ValidationConfig } from '../handlers/gcn-validation-handler';
 import { ExcludedSubjectConfig } from '../handlers/excluded-subject-handler';
 import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
 import { SubjectConfig } from '../handlers/subject-group-filter-handler';
-import { CourseGroupConfig } from '../handlers/course-group-filter-handler';
-import { ScoreConversionConfig } from '../handlers/score-conversion-handler';
+import { SubjectSeparationConfig } from '../handlers/course-group-filter-handler';
+import { GradeConversionConfig } from '../handlers/grade-conversion-handler';
+import { RawScoreConversionConfig } from '../handlers/raw-score-conversion-handler';
 
-class GacheonConfig {
+export class GacheonConfig {
     // === 상수 코드 매핑 ===
     private static readonly ADMISSION_CODES = {
         지역균형: '61',
@@ -28,24 +29,35 @@ class GacheonConfig {
         일반교과: '01',
     } as const;
 
+    private static readonly ALL_ADMISSIONS_CODES = [
+        this.ADMISSION_CODES.지역균형,
+        this.ADMISSION_CODES.학생부우수자,
+        this.ADMISSION_CODES.농어촌교과,
+        this.ADMISSION_CODES.특성화고교,
+        this.ADMISSION_CODES.실기우수자,
+    ];
+
+    private static readonly ALL_UNIT_CODES = [
+        this.UNIT_CODES.인문계열,
+        this.UNIT_CODES.자연계열,
+        this.UNIT_CODES.의한약,
+        this.UNIT_CODES.예체능계열,
+    ];
+
     // === ValidationConfig 인터페이스 관련 설정 ===
     readonly validationConfig: ValidationConfig = {
-        supportedAdmissions: ['61', '11', '62', '76', '74'],
-        supportedUnits: ['46', '20', '18', '29'],
+        supportedAdmissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
+        supportedUnits: [...GacheonConfig.ALL_UNIT_CODES],
     };
 
     // === ExcludedSubjectConfig 인터페이스 관련 설정 ===
-    readonly excludedSubjectConfig: ExcludedSubjectConfig = {
-        commonExcludedSubjects: ['국어', '수학', '영어', '통합사회', '통합과학', '한국사'],
-        exclusionAdmissionCode: '61', // 지역균형 전형에서만 특정 과목 제외
-    };
-
-    // === FinalScoreConfig 인터페이스 관련 설정 ===
-    readonly finalScoreConfig: FinalScoreConfig = {
-        jiguynAdmissionCode: '61', // 지역균형 전형 코드
-        generalSubjectCode: '01', // 일반교과 코드
-        careerSubjectCode: '02', // 진로선택 코드
-    };
+    readonly excludedSubjectConfig: ExcludedSubjectConfig[] = [
+        {
+            admissions: ['61'],
+            units: ['46', '20', '18', '29'],
+            commonExcludedSubjects: ['국어', '수학', '영어', '통합사회', '통합과학', '한국사'],
+        },
+    ];
 
     // === SubjectConfig 인터페이스 관련 설정 ===
     readonly subjectConfigs: SubjectConfig[] = [
@@ -72,26 +84,25 @@ class GacheonConfig {
     ];
 
     // === CourseGroupConfig 인터페이스 관련 설정 ===
-    readonly courseGroupConfigs: CourseGroupConfig[] = [
+    readonly subjectSeparationsConfigs: SubjectSeparationConfig[] = [
         {
             admissions: ['61'], // 지역균형
             units: ['46', '20', '18', '29'], // 모든 계열
-            reflectedCourseGroups: ['01', '02'], // 일반교과, 진로선택
+            subjectSeparations: ['01', '02'], // 일반교과, 진로선택
         },
         {
             admissions: ['11', '62', '76', '74'], // NOT_지역균형
             units: ['46', '20', '18', '29'], // 모든 계열
-            reflectedCourseGroups: ['01'], // 일반교과
+            subjectSeparations: ['01'], // 일반교과
         },
     ];
 
-    // === ScoreConversionConfig 인터페이스 관련 설정 ===
-    readonly scoreConversionConfigs: ScoreConversionConfig[] = [
-        // 지역균형 - 일반교과 (등급 기반)
+    // === 등급 환산 설정 ===
+    readonly gradeConversionConfig: GradeConversionConfig[] = [
         {
             admissions: ['61'],
             units: ['46', '20', '18', '29'],
-            courseGroups: ['01'],
+            subjectSeparations: ['01'],
             gradeMapping: {
                 1: 100,
                 2: 100,
@@ -104,22 +115,11 @@ class GacheonConfig {
                 9: 70,
             },
         },
-        // 지역균형 - 진로선택 (원점수 기반)
-        {
-            admissions: ['61'],
-            units: ['46', '20', '18', '29'],
-            courseGroups: ['02'],
-            gradeMapping: {},
-            rawScoreMapping: [
-                { min: 80, score: 100 },
-                { min: 60, score: 99.5 },
-                { min: 0, score: 70 },
-            ],
-        },
         // NOT_지역균형 - 인문/자연계열
         {
             admissions: ['11', '62', '76', '74'],
             units: ['46', '20'],
+            subjectSeparations: ['01'],
             gradeMapping: {
                 1: 100,
                 2: 100,
@@ -136,6 +136,7 @@ class GacheonConfig {
         {
             admissions: ['11', '62', '76', '74'],
             units: ['18', '29'],
+            subjectSeparations: ['01'],
             gradeMapping: {
                 1: 100,
                 2: 99.5,
@@ -150,51 +151,24 @@ class GacheonConfig {
         },
     ];
 
-    // === 코드 변환 유틸리티 메서드들 ===
-    getAdmissionCode(type: string): string {
-        switch (type) {
-            case '지역균형':
-                return GacheonConfig.ADMISSION_CODES.지역균형;
-            case '학생부우수자':
-                return GacheonConfig.ADMISSION_CODES.학생부우수자;
-            case '농어촌교과':
-                return GacheonConfig.ADMISSION_CODES.농어촌교과;
-            case '특성화고교':
-                return GacheonConfig.ADMISSION_CODES.특성화고교;
-            case '실기우수자':
-                return GacheonConfig.ADMISSION_CODES.실기우수자;
-            default:
-                return '';
-        }
-    }
+    // === 원점수 환산 설정 ===
+    readonly rawScoreConversionConfig: RawScoreConversionConfig[] = [
+        {
+            admissions: ['61'],
+            units: ['46', '20', '18', '29'],
+            subjectSeparations: ['02'],
+            rawScoreMapping: [
+                { min: 80, score: 100 },
+                { min: 60, score: 99.5 },
+                { min: 0, score: 70 },
+            ],
+        },
+    ];
 
-    getUnitCode(type: string): string {
-        switch (type) {
-            case '인문계열':
-                return GacheonConfig.UNIT_CODES.인문계열;
-            case '자연계열':
-                return GacheonConfig.UNIT_CODES.자연계열;
-            case '의한약':
-                return GacheonConfig.UNIT_CODES.의한약;
-            case '예체능계열':
-                return GacheonConfig.UNIT_CODES.예체능계열;
-            default:
-                return '';
-        }
-    }
-
-    getSubjectSeparationCode(type: string): string {
-        switch (type) {
-            case '체육과목':
-                return GacheonConfig.SUBJECT_SEPARATION_CODES.체육과목;
-            case '진로선택':
-                return GacheonConfig.SUBJECT_SEPARATION_CODES.진로선택;
-            case '일반교과':
-                return GacheonConfig.SUBJECT_SEPARATION_CODES.일반교과;
-            default:
-                return '';
-        }
-    }
+    // === FinalScoreConfig 인터페이스 관련 설정 ===
+    readonly finalScoreConfig: FinalScoreConfig = {
+        jiguynAdmissionCode: '61', // 지역균형 전형 코드
+        generalSubjectCode: '01', // 일반교과 코드
+        careerSubjectCode: '02', // 진로선택 코드
+    };
 }
-
-export default GacheonConfig;

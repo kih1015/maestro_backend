@@ -1,14 +1,17 @@
 import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
 
-export interface CourseGroupConfig {
+export interface SubjectSeparationConfig {
     admissions: string[];
     units: string[];
-    reflectedCourseGroups: string[];
+    subjectSeparations: string[];
 }
 
 export class CourseGroupFilterHandler extends BaseScoreHandler {
-    constructor(private readonly config: CourseGroupConfig[]) {
+    private readonly subject = '교과 편제 필터';
+    private readonly description = '교과 편제를 필터링합니다.';
+
+    constructor(private readonly config: SubjectSeparationConfig[]) {
         super();
     }
 
@@ -29,6 +32,6 @@ export class CourseGroupFilterHandler extends BaseScoreHandler {
 
     private getReflectedCourseGroups(admission: string, unit: string): string[] {
         const config = this.config.find(config => config.admissions.includes(admission) && config.units.includes(unit));
-        return config ? config.reflectedCourseGroups : [];
+        return config ? config.subjectSeparations : [];
     }
 }

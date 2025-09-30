@@ -1,0 +1,65 @@
+import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
+import { SubjectScoreCalculationDetail } from '../entities/student.entity';
+
+export interface GradeConversionConfig {
+    admissions: string[];
+    units: string[];
+    subjectSeparations: string[];
+    gradeMapping: { [grade: number]: number };
+}
+
+export class GradeConversionHandler extends BaseScoreHandler {
+    constructor(private readonly config: GradeConversionConfig[]) {
+        super();
+    }
+
+    protected process(context: ScoreCalculationContext): void {
+        const student = context.student;
+        const type = student.recruitmentTypeCode;
+        const unitCode = student.recruitmentUnitCode;
+
+        for (const s of student.subjectScores) {
+            if (s.calculationDetail && !s.calculationDetail.isReflected) {
+                continue;
+            }
+
+            const config = this.findConfig(type, unitCode, s.subjectSeparationCode ?? '');
+            if (!config) {
+                s.calculationDetail = SubjectScoreCalculationDetail.create(
+                    s.id,
+                    false,
+                    '모집전형/모집단위 코드 미정의',
+                    0,
+                );
+                continue;
+            }
+
+            const grade = s.rankingGrade ? Number(s.rankingGrade) : null;
+            if (!this.isValidGrade(grade)) {
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '등급 누락/범위 오류', 0);
+                continue;
+            }
+
+            const convertedScore = config.gradeMapping[grade];
+            if (convertedScore === undefined) {
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '등급 변환 규칙 없음', 0);
+                continue;
+            }
+
+            s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, true, '', convertedScore);
+        }
+    }
+
+    private findConfig(admission: string, unit: string, courseGroup: string): GradeConversionConfig | undefined {
+        return this.config.find(
+            config =>
+                config.admissions.includes(admission) &&
+                config.units.includes(unit) &&
+                (!config.subjectSeparations || config.subjectSeparations.includes(courseGroup)),
+        );
+    }
+
+    private isValidGrade(g?: number | null): g is number {
+        return typeof g === 'number' && Number.isInteger(g) && g >= 1 && g <= 9;
+    }
+}
