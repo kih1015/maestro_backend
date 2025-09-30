@@ -5,6 +5,7 @@ import { SubjectConfig } from '../handlers/subject-group-filter-handler';
 import { SubjectSeparationConfig } from '../handlers/course-group-filter-handler';
 import { GradeConversionConfig } from '../handlers/grade-conversion-handler';
 import { RawScoreConversionConfig } from '../handlers/raw-score-conversion-handler';
+import { WeightedFinalScoreConfig } from '../handlers/weighted-finalScore-calculation-handler';
 
 export class GacheonConfig {
     // === 상수 코드 매핑 ===
@@ -166,9 +167,19 @@ export class GacheonConfig {
     ];
 
     // === FinalScoreConfig 인터페이스 관련 설정 ===
-    readonly finalScoreConfig: FinalScoreConfig = {
-        jiguynAdmissionCode: '61', // 지역균형 전형 코드
-        generalSubjectCode: '01', // 일반교과 코드
-        careerSubjectCode: '02', // 진로선택 코드
-    };
+    readonly finalScoreConfig: FinalScoreConfig[] = [
+        {
+            admissions: ['11', '62', '76', '74'], // NOT_지역균형
+            units: ['46', '20', '18', '29'], // 모든 계열
+        },
+    ];
+
+    readonly weightedFinalScoreConfig: WeightedFinalScoreConfig[] = [
+        {
+            admissions: ['61'], // 지역균형
+            units: ['46', '20', '18', '29'], // 모든 계열
+            generalWeight: 0.4, // 일반교과 40%
+            careerWeight: 0.6, // 진로선택 60%
+        },
+    ];
 }

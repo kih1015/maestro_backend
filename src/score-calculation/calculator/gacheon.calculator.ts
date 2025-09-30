@@ -12,6 +12,7 @@ import { CalculatorEnum } from './calculator.enum';
 import { RawScoreConversionHandler } from '../handlers/raw-score-conversion-handler';
 import { GradeConversionHandler } from '../handlers/grade-conversion-handler';
 import { GacheonConfig } from '../config/gacheon.config';
+import { WeightedFinalScoreCalculationHandler } from '../handlers/weighted-finalScore-calculation-handler';
 
 @Injectable()
 export class GacheonCalculator implements Calculator {
@@ -40,6 +41,7 @@ export class GacheonCalculator implements Calculator {
         const gradeConversionHandler = new GradeConversionHandler(this.config.gradeConversionConfig);
         const rawScoreConversionHandler = new RawScoreConversionHandler(this.config.rawScoreConversionConfig);
         const finalScoreHandler = new FinalScoreCalculationHandler(this.config.finalScoreConfig);
+        const weightedScoreHandler = new WeightedFinalScoreCalculationHandler(this.config.weightedFinalScoreConfig);
 
         validationHandler
             .setNext(semesterHandler)
@@ -48,7 +50,8 @@ export class GacheonCalculator implements Calculator {
             .setNext(excludedSubjectHandler)
             .setNext(gradeConversionHandler)
             .setNext(rawScoreConversionHandler)
-            .setNext(finalScoreHandler);
+            .setNext(finalScoreHandler)
+            .setNext(weightedScoreHandler);
 
         return validationHandler;
     }

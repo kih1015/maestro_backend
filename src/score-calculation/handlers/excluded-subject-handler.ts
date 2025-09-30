@@ -22,21 +22,21 @@ export class ExcludedSubjectHandler extends BaseScoreHandler {
             return;
         }
 
-        for (const s of student.subjectScores) {
-            if (s.calculationDetail && !s.calculationDetail.isReflected) {
+        for (const subject of student.subjectScores) {
+            if (subject.calculationDetail && !subject.calculationDetail.isReflected) {
                 continue;
             }
-            if (this.isExcludedSubject(s.subjectName, matchedConfig)) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '특정 공통 과목 미반영');
+            if (matchedConfig.commonExcludedSubjects.includes(subject.subjectName)) {
+                subject.calculationDetail = SubjectScoreCalculationDetail.create(
+                    subject.id,
+                    false,
+                    '특정 공통 과목 미반영',
+                );
             }
         }
     }
 
     private findMatchingConfig(admission: string, unit: string): ExcludedSubjectConfig | undefined {
         return this.config.find(cfg => cfg.admissions.includes(admission) && cfg.units.includes(unit));
-    }
-
-    private isExcludedSubject(subjectName: string, config: ExcludedSubjectConfig): boolean {
-        return config.commonExcludedSubjects.includes(subjectName);
     }
 }

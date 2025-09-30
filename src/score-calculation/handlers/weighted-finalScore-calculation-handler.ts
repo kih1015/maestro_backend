@@ -1,13 +1,18 @@
 import { BaseScoreHandler, ScoreCalculationContext } from './base-handler';
 import { StudentScoreResult } from '../entities/student.entity';
 
-export interface FinalScoreConfig {
+export interface WeightedFinalScoreConfig {
     readonly admissions: string[];
     readonly units: string[];
+    readonly generalWeight: number;
+    readonly careerWeight: number;
 }
 
-export class FinalScoreCalculationHandler extends BaseScoreHandler {
-    constructor(private readonly config: FinalScoreConfig[]) {
+export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
+    private static readonly GENERAL_SUBJECT_CODE = '01';
+    private static readonly CAREER_SUBJECT_CODE = '02';
+
+    constructor(private readonly config: WeightedFinalScoreConfig[]) {
         super();
     }
 
@@ -21,17 +26,35 @@ export class FinalScoreCalculationHandler extends BaseScoreHandler {
             return;
         }
 
-        const reflectedSubjects = student.subjectScores.filter(s => s.calculationDetail?.isReflected);
-        const finalScore = this.calculateWeightedAverage(
-            reflectedSubjects.map(s => ({
+        const generalSubjects = student.subjectScores.filter(
+            s =>
+                s.calculationDetail?.isReflected &&
+                s.subjectSeparationCode === WeightedFinalScoreCalculationHandler.GENERAL_SUBJECT_CODE,
+        );
+        const careerSubjects = student.subjectScores.filter(
+            s =>
+                s.calculationDetail?.isReflected &&
+                s.subjectSeparationCode === WeightedFinalScoreCalculationHandler.CAREER_SUBJECT_CODE,
+        );
+
+        const generalAverage = this.calculateWeightedAverage(
+            generalSubjects.map(s => ({
                 score: s.calculationDetail?.convertedScore ?? 0,
                 unit: this.parseUnit(s.unit),
             })),
         );
+        const careerAverage = this.calculateWeightedAverage(
+            careerSubjects.map(s => ({
+                score: s.calculationDetail?.convertedScore ?? 0,
+                unit: this.parseUnit(s.unit),
+            })),
+        );
+
+        const finalScore = generalAverage * config.generalWeight + careerAverage * config.careerWeight;
         student.scoreResult = StudentScoreResult.create(student.id, finalScore, 0, undefined);
     }
 
-    private findConfig(admission: string, unit: string): FinalScoreConfig | undefined {
+    private findConfig(admission: string, unit: string): WeightedFinalScoreConfig | undefined {
         return this.config.find(config => config.admissions.includes(admission) && config.units.includes(unit));
     }
 
