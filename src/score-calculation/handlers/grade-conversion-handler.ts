@@ -23,14 +23,8 @@ export class GradeConversionHandler extends BaseScoreHandler {
                 continue;
             }
 
-            const config = this.findConfig(type, unitCode, s.subjectSeparationCode ?? '');
+            const config = this.findConfig(type, unitCode, s.subjectSeparationCode);
             if (!config) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(
-                    s.id,
-                    false,
-                    '모집전형/모집단위 코드 미정의',
-                    0,
-                );
                 continue;
             }
 
@@ -55,7 +49,7 @@ export class GradeConversionHandler extends BaseScoreHandler {
             config =>
                 config.admissions.includes(admission) &&
                 config.units.includes(unit) &&
-                (!config.subjectSeparations || config.subjectSeparations.includes(courseGroup)),
+                config.subjectSeparations.includes(courseGroup),
         );
     }
 
