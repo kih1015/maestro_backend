@@ -34,7 +34,7 @@ export class GacheonCalculator implements Calculator {
 
     private createHandlerChain() {
         const validationHandler = new GCNValidationHandler(this.config.validationConfig);
-        const semesterHandler = new SemesterReflectionHandler();
+        const semesterHandler = new SemesterReflectionHandler(this.config.semesterReflectionConfig);
         const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
         const courseGroupHandler = new CourseGroupFilterHandler(this.config.subjectSeparationsConfigs);
         const excludedSubjectHandler = new ExcludedSubjectHandler(this.config.excludedSubjectConfig);

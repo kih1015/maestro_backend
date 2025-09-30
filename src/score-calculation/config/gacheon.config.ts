@@ -6,6 +6,7 @@ import { SubjectSeparationConfig } from '../handlers/course-group-filter-handler
 import { GradeConversionConfig } from '../handlers/grade-conversion-handler';
 import { RawScoreConversionConfig } from '../handlers/raw-score-conversion-handler';
 import { WeightedFinalScoreConfig } from '../handlers/weighted-finalScore-calculation-handler';
+import { SemesterReflectionConfig } from '../handlers/semester-reflection-handler';
 
 export class GacheonConfig {
     // === 상수 코드 매핑 ===
@@ -50,6 +51,17 @@ export class GacheonConfig {
         admissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
         units: [...GacheonConfig.ALL_UNIT_CODES],
     };
+
+    // === SemesterReflectionConfig 인터페이스 관련 설정 ===
+    readonly semesterReflectionConfig: SemesterReflectionConfig[] = [
+        {
+            admissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
+            units: [...GacheonConfig.ALL_UNIT_CODES],
+            maxGrade: 3,
+            maxTerm: 1,
+            excludeEarlyGraduateSecondGradeSecondTerm: true,
+        },
+    ];
 
     // === ExcludedSubjectConfig 인터페이스 관련 설정 ===
     readonly excludedSubjectConfig: ExcludedSubjectConfig[] = [
