@@ -1,5 +1,6 @@
 import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { StudentScoreResult } from '../entities/student.entity';
+import { GacheonConfig } from '../config/gacheon.config';
 
 export interface ValidationConfig {
     readonly admissions: string[];
@@ -46,8 +47,8 @@ export class GCNValidationHandler extends BaseScoreHandler {
             description: this.description,
             config: [
                 {
-                    admissions: this.config.admissions,
-                    units: this.config.units,
+                    admissions: this.config.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
+                    units: this.config.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),
                 },
             ],
         };

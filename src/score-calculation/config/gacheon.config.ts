@@ -25,10 +25,54 @@ export class GacheonConfig {
         예체능계열: '29',
     } as const;
 
+    // === 역매핑: 코드 -> 이름 ===
+    static readonly ADMISSION_CODE_TO_NAME: Record<string, string> = {
+        '61': '지역균형',
+        '11': '학생부우수자',
+        '62': '농어촌교과',
+        '76': '특성화고교',
+        '74': '실기우수자',
+    };
+
+    static readonly UNIT_CODE_TO_NAME: Record<string, string> = {
+        '46': '인문계열',
+        '20': '자연계열',
+        '18': '의한약',
+        '29': '예체능계열',
+    };
+
+    /**
+     * 전형 코드 -> 이름 매핑을 반환합니다.
+     */
+    static getAdmissionTypeMap(): Map<string, string> {
+        const map = new Map<string, string>();
+        Object.entries(this.ADMISSION_CODES).forEach(([name, code]) => {
+            map.set(code, name);
+        });
+        return map;
+    }
+
+    /**
+     * 모집단위 코드 -> 이름 매핑을 반환합니다.
+     */
+    static getRecruitmentUnitMap(): Map<string, string> {
+        const map = new Map<string, string>();
+        Object.entries(this.UNIT_CODES).forEach(([name, code]) => {
+            map.set(code, name);
+        });
+        return map;
+    }
+
     private static readonly SUBJECT_SEPARATION_CODES = {
         체육과목: '03',
         진로선택: '02',
         일반교과: '01',
+    } as const;
+
+    public static readonly SUBJECT_SEPARATION_CODE_TO_NAME: Record<string, string> = {
+        '03': '체육/예술',
+        '02': '진로',
+        '01': '공통/일반',
     } as const;
 
     private static readonly ALL_ADMISSIONS_CODES = [

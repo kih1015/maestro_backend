@@ -40,10 +40,10 @@ export abstract class BaseScoreHandler {
     protected abstract process(context: ScoreCalculationContext): void;
 
     public listInfo(): HandlerInfo[] {
-        const info: HandlerInfo[] = [];
+        const info: HandlerInfo[] = [this.getInfo()];
 
-        while (this.nextHandler) {
-            info.push(this.nextHandler.getInfo());
+        if (this.nextHandler) {
+            info.push(...this.nextHandler.listInfo());
         }
 
         return info;

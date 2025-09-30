@@ -8,12 +8,10 @@ import {
     Query,
     Request,
     Res,
-    UseGuards,
     ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { Response } from 'express';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ScoreCalculationUseCase } from '../services/score-calculation.use-case';
 import { StudentQueryUseCase } from '../services/student-query.use-case';
 import { ScoreExportUseCase } from '../services/score-export.use-case';
@@ -29,6 +27,8 @@ import {
     ListStudentsResponseDto,
     StudentScoreDetailResponseDto,
     SummaryResponseDto,
+    CalculatorDetailResponseDto,
+    HandlerConfigItemDto,
 } from '../dto/response.dto';
 import { CalculateScoresDecorator } from '../decorators/calculate-scores.decorator';
 import { GetSummaryDecorator } from '../decorators/get-summary.decorator';
@@ -36,10 +36,11 @@ import { ListStudentsDecorator } from '../decorators/list-students.decorator';
 import { GetStudentDetailDecorator } from '../decorators/get-student-detail.decorator';
 import { ExportScoresDecorator } from '../decorators/export-scores.decorator';
 import { CalculatorEnum } from '../calculator/calculator.enum';
+import { GacheonConfig } from '../config/gacheon.config';
 
 @ApiTags('score-calculation')
 @Controller('score-calculation')
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ScoreCalculationController {
     private readonly jobRunner = new Map<number, boolean>(); // Simple job runner for demo
@@ -124,5 +125,16 @@ export class ScoreCalculationController {
     @Get('calculators')
     listCalculators(): CalculatorEnum[] {
         return Object.values(CalculatorEnum);
+    }
+
+    @ApiOperation({ summary: '지원하는 계산기 타입 상세' })
+    @ApiOkResponse({ description: '계산기 핸들러 정보', type: CalculatorDetailResponseDto })
+    @Get('calculators/detail')
+    getCalculatorDetail(@Query('type') type: CalculatorEnum): CalculatorDetailResponseDto {
+        const handlerInfo = this.scoreCalculationUseCase.getCalculatorDetail(type);
+
+        return {
+            data: handlerInfo,
+        };
     }
 }

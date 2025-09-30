@@ -238,3 +238,45 @@ export class ErrorResponseDto {
     @ApiProperty({ example: 'recruitmentSeasonId is required' })
     error: string;
 }
+
+export class HandlerConfigItemDto {
+    @ApiProperty({ example: ['일반전형', '특별전형'], isArray: true })
+    admissions: string[];
+
+    @ApiProperty({ example: ['3', '4'], isArray: true })
+    units: string[];
+
+    @ApiPropertyOptional({ example: ['예체능'], isArray: true })
+    excludedGroup?: string[];
+
+    @ApiPropertyOptional({ example: ['수학', '과학'], isArray: true })
+    includedGroup?: string[];
+
+    @ApiPropertyOptional({
+        example: [
+            { key: 'A', value: '95' },
+            { key: 'B', value: '85' },
+        ],
+        isArray: true,
+    })
+    mappingTable?: Array<{ key: string; value: string }>;
+}
+
+export class HandlerInfoDto {
+    @ApiProperty({ example: 'filter', enum: ['filter', 'converter', 'calc'] })
+    type: 'filter' | 'converter' | 'calc';
+
+    @ApiProperty({ example: '수학' })
+    subject: string;
+
+    @ApiProperty({ example: '과목 그룹별 필터링' })
+    description: string;
+
+    @ApiProperty({ type: [HandlerConfigItemDto] })
+    config: HandlerConfigItemDto[];
+}
+
+export class CalculatorDetailResponseDto {
+    @ApiProperty({ type: [HandlerInfoDto] })
+    data: HandlerInfoDto[];
+}

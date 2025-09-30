@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger } from '@nestjs/common';
 import { StudentReadRepository } from '../repositories/student-read.repository';
 import { StudentScoreResultRepository } from '../repositories/student-score-result.repository';
 import { SubjectScoreCalculationDetailRepository } from '../repositories/subject-score-calculation-detail.repository';
@@ -7,6 +7,8 @@ import { EventsService } from '../../events/events.service';
 import { Calculator } from '../calculator/calculator';
 import { CALCULATORS } from '../calculator/calculator.tokens';
 import { GetRecruitmentSeasonsService } from '../../admissions/use-cases/get-recruitment-seasons.service';
+import { HandlerInfo } from '../handlers/base-handler';
+import { CalculatorEnum } from '../calculator/calculator.enum';
 
 @Injectable()
 export class ScoreCalculationUseCase {
@@ -150,5 +152,15 @@ export class ScoreCalculationUseCase {
         );
 
         return { calculated };
+    }
+
+    getCalculatorDetail(calculatorType: CalculatorEnum): HandlerInfo[] {
+        const calculator: Calculator | undefined = this.calculators.find(calculator =>
+            calculator.support(calculatorType),
+        );
+        if (!calculator) {
+            throw new BadRequestException(`Calculator ${calculatorType} not found.`);
+        }
+        return calculator.getCalculatorInfo();
     }
 }

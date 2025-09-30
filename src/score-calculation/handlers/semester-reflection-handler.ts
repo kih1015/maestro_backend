@@ -1,5 +1,6 @@
 import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
+import { GacheonConfig } from '../config/gacheon.config';
 
 export interface SemesterReflectionConfig {
     admissions: string[];
@@ -64,8 +65,8 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
             subject: this.subject,
             description: this.description,
             config: this.config.map(c => ({
-                admissions: c.admissions,
-                units: c.units,
+                admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
+                units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),
                 mappingTable: [
                     { key: '최대 학년', value: `${c.maxGrade}학년` },
                     { key: '최대 학기', value: `${c.maxTerm}학기` },

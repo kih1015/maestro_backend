@@ -1,5 +1,6 @@
 import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from './base-handler';
 import { SubjectScoreCalculationDetail } from '../entities/student.entity';
+import { GacheonConfig } from '../config/gacheon.config';
 
 export interface SubjectSeparationConfig {
     admissions: string[];
@@ -41,9 +42,9 @@ export class CourseGroupFilterHandler extends BaseScoreHandler {
             subject: this.subject,
             description: this.description,
             config: this.config.map(c => ({
-                admissions: c.admissions,
-                units: c.units,
-                includedGroup: c.subjectSeparations,
+                admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
+                units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),
+                includedGroup: c.subjectSeparations.map(code => GacheonConfig.SUBJECT_SEPARATION_CODE_TO_NAME[code]),
             })),
         };
     }
