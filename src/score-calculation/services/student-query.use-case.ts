@@ -19,6 +19,17 @@ export class StudentQueryUseCase {
     ) {}
 
     async listStudents(dto: ListStudentsDto) {
+        const calculator: Calculator | undefined = this.calculators.find(calculator =>
+            calculator.support(dto.calculatorType),
+        );
+
+        if (!calculator) {
+            throw new BadRequestException('No calculator found.');
+        }
+
+        const admissionMapper = calculator.getAdmissionMapper();
+        const unitMapper = calculator.getUnitMapper();
+
         const filters: StudentFilters = {};
 
         // Copy filters from DTO
@@ -41,7 +52,17 @@ export class StudentQueryUseCase {
 
         return {
             success: true,
-            data: result,
+            data: {
+                items: [
+                    ...result.items.map(item => ({
+                        ...item,
+                        recruitmentTypeCode: admissionMapper[item.recruitmentTypeCode],
+                        recruitmentUnitCode: unitMapper[item.recruitmentUnitCode],
+                    })),
+                ],
+                total: result.total,
+                completed: result.completed,
+            },
         };
     }
 

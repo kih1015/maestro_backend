@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsPositive, IsOptional, IsString, IsEnum, Min, Max } from 'class-validator';
+import { IsInt, IsPositive, IsOptional, IsString, IsEnum, Min, Max, IsNotEmpty } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { StudentFiltersDto } from './student-filters.dto';
+import { CalculatorEnum } from '../calculator/calculator.enum';
 
 export enum SortOrder {
     SCORE_ASC = 'score_asc',
@@ -18,6 +19,10 @@ export class ListStudentsDto extends StudentFiltersDto {
     @IsPositive()
     @Transform(({ value }) => parseInt(value as string))
     recruitmentSeasonId: number;
+
+    @IsString()
+    @IsNotEmpty()
+    calculatorType: CalculatorEnum;
 
     @ApiPropertyOptional({
         description: 'Page number for pagination',
