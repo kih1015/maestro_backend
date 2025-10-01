@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { StudentReadRepository } from '../repositories/student-read.repository';
 import { SubjectScoreCalculationDetailRepository } from '../repositories/subject-score-calculation-detail.repository';
-import { SubjectScoreCalculationDetail } from '../entities/student.entity';
+import { Student, SubjectScoreCalculationDetail } from '../entities/student.entity';
 import { ListStudentsDto } from '../dto/list-students.dto';
 import { GetStudentDetailDto } from '../dto/student-detail.dto';
 import { StudentFiltersDto } from '../dto/student-filters.dto';
+import { CALCULATORS } from '../calculator/calculator.tokens';
+import { Calculator } from '../calculator/calculator';
 
 export type StudentFilters = Omit<StudentFiltersDto, 'recruitmentSeasonId' | 'page' | 'pageSize' | 'q' | 'sort'>;
 
@@ -13,6 +15,7 @@ export class StudentQueryUseCase {
     constructor(
         private readonly studentRepository: StudentReadRepository,
         private readonly subjectDetailRepository: SubjectScoreCalculationDetailRepository,
+        @Inject(CALCULATORS) private readonly calculators: Calculator[],
     ) {}
 
     async listStudents(dto: ListStudentsDto) {
@@ -43,7 +46,18 @@ export class StudentQueryUseCase {
     }
 
     async getStudentDetail(dto: GetStudentDetailDto) {
-        const student = await this.studentRepository.findByIdentifyNumber(dto.recruitmentSeasonId, dto.identifyNumber);
+        const student: Student | null = await this.studentRepository.findByIdentifyNumber(
+            dto.recruitmentSeasonId,
+            dto.identifyNumber,
+        );
+
+        const calculator: Calculator | undefined = this.calculators.find(calculator =>
+            calculator.support(dto.calculatorType),
+        );
+
+        if (!calculator) {
+            throw new BadRequestException('No calculator found.');
+        }
 
         if (!student) {
             return {
@@ -51,6 +65,9 @@ export class StudentQueryUseCase {
                 error: 'Student not found',
             };
         }
+
+        const admissionMapper = calculator.getAdmissionMapper();
+        const unitMapper = calculator.getUnitMapper();
 
         const subjectScoreIds = student.subjectScores.map(s => s.id);
         const details = await this.subjectDetailRepository.findBySubjectScoreIds(subjectScoreIds);
@@ -127,8 +144,8 @@ export class StudentQueryUseCase {
                 graduateYear: student.graduateYear,
                 graduateGrade: student.graduateGrade,
                 applicantScCode: student.applicantScCode,
-                recruitmentTypeCode: student.recruitmentTypeCode,
-                recruitmentUnitCode: student.recruitmentUnitCode,
+                recruitmentTypeCode: admissionMapper[student.recruitmentTypeCode],
+                recruitmentUnitCode: unitMapper[student.recruitmentUnitCode],
                 applicableSubjects,
                 excludedSubjects,
                 finalFormula: finalFormula ?? null,

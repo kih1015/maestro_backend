@@ -60,4 +60,12 @@ export class GacheonCalculator implements Calculator {
     getCalculatorInfo(): HandlerInfo[] {
         return this.handler.listInfo();
     }
+
+    getAdmissionMapper(): Record<string, string> {
+        return GacheonConfig.ADMISSION_CODE_TO_NAME;
+    }
+
+    getUnitMapper(): Record<string, string> {
+        return GacheonConfig.UNIT_CODE_TO_NAME;
+    }
 }

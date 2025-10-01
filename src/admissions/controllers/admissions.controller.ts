@@ -196,6 +196,7 @@ export class AdmissionsController {
     private mapToResponseDto(season: RecruitmentSeason): RecruitmentSeasonResponseDto {
         return {
             id: season.id,
+            calculatorType: season.calculatorType,
             universityCode: season.universityCode,
             admissionYear: season.admissionYear,
             admissionName: season.admissionName,

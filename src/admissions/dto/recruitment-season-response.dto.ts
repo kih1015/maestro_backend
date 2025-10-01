@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AdmissionTypeDto } from './admission-type.dto';
 import { RecruitmentUnitDto } from './recruitment-unit.dto';
+import { CalculatorEnum } from '../../score-calculation/calculator/calculator.enum';
 
 export class RecruitmentSeasonResponseDto {
     @ApiProperty({ example: 1, description: 'Unique identifier for the recruitment season' })
@@ -8,6 +9,9 @@ export class RecruitmentSeasonResponseDto {
 
     @ApiProperty({ example: 'GACHON', description: 'University code' })
     universityCode: string;
+
+    @ApiProperty({ example: 'GACHON', description: 'Calculator type' })
+    calculatorType: CalculatorEnum;
 
     @ApiProperty({ example: 2024, description: 'Year of admission' })
     admissionYear: number;

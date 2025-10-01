@@ -41,28 +41,6 @@ export class GacheonConfig {
         '29': '예체능계열',
     };
 
-    /**
-     * 전형 코드 -> 이름 매핑을 반환합니다.
-     */
-    static getAdmissionTypeMap(): Map<string, string> {
-        const map = new Map<string, string>();
-        Object.entries(this.ADMISSION_CODES).forEach(([name, code]) => {
-            map.set(code, name);
-        });
-        return map;
-    }
-
-    /**
-     * 모집단위 코드 -> 이름 매핑을 반환합니다.
-     */
-    static getRecruitmentUnitMap(): Map<string, string> {
-        const map = new Map<string, string>();
-        Object.entries(this.UNIT_CODES).forEach(([name, code]) => {
-            map.set(code, name);
-        });
-        return map;
-    }
-
     private static readonly SUBJECT_SEPARATION_CODES = {
         체육과목: '03',
         진로선택: '02',

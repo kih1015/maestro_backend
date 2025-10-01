@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsPositive, IsString, IsNotEmpty } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { CalculatorEnum } from '../calculator/calculator.enum';
 
 export class GetStudentDetailDto {
     @ApiProperty({
@@ -20,4 +21,8 @@ export class GetStudentDetailDto {
     @IsString()
     @IsNotEmpty()
     identifyNumber: string;
+
+    @IsString()
+    @IsNotEmpty()
+    calculatorType: CalculatorEnum;
 }
