@@ -112,7 +112,7 @@ export class StudentQueryUseCase {
         const applicableSubjects = student.subjectScores
             .filter(s => detailBySubjectId.get(s.id)?.isReflected === true)
             .map(s => {
-                const d = detailBySubjectId.get(s.id);
+                const d: SubjectScoreCalculationDetail | undefined = detailBySubjectId.get(s.id);
                 return {
                     seqNumber: s.seqNumber,
                     subjectName: s.subjectName,
@@ -126,6 +126,7 @@ export class StudentQueryUseCase {
                     convertedScore: d?.convertedScore ?? null,
                     convertedBaseValue: d?.convertedBaseValue ?? null,
                     conversionFormula: d?.conversionFormula ?? null,
+                    calculationHandler: d?.calculationHandler ?? null,
                     unit: s.unit,
                     grade: s.grade,
                     term: s.term,
@@ -148,6 +149,7 @@ export class StudentQueryUseCase {
                     convertedScore: d?.convertedScore ?? null,
                     convertedBaseValue: d?.convertedBaseValue ?? null,
                     conversionFormula: d?.conversionFormula ?? null,
+                    calculationHandler: d?.calculationHandler ?? null,
                     unit: s.unit,
                     grade: s.grade,
                     term: s.term,

@@ -69,6 +69,9 @@ export class ApplicableSubjectDto {
     @ApiPropertyOptional({ example: '(grade * 0.9)' })
     conversionFormula?: string | null;
 
+    @ApiPropertyOptional({ example: '핸들러타입' })
+    calculationHandler: string;
+
     @ApiProperty({ example: '4' })
     unit: string;
 
@@ -112,6 +115,9 @@ export class ExcludedSubjectDto {
 
     @ApiPropertyOptional({ example: null })
     conversionFormula?: string | null;
+
+    @ApiPropertyOptional({ example: '핸들러타입' })
+    calculationHandler: string;
 
     @ApiProperty({ example: '2' })
     unit: string;
