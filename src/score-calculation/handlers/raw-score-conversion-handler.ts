@@ -10,6 +10,7 @@ export interface RawScoreConversionConfig {
 }
 
 export class RawScoreConversionHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'RawScoreConversionHandler';
     private readonly subject = '원점수 환산';
     private readonly description = '원점수를 기준 점수로 환산합니다.';
 
@@ -34,17 +35,17 @@ export class RawScoreConversionHandler extends BaseScoreHandler {
 
             const rawScore = Number(s.originalScore);
             if (!this.isValidRawScore(rawScore)) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '원점수 누락/범위 오류', 0);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '원점수 누락/범위 오류', 0, this.handlerType);
                 continue;
             }
 
             const scoreMapping = config.rawScoreMapping.find(mapping => rawScore >= mapping.min);
             if (!scoreMapping) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '원점수 범위 오류', 0);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '원점수 범위 오류', 0, this.handlerType);
                 continue;
             }
 
-            s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, true, '', scoreMapping.score);
+            s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, true, '', scoreMapping.score, this.handlerType);
         }
     }
 
@@ -66,6 +67,7 @@ export class RawScoreConversionHandler extends BaseScoreHandler {
             type: 'converter',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),

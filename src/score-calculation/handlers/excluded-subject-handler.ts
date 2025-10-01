@@ -9,6 +9,7 @@ export interface ExcludedSubjectConfig {
 }
 
 export class ExcludedSubjectHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'ExcludedSubjectHandler';
     private readonly subject = '과목명 필터';
     private readonly description = '과목명을 기준으로 필터링합니다.';
 
@@ -35,6 +36,8 @@ export class ExcludedSubjectHandler extends BaseScoreHandler {
                     subject.id,
                     false,
                     '특정 공통 과목 미반영',
+                    undefined,
+                    this.handlerType,
                 );
             }
         }
@@ -49,6 +52,7 @@ export class ExcludedSubjectHandler extends BaseScoreHandler {
             type: 'filter',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),

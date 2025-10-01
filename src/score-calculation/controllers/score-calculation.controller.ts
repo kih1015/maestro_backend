@@ -8,6 +8,7 @@ import {
     Query,
     Request,
     Res,
+    UseGuards,
     ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -28,7 +29,6 @@ import {
     StudentScoreDetailResponseDto,
     SummaryResponseDto,
     CalculatorDetailResponseDto,
-    HandlerConfigItemDto,
 } from '../dto/response.dto';
 import { CalculateScoresDecorator } from '../decorators/calculate-scores.decorator';
 import { GetSummaryDecorator } from '../decorators/get-summary.decorator';
@@ -36,11 +36,11 @@ import { ListStudentsDecorator } from '../decorators/list-students.decorator';
 import { GetStudentDetailDecorator } from '../decorators/get-student-detail.decorator';
 import { ExportScoresDecorator } from '../decorators/export-scores.decorator';
 import { CalculatorEnum } from '../calculator/calculator.enum';
-import { GacheonConfig } from '../config/gacheon.config';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @ApiTags('score-calculation')
 @Controller('score-calculation')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class ScoreCalculationController {
     private readonly jobRunner = new Map<number, boolean>(); // Simple job runner for demo

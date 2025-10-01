@@ -128,6 +128,7 @@ model subject_score_calculation_details {
   conversionFormula                   String?
   studentScoreResultStudentBaseInfoId Int?
   convertedBaseValue                  ConvertedBaseValue?
+  calculationHandler                  String
   student_score_results               student_score_results? @relation(fields: [studentScoreResultStudentBaseInfoId], references: [studentBaseInfoId])
   subject_scores                      subject_scores         @relation(fields: [subjectScoreId], references: [id], onDelete: Cascade)
 

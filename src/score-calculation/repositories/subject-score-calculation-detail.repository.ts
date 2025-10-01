@@ -14,6 +14,7 @@ export class SubjectScoreCalculationDetailRepository {
             convertedScore: detail.convertedScore,
             convertedBaseValue: detail.convertedBaseValue as 'GRADE' | 'ACHIEVEMENT' | 'PERCENTILE' | 'Z_SCORE' | null,
             conversionFormula: detail.conversionFormula,
+            calculationHandler: detail.calculationHandler,
             updatedAt: new Date(),
         }));
 
@@ -56,27 +57,8 @@ export class SubjectScoreCalculationDetailRepository {
                     convertedScore: detail.convertedScore,
                     convertedBaseValue: detail.convertedBaseValue as string,
                     conversionFormula: detail.conversionFormula,
+                    calculationHandler: detail.calculationHandler,
                 }),
         );
-    }
-
-    async findBySubjectScoreId(subjectScoreId: number): Promise<SubjectScoreCalculationDetail | null> {
-        const detail = await this.prisma.subject_score_calculation_details.findFirst({
-            where: {
-                subjectScoreId,
-            },
-        });
-
-        if (!detail) return null;
-
-        return new SubjectScoreCalculationDetail({
-            id: detail.id,
-            subjectScoreId: detail.subjectScoreId,
-            isReflected: detail.isReflected,
-            nonReflectionReason: detail.nonReflectionReason,
-            convertedScore: detail.convertedScore,
-            convertedBaseValue: detail.convertedBaseValue as string,
-            conversionFormula: detail.conversionFormula,
-        });
     }
 }

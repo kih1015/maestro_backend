@@ -10,6 +10,7 @@ export interface WeightedFinalScoreConfig {
 }
 
 export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'WeightedFinalScoreCalculationHandler';
     private readonly subject = '가중 이수가중평균 계산';
     private readonly description = '일반/전문 교과에 가중치를 적용한 이수가중평균을 계산합니다.';
 
@@ -78,6 +79,7 @@ export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
             type: 'calc',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),

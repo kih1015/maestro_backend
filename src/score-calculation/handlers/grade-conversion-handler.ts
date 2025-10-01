@@ -10,6 +10,7 @@ export interface GradeConversionConfig {
 }
 
 export class GradeConversionHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'GradeConversionHandler';
     private readonly subject = '석차 등급 점수 환산';
     private readonly description = '석차 등급을 기준 점수로 환산합니다.';
 
@@ -34,17 +35,17 @@ export class GradeConversionHandler extends BaseScoreHandler {
 
             const grade = s.rankingGrade ? Number(s.rankingGrade) : null;
             if (!this.isValidGrade(grade)) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '등급 누락/범위 오류', 0);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '등급 누락/범위 오류', 0, this.handlerType);
                 continue;
             }
 
             const convertedScore = config.gradeMapping[grade];
             if (convertedScore === undefined) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '등급 변환 규칙 없음', 0);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '등급 변환 규칙 없음', 0, this.handlerType);
                 continue;
             }
 
-            s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, true, '', convertedScore);
+            s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, true, '', convertedScore, this.handlerType);
         }
     }
 
@@ -66,6 +67,7 @@ export class GradeConversionHandler extends BaseScoreHandler {
             type: 'converter',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),

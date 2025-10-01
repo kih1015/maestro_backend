@@ -8,6 +8,7 @@ export interface FinalScoreConfig {
 }
 
 export class FinalScoreCalculationHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'FinalScoreCalculationHandler';
     private readonly subject = '이수가중평균 계산';
     private readonly description = '이수가중평균 점수를 계산합니다.';
 
@@ -55,6 +56,7 @@ export class FinalScoreCalculationHandler extends BaseScoreHandler {
             type: 'calc',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code] ?? code),

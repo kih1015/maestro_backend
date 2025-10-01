@@ -8,6 +8,7 @@ export interface ValidationConfig {
 }
 
 export class GCNValidationHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'GCNValidationHandler';
     private readonly subject = '전형-모집단위 필터';
     private readonly description = '유효 전형-모집단위만 필터링합니다.';
 
@@ -45,6 +46,7 @@ export class GCNValidationHandler extends BaseScoreHandler {
             type: 'filter',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: [
                 {
                     admissions: this.config.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),

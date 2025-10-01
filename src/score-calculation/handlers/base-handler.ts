@@ -10,6 +10,7 @@ export interface HandlerInfo {
     type: 'filter' | 'converter' | 'calc';
     subject: string;
     description: string;
+    handlerType: string;
     config: Array<{
         admissions: string[];
         units: string[];
@@ -21,6 +22,7 @@ export interface HandlerInfo {
 
 export abstract class BaseScoreHandler {
     private nextHandler?: BaseScoreHandler;
+    protected abstract readonly handlerType: string;
 
     public setNext(handler: BaseScoreHandler): BaseScoreHandler {
         this.nextHandler = handler;

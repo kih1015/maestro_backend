@@ -11,6 +11,7 @@ export interface SemesterReflectionConfig {
 }
 
 export class SemesterReflectionHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'SemesterReflectionHandler';
     private readonly subject = '반영 학기 필터';
     private readonly description = '특정 학기를 필터링합니다.';
 
@@ -34,6 +35,8 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
                 s.id,
                 include,
                 include ? null : `${matchedConfig.maxGrade}학년 ${matchedConfig.maxTerm}학기 초과 미반영`,
+                undefined,
+                this.handlerType,
             );
         }
 
@@ -44,6 +47,8 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
                         s.id,
                         false,
                         '조기졸업자 2학년 2학기 미반영',
+                        undefined,
+                        this.handlerType,
                     );
                 }
             }
@@ -64,6 +69,7 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
             type: 'filter',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),

@@ -152,6 +152,7 @@ export class SubjectScoreCalculationDetail {
     convertedScore?: number | null;
     convertedBaseValue?: string | null; // This matches the enum in schema
     conversionFormula?: string | null;
+    calculationHandler: string;
 
     constructor(data: {
         subjectScoreId: number;
@@ -160,6 +161,7 @@ export class SubjectScoreCalculationDetail {
         convertedScore?: number | null;
         convertedBaseValue?: string | null;
         conversionFormula?: string | null;
+        calculationHandler: string;
         id?: number;
     }) {
         this.id = data.id;
@@ -169,6 +171,7 @@ export class SubjectScoreCalculationDetail {
         this.convertedScore = data.convertedScore;
         this.convertedBaseValue = data.convertedBaseValue;
         this.conversionFormula = data.conversionFormula;
+        this.calculationHandler = data.calculationHandler;
     }
 
     static create(
@@ -176,6 +179,7 @@ export class SubjectScoreCalculationDetail {
         isReflected: boolean,
         nonReflectionReason?: string | null,
         convertedScore?: number,
+        calculationHandler: string = 'Unknown',
     ): SubjectScoreCalculationDetail {
         return new SubjectScoreCalculationDetail({
             subjectScoreId,
@@ -184,6 +188,7 @@ export class SubjectScoreCalculationDetail {
             convertedScore,
             convertedBaseValue: null,
             conversionFormula: null,
+            calculationHandler,
         });
     }
 }

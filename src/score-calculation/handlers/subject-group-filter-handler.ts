@@ -9,6 +9,7 @@ export interface SubjectConfig {
 }
 
 export class SubjectGroupFilterHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'SubjectGroupFilterHandler';
     private readonly subject = '교과 편제 필터';
     private readonly description = '교과 편제를 필터링합니다.';
 
@@ -26,7 +27,7 @@ export class SubjectGroupFilterHandler extends BaseScoreHandler {
             if (s.calculationDetail && !s.calculationDetail.isReflected) continue;
             const group = s.subjectGroup ?? '';
             if (allowedGroups.indexOf(group) === -1) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '비반영 교과군');
+                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '비반영 교과군', undefined, this.handlerType);
             }
         }
     }
@@ -41,6 +42,7 @@ export class SubjectGroupFilterHandler extends BaseScoreHandler {
             type: 'filter',
             subject: this.subject,
             description: this.description,
+            handlerType: this.handlerType,
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code]),
