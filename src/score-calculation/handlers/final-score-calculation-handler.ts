@@ -60,6 +60,7 @@ export class FinalScoreCalculationHandler extends BaseScoreHandler {
             config: this.config.map(c => ({
                 admissions: c.admissions.map(code => GacheonConfig.ADMISSION_CODE_TO_NAME[code]),
                 units: c.units.map(code => GacheonConfig.UNIT_CODE_TO_NAME[code] ?? code),
+                formula: `\\frac{\\sum(환산 점수 \\times 이수 단위)}{\\sum(이수 단위)}`,
             })),
         };
     }

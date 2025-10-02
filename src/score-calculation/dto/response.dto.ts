@@ -72,6 +72,9 @@ export class ApplicableSubjectDto {
     @ApiPropertyOptional({ example: '핸들러타입' })
     calculationHandler: string;
 
+    @ApiPropertyOptional({ example: '최종 계산 식' })
+    formula?: string;
+
     @ApiProperty({ example: '4' })
     unit: string;
 
@@ -118,6 +121,9 @@ export class ExcludedSubjectDto {
 
     @ApiPropertyOptional({ example: '핸들러타입' })
     calculationHandler: string;
+
+    @ApiPropertyOptional({ example: '최종 계산 식' })
+    formula?: string;
 
     @ApiProperty({ example: '2' })
     unit: string;

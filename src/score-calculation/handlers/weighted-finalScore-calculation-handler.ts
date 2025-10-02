@@ -87,6 +87,7 @@ export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
                     { key: '일반교과 가중치', value: `${c.generalWeight}` },
                     { key: '전문교과 가중치', value: `${c.careerWeight}` },
                 ],
+                formula: `\\frac{\\sum(일반교과 변환점수 \\times 단위수)}{\\sum(일반교과 단위수)} \\times ${c.generalWeight} + \\frac{\\sum(전문교과 변환점수 \\times 단위수)}{\\sum(전문교과 단위수)} \\times ${c.careerWeight}`,
             })),
         };
     }

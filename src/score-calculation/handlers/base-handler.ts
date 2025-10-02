@@ -17,6 +17,7 @@ export interface HandlerInfo {
         excludedGroup?: string[];
         includedGroup?: string[];
         mappingTable?: Array<{ key: string; value: string }>;
+        formula?: string;
     }>;
 }
 
