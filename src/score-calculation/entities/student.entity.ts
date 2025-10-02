@@ -178,7 +178,7 @@ export class SubjectScoreCalculationDetail {
         subjectScoreId: number,
         isReflected: boolean,
         nonReflectionReason?: string | null,
-        convertedScore?: number,
+        convertedScore?: number | null,
         calculationHandler: string = 'Unknown',
     ): SubjectScoreCalculationDetail {
         return new SubjectScoreCalculationDetail({

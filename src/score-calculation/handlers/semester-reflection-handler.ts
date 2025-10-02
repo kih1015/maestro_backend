@@ -35,7 +35,7 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
                 s.id,
                 include,
                 include ? null : `${matchedConfig.maxGrade}학년 ${matchedConfig.maxTerm}학기 초과 미반영`,
-                undefined,
+                s.calculationDetail?.convertedScore,
                 this.handlerType,
             );
         }
@@ -47,7 +47,7 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
                         s.id,
                         false,
                         '조기졸업자 2학년 2학기 미반영',
-                        undefined,
+                        s.calculationDetail?.convertedScore,
                         this.handlerType,
                     );
                 }
