@@ -143,6 +143,8 @@ export class StudentQueryUseCase {
                     subjectCode: s.subjectCode,
                     subjectGroup: s.subjectGroup ?? null,
                     subjectSeparationCode: s.subjectSeparationCode,
+                    rankingGrade: s.rankingGrade,
+                    achievement: s.achievement,
                     reason: d?.nonReflectionReason ?? '제외',
                     assessment: s.assessment ?? null,
                     percentile: computePercentileFromSubject(s),

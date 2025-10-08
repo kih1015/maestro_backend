@@ -36,7 +36,7 @@ export class ExcludedSubjectHandler extends BaseScoreHandler {
                     subject.id,
                     false,
                     '특정 공통 과목 미반영',
-                    subject.calculationDetail?.convertedScore,
+                    undefined,
                     this.handlerType,
                 );
             }

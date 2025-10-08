@@ -34,7 +34,6 @@ export class FinalScoreCalculationHandler extends BaseScoreHandler {
             })),
         );
         student.scoreResult = StudentScoreResult.create(student.id, finalScore, 0, undefined);
-        console.log('통과22222222222222' + finalScore);
     }
 
     private findConfig(admission: string, unit: string): FinalScoreConfig | undefined {
