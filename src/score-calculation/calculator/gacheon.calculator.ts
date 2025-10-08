@@ -32,12 +32,12 @@ export class GacheonCalculator implements Calculator {
         const weightedScoreHandler = new WeightedFinalScoreCalculationHandler(this.config.weightedFinalScoreConfig);
 
         validationHandler
-            .setNext(gradeConversionHandler)
-            .setNext(rawScoreConversionHandler)
             .setNext(semesterHandler)
             .setNext(subjectGroupHandler)
             .setNext(courseGroupHandler)
             .setNext(excludedSubjectHandler)
+            .setNext(gradeConversionHandler)
+            .setNext(rawScoreConversionHandler)
             .setNext(finalScoreHandler)
             .setNext(weightedScoreHandler);
 
