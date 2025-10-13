@@ -54,6 +54,9 @@ export class StudentReadRepository {
                 studentCount: number;
                 rank: number;
                 sameRank: number;
+                avgScore: string | null;
+                standardDeviation: string | null;
+                achievementRatio: string | null;
                 subjectGroup: { name: string } | null;
             }>;
         }
@@ -78,6 +81,9 @@ export class StudentReadRepository {
                         'studentCount', ss."studentCount",
                         'rank', ss.rank,
                         'sameRank', ss."sameRank",
+                        'avgScore', ss."avgScore",
+                        'standardDeviation', ss."standardDeviation",
+                        'achievementRatio', ss."achievementRatio",
                         'subjectGroup', CASE WHEN sgm."subjectGroup" IS NOT NULL
                                            THEN json_build_object('name', sgm."subjectGroup")
                                            ELSE NULL END
@@ -119,6 +125,9 @@ export class StudentReadRepository {
                         studentCount: subject.studentCount?.toString(),
                         rank: subject.rank?.toString(),
                         sameRank: subject.sameRank?.toString(),
+                        avgScore: subject.avgScore,
+                        standardDeviation: subject.standardDeviation,
+                        achievementRatio: subject.achievementRatio,
                     }),
             );
 
@@ -408,6 +417,9 @@ export class StudentReadRepository {
                 studentCount: number;
                 rank: number;
                 sameRank: number;
+                avgScore: string | null;
+                standardDeviation: string | null;
+                achievementRatio: string | null;
                 subjectGroup: { name: string } | null;
             }>;
         }
@@ -432,6 +444,9 @@ export class StudentReadRepository {
                         'studentCount', ss."studentCount",
                         'rank', ss.rank,
                         'sameRank', ss."sameRank",
+                        'avgScore', ss."avgScore",
+                        'standardDeviation', ss."standardDeviation",
+                        'achievementRatio', ss."achievementRatio",
                         'subjectGroup', CASE WHEN sgm."subjectGroup" IS NOT NULL
                                            THEN json_build_object('name', sgm."subjectGroup")
                                            ELSE NULL END
@@ -473,6 +488,9 @@ export class StudentReadRepository {
                     studentCount: subject.studentCount?.toString(),
                     rank: subject.rank?.toString(),
                     sameRank: subject.sameRank?.toString(),
+                    avgScore: subject.avgScore,
+                    standardDeviation: subject.standardDeviation,
+                    achievementRatio: subject.achievementRatio,
                 }),
         );
 

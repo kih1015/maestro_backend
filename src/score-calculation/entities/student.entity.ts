@@ -75,6 +75,9 @@ export class Subject {
     studentCount?: string;
     rank?: string;
     sameRank?: string;
+    avgScore?: string;
+    standardDeviation?: string;
+    achievementRatio?: string;
     calculationDetail?: SubjectScoreCalculationDetail;
 
     constructor(data: {
@@ -94,6 +97,9 @@ export class Subject {
         studentCount?: string | null;
         rank?: string | null;
         sameRank?: string | null;
+        avgScore?: string | null;
+        standardDeviation?: string | null;
+        achievementRatio?: string | null;
     }) {
         Object.assign(this, data);
     }
