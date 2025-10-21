@@ -27,13 +27,15 @@ export class FinalScoreCalculationHandler extends BaseScoreHandler {
         }
 
         const reflectedSubjects = student.subjectScores.filter(s => s.calculationDetail?.isReflected);
-        const finalScore = this.calculateWeightedAverage(
+
+        const averageGrade = this.calculateWeightedAverage(
             reflectedSubjects.map(s => ({
                 score: s.calculationDetail?.convertedScore ?? 0,
                 unit: this.parseUnit(s.unit),
             })),
         );
-        student.scoreResult = StudentScoreResult.create(student.id, finalScore, 0, undefined);
+
+        student.scoreResult = StudentScoreResult.create(student.id, averageGrade, 0, undefined);
     }
 
     private findConfig(admission: string, unit: string): FinalScoreConfig | undefined {

@@ -23,18 +23,28 @@ export class SubjectGroupFilterHandler extends BaseScoreHandler {
         const unitCode = student.recruitmentUnitCode;
 
         const allowedGroups = this.getReflectedSubjects(type, unitCode);
+        if (!allowedGroups) {
+            return;
+        }
+
         for (const s of student.subjectScores) {
             if (s.calculationDetail && !s.calculationDetail.isReflected) continue;
             const group = s.subjectGroup ?? '';
             if (allowedGroups.indexOf(group) === -1) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '비반영 교과군', undefined, this.handlerType);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(
+                    s.id,
+                    false,
+                    '비반영 교과군',
+                    undefined,
+                    this.handlerType,
+                );
             }
         }
     }
 
-    private getReflectedSubjects(admission: string, unit: string): string[] {
+    private getReflectedSubjects(admission: string, unit: string): string[] | undefined {
         const config = this.config.find(config => config.admissions.includes(admission) && config.units.includes(unit));
-        return config ? config.reflectedSubjects : [];
+        return config ? config.reflectedSubjects : undefined;
     }
 
     public getInfo(): HandlerInfo {

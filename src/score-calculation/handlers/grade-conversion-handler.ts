@@ -35,13 +35,6 @@ export class GradeConversionHandler extends BaseScoreHandler {
 
             const grade = s.rankingGrade ? Number(s.rankingGrade) : null;
             if (!this.isValidGrade(grade)) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(
-                    s.id,
-                    false,
-                    '등급 누락/범위 오류',
-                    0,
-                    this.handlerType,
-                );
                 continue;
             }
 

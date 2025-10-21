@@ -71,11 +71,6 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
         return results.map(result => this.mapToEntity(result));
     }
 
-    /**
-     * 사용자 ID로 해당 사용자가 생성한 모집 시즌을 조회합니다.
-     * @param userId 조회할 사용자의 고유 식별자
-     * @returns 해당 사용자가 생성한 모집 시즌 목록
-     */
     async findByUserId(userId: number): Promise<RecruitmentSeason[]> {
         const results = await this.prisma.recruitment_seasons.findMany({
             where: { userId: userId },
@@ -91,12 +86,6 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
         return results.map(result => this.mapToEntity(result));
     }
 
-    /**
-     * 새로운 모집 시즌을 데이터베이스에 생성합니다.
-     * 전형 유형과 모집 단위 정보도 함께 생성합니다.
-     * @param recruitmentSeason 생성할 모집 시즌 엔티티
-     * @returns 데이터베이스에 저장된 모집 시즌 엔티티
-     */
     async create(recruitmentSeason: RecruitmentSeason): Promise<RecruitmentSeason> {
         const result = await this.prisma.recruitment_seasons.create({
             data: this.mapToPersistence(recruitmentSeason),
@@ -109,13 +98,6 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
         return this.mapToEntity(result);
     }
 
-    /**
-     * 기존 모집 시즌을 업데이트합니다.
-     * 기존 전형 유형과 모집 단위를 삭제한 후 새로운 데이터로 재생성합니다.
-     * @param id 업데이트할 모집 시즌의 ID
-     * @param recruitmentSeason 업데이트할 모집 시즌 엔티티
-     * @returns 업데이트된 모집 시즌 엔티티
-     */
     async update(id: number, recruitmentSeason: RecruitmentSeason): Promise<RecruitmentSeason> {
         // Delete existing admission types and recruitment units
         await this.prisma.admission_types.deleteMany({
@@ -125,7 +107,6 @@ export class AdmissionsRepository implements RecruitmentSeasonRepositoryInterfac
             where: { recruitmentSeasonId: id },
         });
 
-        // Update the recruitment season with new data
         const result = await this.prisma.recruitment_seasons.update({
             where: { id },
             data: this.mapToPersistenceForUpdate(recruitmentSeason),

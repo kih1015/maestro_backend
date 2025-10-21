@@ -30,14 +30,15 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
         }
 
         for (const s of student.subjectScores) {
-            const include = this.isWithinSemesterLimit(s.grade, s.term, matchedConfig.maxGrade, matchedConfig.maxTerm);
-            s.calculationDetail = SubjectScoreCalculationDetail.create(
-                s.id,
-                include,
-                include ? null : `${matchedConfig.maxGrade}학년 ${matchedConfig.maxTerm}학기 초과 미반영`,
-                undefined,
-                this.handlerType,
-            );
+            if (!this.isWithinSemesterLimit(s.grade, s.term, matchedConfig.maxGrade, matchedConfig.maxTerm)) {
+                s.calculationDetail = SubjectScoreCalculationDetail.create(
+                    s.id,
+                    false,
+                    `${matchedConfig.maxGrade}학년 ${matchedConfig.maxTerm}학기 초과 미반영`,
+                    undefined,
+                    this.handlerType,
+                );
+            }
         }
 
         if (matchedConfig.excludeEarlyGraduateSecondGradeSecondTerm && student.graduateGrade === '2') {

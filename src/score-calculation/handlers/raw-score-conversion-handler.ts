@@ -35,17 +35,35 @@ export class RawScoreConversionHandler extends BaseScoreHandler {
 
             const rawScore = Number(s.originalScore);
             if (!this.isValidRawScore(rawScore)) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '원점수 누락/범위 오류', 0, this.handlerType);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(
+                    s.id,
+                    false,
+                    '원점수 누락/범위 오류',
+                    0,
+                    this.handlerType,
+                );
                 continue;
             }
 
             const scoreMapping = config.rawScoreMapping.find(mapping => rawScore >= mapping.min);
             if (!scoreMapping) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '원점수 범위 오류', 0, this.handlerType);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(
+                    s.id,
+                    false,
+                    '원점수 범위 오류',
+                    0,
+                    this.handlerType,
+                );
                 continue;
             }
 
-            s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, true, '', scoreMapping.score, this.handlerType);
+            s.calculationDetail = SubjectScoreCalculationDetail.create(
+                s.id,
+                true,
+                '',
+                scoreMapping.score,
+                this.handlerType,
+            );
         }
     }
 

@@ -12,16 +12,18 @@ import { SummaryUseCase } from './services/summary.use-case';
 import { GacheonCalculator } from './calculator/gacheon.calculator';
 import { CALCULATORS } from './calculator/calculator.tokens';
 import { AdmissionsModule } from '../admissions/admissions.module';
+import { GyeongbokCalculator } from './calculator/gyeongbok.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
     controllers: [ScoreCalculationController],
     providers: [
         GacheonCalculator,
+        GyeongbokCalculator,
         {
             provide: CALCULATORS,
-            useFactory: (gacheon: GacheonCalculator) => [gacheon],
-            inject: [GacheonCalculator],
+            useFactory: (gacheon: GacheonCalculator, gyeongbok: GyeongbokCalculator) => [gacheon, gyeongbok],
+            inject: [GacheonCalculator, GyeongbokCalculator],
         },
         ScoreCalculationUseCase,
         StudentQueryUseCase,

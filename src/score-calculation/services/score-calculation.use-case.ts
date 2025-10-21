@@ -88,7 +88,7 @@ export class ScoreCalculationUseCase {
                 }
 
                 const result = student.scoreResult;
-                if (!result || result.finalScore === 0 || !Number.isFinite(result.finalScore)) {
+                if (!result) {
                     invalidFinalScore += 1;
                 } else {
                     // Set the recruitment season ID

@@ -27,7 +27,13 @@ export class CourseGroupFilterHandler extends BaseScoreHandler {
             if (s.calculationDetail && !s.calculationDetail.isReflected) continue;
             const sep = s.subjectSeparationCode ?? '';
             if (!reflectedCourseGroups.includes(sep)) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(s.id, false, '비반영 교과 구분', undefined, this.handlerType);
+                s.calculationDetail = SubjectScoreCalculationDetail.create(
+                    s.id,
+                    false,
+                    '비반영 교과 구분',
+                    undefined,
+                    this.handlerType,
+                );
             }
         }
     }

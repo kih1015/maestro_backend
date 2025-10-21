@@ -6,6 +6,7 @@ import { json, urlencoded } from 'express';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
+    app.enableCors();
 
     // Configure body size limits for large file uploads
     app.use(json({ limit: '5gb' }));

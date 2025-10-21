@@ -10,7 +10,7 @@ export class StudentScoreResultRepository {
         const data = results.map(result => ({
             studentBaseInfoId: result.studentBaseInfoId,
             finalScore: result.finalScore,
-            ranking: 0, // Will be calculated later
+            ranking: 0,
             finalFormula: result.finalFormula,
             updatedAt: new Date(),
         }));
