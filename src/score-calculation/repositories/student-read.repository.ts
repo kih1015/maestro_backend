@@ -38,6 +38,8 @@ export class StudentReadRepository {
             graduateYear: string;
             applicantScCode: string | null;
             graduateGrade: string | null;
+            masterSchoolYN: string | null;
+            specializedSchoolYN: string | null;
             subjectScores: Array<{
                 id: number;
                 seqNumber: number;
@@ -139,6 +141,8 @@ export class StudentReadRepository {
                 graduateYear: student.graduateYear,
                 applicantScCode: student.applicantScCode || '',
                 graduateGrade: student.graduateGrade || '',
+                masterSchoolYN: student.masterSchoolYN || '',
+                specializedSchoolYN: student.specializedSchoolYN || '',
                 subjectScores: subjects,
             });
         });
@@ -401,6 +405,8 @@ export class StudentReadRepository {
             graduateYear: string;
             applicantScCode: string | null;
             graduateGrade: string | null;
+            masterSchoolYN: string | null;
+            specializedSchoolYN: string | null;
             subjectScores: Array<{
                 id: number;
                 seqNumber: number;
@@ -502,6 +508,8 @@ export class StudentReadRepository {
             graduateYear: student.graduateYear,
             applicantScCode: student.applicantScCode || '',
             graduateGrade: student.graduateGrade || '',
+            masterSchoolYN: student.masterSchoolYN || '',
+            specializedSchoolYN: student.specializedSchoolYN || '',
             subjectScores: subjects,
         });
     }

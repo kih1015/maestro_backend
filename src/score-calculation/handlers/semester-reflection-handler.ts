@@ -8,6 +8,7 @@ export interface SemesterReflectionConfig {
     maxGrade: number;
     maxTerm: number;
     excludeEarlyGraduateSecondGradeSecondTerm: boolean;
+    isNotAppliedForGraduate: boolean;
 }
 
 export class SemesterReflectionHandler extends BaseScoreHandler {
@@ -26,6 +27,10 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
 
         const matchedConfig = this.findMatchingConfig(type, unit);
         if (!matchedConfig) {
+            return;
+        }
+
+        if (matchedConfig.isNotAppliedForGraduate && student.applicantScCode === '2') {
             return;
         }
 

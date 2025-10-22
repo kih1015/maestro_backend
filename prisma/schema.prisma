@@ -198,4 +198,5 @@ enum ConvertedBaseValue {
 enum CalculatorType {
   GACHEON
   GYEONGBOK
+  KYUNGHEE
 }

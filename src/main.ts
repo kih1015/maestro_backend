@@ -8,15 +8,8 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule);
     app.enableCors();
 
-    // Configure body size limits for large file uploads
     app.use(json({ limit: '5gb' }));
     app.use(urlencoded({ limit: '5gb', extended: true }));
-
-    // Enable CORS for frontend
-    app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3001',
-        credentials: true,
-    });
 
     app.setGlobalPrefix('api');
 

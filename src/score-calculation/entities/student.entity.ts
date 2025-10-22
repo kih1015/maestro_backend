@@ -8,6 +8,8 @@ export class Student {
     graduateYear: string;
     applicantScCode: string;
     graduateGrade: string;
+    masterSchoolYN: string;
+    specializedSchoolYN: string;
     subjectScores: Subject[];
     scoreResult: StudentScoreResult | null;
 
@@ -19,6 +21,8 @@ export class Student {
         graduateYear: string,
         applicantScCode: string,
         graduateGrade: string,
+        masterSchoolYN: string,
+        specializedSchoolYN: string,
         subjectScores: Subject[],
         scoreResult: StudentScoreResult | null = null,
     ) {
@@ -29,6 +33,8 @@ export class Student {
         this.graduateYear = graduateYear;
         this.applicantScCode = applicantScCode;
         this.graduateGrade = graduateGrade;
+        this.masterSchoolYN = masterSchoolYN;
+        this.specializedSchoolYN = specializedSchoolYN;
         this.subjectScores = subjectScores;
         this.scoreResult = scoreResult;
     }
@@ -41,6 +47,8 @@ export class Student {
         graduateYear: string;
         applicantScCode: string;
         graduateGrade: string;
+        masterSchoolYN: string;
+        specializedSchoolYN: string;
         subjectScores: Subject[];
         scoreResult?: StudentScoreResult | null;
     }): Student {
@@ -52,6 +60,8 @@ export class Student {
             props.graduateYear,
             props.applicantScCode,
             props.graduateGrade,
+            props.masterSchoolYN,
+            props.specializedSchoolYN,
             props.subjectScores,
             props.scoreResult ?? null,
         );

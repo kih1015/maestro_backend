@@ -9,7 +9,6 @@ import { WeightedFinalScoreConfig } from '../handlers/weighted-finalScore-calcul
 import { SemesterReflectionConfig } from '../handlers/semester-reflection-handler';
 
 export class GacheonConfig {
-    // === 상수 코드 매핑 ===
     private static readonly ADMISSION_CODES = {
         지역균형: '61',
         학생부우수자: '11',
@@ -25,7 +24,6 @@ export class GacheonConfig {
         예체능계열: '29',
     } as const;
 
-    // === 역매핑: 코드 -> 이름 ===
     static readonly ADMISSION_CODE_TO_NAME: Record<string, string> = {
         '61': '지역균형',
         '11': '학생부우수자',
@@ -68,13 +66,11 @@ export class GacheonConfig {
         this.UNIT_CODES.예체능계열,
     ];
 
-    // === ValidationConfig 인터페이스 관련 설정 ===
     readonly validationConfig: ValidationConfig = {
         admissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
         units: [...GacheonConfig.ALL_UNIT_CODES],
     };
 
-    // === SemesterReflectionConfig 인터페이스 관련 설정 ===
     readonly semesterReflectionConfig: SemesterReflectionConfig[] = [
         {
             admissions: [...GacheonConfig.ALL_ADMISSIONS_CODES],
@@ -82,10 +78,10 @@ export class GacheonConfig {
             maxGrade: 3,
             maxTerm: 1,
             excludeEarlyGraduateSecondGradeSecondTerm: true,
+            isNotAppliedForGraduate: true,
         },
     ];
 
-    // === ExcludedSubjectConfig 인터페이스 관련 설정 ===
     readonly excludedSubjectConfig: ExcludedSubjectConfig[] = [
         {
             admissions: ['61'],
@@ -94,7 +90,6 @@ export class GacheonConfig {
         },
     ];
 
-    // === SubjectConfig 인터페이스 관련 설정 ===
     readonly subjectConfigs: SubjectConfig[] = [
         {
             admissions: ['11', '62', '76', '74'], // NOT_지역균형
@@ -118,7 +113,6 @@ export class GacheonConfig {
         },
     ];
 
-    // === CourseGroupConfig 인터페이스 관련 설정 ===
     readonly subjectSeparationsConfigs: SubjectSeparationConfig[] = [
         {
             admissions: ['61'], // 지역균형
@@ -132,7 +126,6 @@ export class GacheonConfig {
         },
     ];
 
-    // === 등급 환산 설정 ===
     readonly gradeConversionConfig: GradeConversionConfig[] = [
         {
             admissions: ['61'],
@@ -186,7 +179,6 @@ export class GacheonConfig {
         },
     ];
 
-    // === 원점수 환산 설정 ===
     readonly rawScoreConversionConfig: RawScoreConversionConfig[] = [
         {
             admissions: ['61'],
@@ -200,7 +192,6 @@ export class GacheonConfig {
         },
     ];
 
-    // === FinalScoreConfig 인터페이스 관련 설정 ===
     readonly finalScoreConfig: FinalScoreConfig[] = [
         {
             admissions: ['11', '62', '76', '74'], // NOT_지역균형

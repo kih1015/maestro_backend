@@ -7,11 +7,12 @@ export interface WeightedFinalScoreConfig {
     readonly units: string[];
     readonly generalWeight: number;
     readonly careerWeight: number;
+    readonly ignoreZeroCareerScore?: boolean;
 }
 
 export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
     protected readonly handlerType = 'WeightedFinalScoreCalculationHandler';
-    private readonly subject = '가중 이수가중평균 계산';
+    private readonly subject = '일반/전문 이수가중평균 합산 계산';
     private readonly description = '일반/전문 교과에 가중치를 적용한 이수가중평균을 계산합니다.';
 
     private static readonly GENERAL_SUBJECT_CODE = '01';
@@ -55,7 +56,10 @@ export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
             })),
         );
 
-        const finalScore = generalAverage * config.generalWeight + careerAverage * config.careerWeight;
+        let finalScore = generalAverage * config.generalWeight + careerAverage * config.careerWeight;
+        if (config.ignoreZeroCareerScore && careerAverage == 0) {
+            finalScore = generalAverage;
+        }
         student.scoreResult = StudentScoreResult.create(student.id, finalScore, 0, undefined);
     }
 

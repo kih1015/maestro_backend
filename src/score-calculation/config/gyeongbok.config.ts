@@ -128,6 +128,7 @@ export class GyeongbokConfig {
             maxGrade: 3,
             maxTerm: 1,
             excludeEarlyGraduateSecondGradeSecondTerm: false,
+            isNotAppliedForGraduate: false,
         },
     ];
 
