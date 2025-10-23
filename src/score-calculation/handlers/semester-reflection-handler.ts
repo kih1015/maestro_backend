@@ -30,6 +30,20 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
             return;
         }
 
+        if (matchedConfig.excludeEarlyGraduateSecondGradeSecondTerm && student.graduateGrade === '2') {
+            for (const s of student.subjectScores) {
+                if (s.grade === 2 && s.term === 2) {
+                    s.calculationDetail = SubjectScoreCalculationDetail.create(
+                        s.id,
+                        false,
+                        '조기졸업자 2학년 2학기 미반영',
+                        undefined,
+                        this.handlerType,
+                    );
+                }
+            }
+        }
+
         if (matchedConfig.isNotAppliedForGraduate && student.applicantScCode === '2') {
             return;
         }
@@ -43,20 +57,6 @@ export class SemesterReflectionHandler extends BaseScoreHandler {
                     undefined,
                     this.handlerType,
                 );
-            }
-        }
-
-        if (matchedConfig.excludeEarlyGraduateSecondGradeSecondTerm && student.graduateGrade === '2') {
-            for (const s of student.subjectScores) {
-                if (s.grade === 2 && s.term === 2) {
-                    s.calculationDetail = SubjectScoreCalculationDetail.create(
-                        s.id,
-                        false,
-                        '조기졸업자 2학년 2학기 미반영',
-                        undefined,
-                        this.handlerType,
-                    );
-                }
             }
         }
     }

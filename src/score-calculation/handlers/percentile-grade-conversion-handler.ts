@@ -6,6 +6,7 @@ export interface PercentileGradeConfig {
     units: string[];
     subjectSeparations: string[];
     graduateYearThreshold: number; // 예: 2008 (2008년 이전 졸업자에게만 적용)
+    gradeScoreMapping: Record<number, number>; // 등급별 점수 매핑 (1등급 -> 100점 등)
 }
 
 export class PercentileGradeConversionHandler extends BaseScoreHandler {
@@ -52,16 +53,14 @@ export class PercentileGradeConversionHandler extends BaseScoreHandler {
             const adjustedRank = rank + (sameRank - 1) / 2;
             const percentile = (adjustedRank / studentCount) * 100;
             const grade = this.percentileToGrade(percentile);
-
-            s.rankingGrade = grade.toString();
-
-            const formula = `백분율 = [${rank}+(${sameRank}-1)/2] / ${studentCount} * 100 = ${percentile.toFixed(2)}% → ${grade}등급`;
+            const convertedScore = config.gradeScoreMapping[grade] ?? 0;
+            const formula = `백분율 = [${rank}+(${sameRank}-1)/2] / ${studentCount} * 100 = ${percentile.toFixed(2)}% → ${grade}등급 → ${convertedScore}점`;
 
             s.calculationDetail = new SubjectScoreCalculationDetail({
                 subjectScoreId: s.id,
                 isReflected: true,
                 nonReflectionReason: '',
-                convertedScore: grade,
+                convertedScore: convertedScore,
                 convertedBaseValue: 'PERCENTILE',
                 conversionFormula: formula,
                 calculationHandler: this.handlerType,
@@ -108,12 +107,18 @@ export class PercentileGradeConversionHandler extends BaseScoreHandler {
             subject: this.subject,
             description: this.description,
             handlerType: this.handlerType,
-            config: this.config.map(c => ({
-                admissions: c.admissions,
-                units: c.units,
-                includedGroup: c.subjectSeparations,
-                note: `${c.graduateYearThreshold}년 이전 졸업자에게만 적용, 백분율 = [석차+(동석차-1)/2] / 재적수 * 100`,
-            })),
+            config: this.config.map(c => {
+                const mappingStr = Object.entries(c.gradeScoreMapping)
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([grade, score]) => `${grade}등급→${score}점`)
+                    .join(', ');
+                return {
+                    admissions: c.admissions,
+                    units: c.units,
+                    includedGroup: c.subjectSeparations,
+                    note: `${c.graduateYearThreshold}년 이전 졸업자에게만 적용, 백분율 = [석차+(동석차-1)/2] / 재적수 * 100, 등급점수: ${mappingStr}`,
+                };
+            }),
         };
     }
 }

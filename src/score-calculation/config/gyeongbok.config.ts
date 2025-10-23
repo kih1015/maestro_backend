@@ -186,6 +186,17 @@ export class GyeongbokConfig {
             units: [...GyeongbokConfig.ALL_UNIT_CODES],
             subjectSeparations: ['01', '03'], // 모든 과목
             graduateYearThreshold: 2008, // 2008년 이전 졸업자에게만 적용
+            gradeScoreMapping: {
+                1: 1,
+                2: 2,
+                3: 3,
+                4: 4,
+                5: 5,
+                6: 6,
+                7: 7,
+                8: 8,
+                9: 9,
+            },
         },
     ];
 

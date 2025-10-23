@@ -200,4 +200,5 @@ enum CalculatorType {
   GYEONGBOK
   KYUNGHEE
   KONKUK
+  DANKOOK
 }
