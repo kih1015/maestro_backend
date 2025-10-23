@@ -6,23 +6,24 @@ import { SubjectGroupFilterHandler } from '../handlers/subject-group-filter-hand
 import { CourseGroupFilterHandler } from '../handlers/course-group-filter-handler';
 import { GradeConversionHandler } from '../handlers/grade-conversion-handler';
 import { TopCourseSelectionHandler } from '../handlers/top-course-selection-handler';
-import { WeightedFinalScoreCalculationHandler } from '../handlers/weighted-finalScore-calculation-handler';
 import { Injectable } from '@nestjs/common';
 import { CalculatorEnum } from './calculator.enum';
-import { KyungheeConfig } from '../config/kyunghee.config';
+import { KonkukConfig } from '../config/konkuk.config';
 import { AchievementToGradeConversionHandler } from '../handlers/achievement-to-grade-conversion-handler';
 import { WeightApplyHandler } from '../handlers/weight-apply-handler';
-import { GraduationEligibilityHandler } from '../handlers/graduation-eligibility-handler';
 import { FinalSoreRoundingHandler } from '../handlers/final-score-rounding-handler';
+import { FinalScoreCalculationHandler } from '../handlers/final-score-calculation-handler';
+import { SubjectWeightedAverageHandler } from '../handlers/subject-weighted-average-handler';
+import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
 
 @Injectable()
-export class KyungheeCalculator implements Calculator {
-    private readonly type = CalculatorEnum.KYUNGHEE;
-    private readonly config = new KyungheeConfig();
+export class KonkukCalculator implements Calculator {
+    private readonly type = CalculatorEnum.KONKUK;
+    private readonly config = new KonkukConfig();
     private readonly handler: BaseScoreHandler;
 
     constructor() {
-        const graduationEligibilityHandler = new GraduationEligibilityHandler(this.config.graduationEligibilityConfig);
+        const validationHandler = new GCNValidationHandler(this.config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler(this.config.semesterReflectionConfig);
         const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
         const courseGroupHandler = new CourseGroupFilterHandler(this.config.subjectSeparationsConfigs);
@@ -31,22 +32,26 @@ export class KyungheeCalculator implements Calculator {
             this.config.achievementToGradeConfig,
         );
         const topCourseSelectionHandler = new TopCourseSelectionHandler(this.config.topCourseSelectionConfig);
-        const weightedScoreHandler = new WeightedFinalScoreCalculationHandler(this.config.weightedFinalScoreConfig);
+        const finalScoreHandler = new FinalScoreCalculationHandler(this.config.finalScoreConfig);
+        const subjectWeightedAverageHandler = new SubjectWeightedAverageHandler(
+            this.config.subjectWeightedAverageConfig,
+        );
         const weightApplyHandler = new WeightApplyHandler(this.config.weightApplyConfig);
         const finalSoreRoundingHandler = new FinalSoreRoundingHandler(this.config.finalGradeToScoreConfig);
 
-        graduationEligibilityHandler
+        validationHandler
             .setNext(semesterHandler)
             .setNext(subjectGroupHandler)
             .setNext(courseGroupHandler)
             .setNext(gradeConversionHandler)
             .setNext(achievementToGradeConversionHandler)
             .setNext(topCourseSelectionHandler)
-            .setNext(weightedScoreHandler)
+            .setNext(finalScoreHandler)
+            .setNext(subjectWeightedAverageHandler)
             .setNext(weightApplyHandler)
             .setNext(finalSoreRoundingHandler);
 
-        this.handler = graduationEligibilityHandler;
+        this.handler = validationHandler;
     }
 
     support(calculatorType: CalculatorEnum): boolean {
@@ -67,10 +72,10 @@ export class KyungheeCalculator implements Calculator {
     }
 
     getAdmissionMapper(): Record<string, string> {
-        return KyungheeConfig.ADMISSION_CODE_TO_NAME;
+        return KonkukConfig.ADMISSION_CODE_TO_NAME;
     }
 
     getUnitMapper(): Record<string, string> {
-        return KyungheeConfig.UNIT_CODE_TO_NAME;
+        return KonkukConfig.UNIT_CODE_TO_NAME;
     }
 }

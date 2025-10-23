@@ -4,15 +4,10 @@ import { Subject, SubjectScoreCalculationDetail } from '../entities/student.enti
 export interface TopCourseSelectionConfig {
     admissions: string[];
     units: string[];
-    subjectSeparations: string[]; // 대상 과목 유형 (예: 진로선택 '02')
-    topCourseCount: number; // 선택할 상위 과목 수 (예: 3)
+    subjectSeparations: string[];
+    topCourseCount: number;
 }
 
-/**
- * 특정 과목 유형에서 성적이 우수한 상위 N개 과목을 선택하는 핸들러
- *
- * 예: 경희대학교 진로선택과목 중 상위 3개 과목 선택
- */
 export class TopCourseSelectionHandler extends BaseScoreHandler {
     protected readonly handlerType = 'TopCourseSelectionHandler';
     private readonly subject = '상위 과목 선택';
@@ -32,46 +27,47 @@ export class TopCourseSelectionHandler extends BaseScoreHandler {
             return;
         }
 
-        // 대상 과목 유형에 해당하고 반영되는 과목들만 추출
         const targetSubjects = student.subjectScores.filter(
-            s =>
-                s.calculationDetail?.isReflected &&
-                config.subjectSeparations.includes(s.subjectSeparationCode || ''),
+            s => s.calculationDetail?.isReflected && config.subjectSeparations.includes(s.subjectSeparationCode || ''),
         );
 
         if (targetSubjects.length === 0) {
             return;
         }
 
-        // 각 과목의 가중 평균 점수 계산 (변환점수 * 이수단위 / 이수단위)
         const courseScores: { subject: Subject; weightedScore: number }[] = targetSubjects.map(s => ({
             subject: s,
             weightedScore: s.calculationDetail?.convertedScore ?? 0,
         }));
 
-        // 점수가 높은 순으로 정렬 (동점인 경우 이수단위가 큰 것 우선)
         courseScores.sort((a, b) => {
             if (a.weightedScore !== b.weightedScore) {
                 return b.weightedScore - a.weightedScore; // 내림차순
             }
-            return this.parseUnit(b.subject.unit) - this.parseUnit(a.subject.unit);
+            if (b.subject.unit !== a.subject.unit) {
+                return this.parseUnit(b.subject.unit) - this.parseUnit(a.subject.unit);
+            }
+            const ratioA = this.achievementARatio(a.subject.achievementRatio) || 100;
+            const ratioB = this.achievementARatio(b.subject.achievementRatio) || 100;
+            if (b.subject.achievementRatio) {
+                return ratioA - ratioB;
+            }
+            const subjectGroupA = a.subject.subjectGroup ?? '';
+            const subjectGroupB = b.subject.subjectGroup ?? '';
+            if (subjectGroupA === '국어' && subjectGroupB !== '국어') return -1;
+            if (subjectGroupA !== '국어' && subjectGroupB === '국어') return 1;
+
+            return 0;
         });
 
-        // 상위 N개 과목의 ID 저장
-        const topCourseIds = new Set(
-            courseScores.slice(0, config.topCourseCount).map(cs => cs.subject.id),
-        );
+        const topCourseIds = new Set(courseScores.slice(0, config.topCourseCount).map(cs => cs.subject.id));
 
-        // 상위 N개가 아닌 과목들은 반영 제외
         for (const s of student.subjectScores) {
             if (!s.calculationDetail?.isReflected) {
                 continue;
             }
 
-            if (
-                config.subjectSeparations.includes(s.subjectSeparationCode || '') &&
-                !topCourseIds.has(s.id)
-            ) {
+            if (config.subjectSeparations.includes(s.subjectSeparationCode || '') && !topCourseIds.has(s.id)) {
                 s.calculationDetail = SubjectScoreCalculationDetail.create(
                     s.id,
                     false,
@@ -81,6 +77,12 @@ export class TopCourseSelectionHandler extends BaseScoreHandler {
                 );
             }
         }
+    }
+
+    private achievementARatio(achievementRatio: string | undefined): number {
+        if (!achievementRatio) return 0;
+        const match = achievementRatio.match(/A\(([\d.]+)\)/);
+        return match ? Number(match[1]) : 0;
     }
 
     private parseUnit(unit?: string | null): number {

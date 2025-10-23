@@ -14,6 +14,7 @@ import { CALCULATORS } from './calculator/calculator.tokens';
 import { AdmissionsModule } from '../admissions/admissions.module';
 import { GyeongbokCalculator } from './calculator/gyeongbok.calculator';
 import { KyungheeCalculator } from './calculator/kyunghee.calculator';
+import { KonkukCalculator } from './calculator/konkuk.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
@@ -22,10 +23,16 @@ import { KyungheeCalculator } from './calculator/kyunghee.calculator';
         GacheonCalculator,
         GyeongbokCalculator,
         KyungheeCalculator,
+        KonkukCalculator,
         {
             provide: CALCULATORS,
-            useFactory: (gacheon: GacheonCalculator, gyeongbok: GyeongbokCalculator, kyunghee: KyungheeCalculator) => [gacheon, gyeongbok, kyunghee],
-            inject: [GacheonCalculator, GyeongbokCalculator, KyungheeCalculator],
+            useFactory: (
+                gacheon: GacheonCalculator,
+                gyeongbok: GyeongbokCalculator,
+                kyunghee: KyungheeCalculator,
+                konkuk: KonkukCalculator,
+            ) => [gacheon, gyeongbok, kyunghee, konkuk],
+            inject: [GacheonCalculator, GyeongbokCalculator, KyungheeCalculator, KonkukCalculator],
         },
         ScoreCalculationUseCase,
         StudentQueryUseCase,

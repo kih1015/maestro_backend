@@ -30,7 +30,8 @@ export class FinalSoreRoundingHandler extends BaseScoreHandler {
         }
 
         const multiple = Math.pow(10, config.digits);
-        student.scoreResult.finalScore = Math.round(student.scoreResult.finalScore * multiple) / multiple;
+        const finalScore = student.scoreResult.finalScore;
+        student.scoreResult.finalScore = Math.floor(Number(finalScore.toPrecision(10)) * multiple + 0.5) / multiple;
     }
 
     private findConfig(admission: string, unit: string): FinalGradeToScoreConfig | undefined {
