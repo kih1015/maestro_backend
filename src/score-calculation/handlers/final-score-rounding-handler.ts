@@ -4,6 +4,7 @@ export interface FinalGradeToScoreConfig {
     admissions: string[];
     units: string[];
     digits: number;
+    isNotSavedMethod?: boolean;
 }
 
 export class FinalSoreRoundingHandler extends BaseScoreHandler {
@@ -31,7 +32,13 @@ export class FinalSoreRoundingHandler extends BaseScoreHandler {
 
         const multiple = Math.pow(10, config.digits);
         const finalScore = student.scoreResult.finalScore;
-        student.scoreResult.finalScore = Math.floor(Number(finalScore.toPrecision(10)) * multiple + 0.5) / multiple;
+
+        if (config.isNotSavedMethod) {
+            student.scoreResult.finalScore = Math.round(finalScore * multiple) / multiple;
+            return;
+        }
+
+        student.scoreResult.finalScore = Math.floor(Number(finalScore.toPrecision(15)) * multiple + 0.5) / multiple;
     }
 
     private findConfig(admission: string, unit: string): FinalGradeToScoreConfig | undefined {

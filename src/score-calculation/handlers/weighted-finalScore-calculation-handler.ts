@@ -8,6 +8,8 @@ export interface WeightedFinalScoreConfig {
     readonly generalWeight: number;
     readonly careerWeight: number;
     readonly ignoreZeroCareerScore?: boolean;
+    readonly fallbackMappingTable?: { min: number; score: number }[];
+    readonly roundDigits?: number;
 }
 
 export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
@@ -43,24 +45,45 @@ export class WeightedFinalScoreCalculationHandler extends BaseScoreHandler {
                 s.subjectSeparationCode === WeightedFinalScoreCalculationHandler.CAREER_SUBJECT_CODE,
         );
 
-        const generalAverage = this.calculateWeightedAverage(
+        let generalAverage = this.calculateWeightedAverage(
             generalSubjects.map(s => ({
                 score: s.calculationDetail?.convertedScore ?? 0,
                 unit: this.parseUnit(s.unit),
             })),
         );
-        const careerAverage = this.calculateWeightedAverage(
+        let careerAverage = this.calculateWeightedAverage(
             careerSubjects.map(s => ({
                 score: s.calculationDetail?.convertedScore ?? 0,
                 unit: this.parseUnit(s.unit),
             })),
         );
 
+        const reflectedCareerNum = student.subjectScores.filter(
+            subject => subject.calculationDetail?.isReflected && subject.subjectSeparationCode === '02',
+        ).length;
+
+        if (config.fallbackMappingTable && reflectedCareerNum == 0) {
+            careerAverage = config.fallbackMappingTable?.find(mapping => generalAverage >= mapping.min)?.score ?? 0;
+        }
+
+        if (config.roundDigits) {
+            const multiple = Math.pow(10, config.roundDigits);
+            generalAverage = Math.floor(Number(generalAverage.toPrecision(15)) * multiple + 0.5) / multiple;
+            careerAverage = Math.floor(Number(careerAverage.toPrecision(15)) * multiple + 0.5) / multiple;
+        }
+
         let finalScore = generalAverage * config.generalWeight + careerAverage * config.careerWeight;
+
         if (config.ignoreZeroCareerScore && careerAverage == 0) {
             finalScore = generalAverage;
         }
-        student.scoreResult = StudentScoreResult.create(student.id, finalScore, 0, undefined);
+
+        student.scoreResult = StudentScoreResult.create(
+            student.id,
+            finalScore,
+            0,
+            `${generalAverage} + ${careerAverage}`,
+        );
     }
 
     private findConfig(admission: string, unit: string): WeightedFinalScoreConfig | undefined {
