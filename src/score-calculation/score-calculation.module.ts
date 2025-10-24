@@ -17,6 +17,7 @@ import { KyungheeCalculator } from './calculator/kyunghee.calculator';
 import { KonkukCalculator } from './calculator/konkuk.calculator';
 import { DankookCalculator } from './calculator/dankook.calculator';
 import { DeoksungCalculator } from './calculator/deoksung.calculator';
+import { MyongjiCalculator } from './calculator/myongji.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
@@ -28,6 +29,7 @@ import { DeoksungCalculator } from './calculator/deoksung.calculator';
         KonkukCalculator,
         DankookCalculator,
         DeoksungCalculator,
+        MyongjiCalculator,
         {
             provide: CALCULATORS,
             useFactory: (
@@ -37,8 +39,9 @@ import { DeoksungCalculator } from './calculator/deoksung.calculator';
                 konkuk: KonkukCalculator,
                 dankook: DankookCalculator,
                 deoksung: DeoksungCalculator,
-            ) => [gacheon, gyeongbok, kyunghee, konkuk, dankook, deoksung],
-            inject: [GacheonCalculator, GyeongbokCalculator, KyungheeCalculator, KonkukCalculator, DankookCalculator, DeoksungCalculator],
+                myongji: MyongjiCalculator,
+            ) => [gacheon, gyeongbok, kyunghee, konkuk, dankook, deoksung, myongji],
+            inject: [GacheonCalculator, GyeongbokCalculator, KyungheeCalculator, KonkukCalculator, DankookCalculator, DeoksungCalculator, MyongjiCalculator],
         },
         ScoreCalculationUseCase,
         StudentQueryUseCase,

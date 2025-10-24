@@ -202,4 +202,5 @@ enum CalculatorType {
   KONKUK
   DANKOOK
   DEOKSUNG
+  MYONGJI
 }
