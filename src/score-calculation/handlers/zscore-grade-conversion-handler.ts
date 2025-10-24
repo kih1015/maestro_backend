@@ -5,6 +5,9 @@ export interface ZScoreGradeConfig {
     admissions: string[];
     units: string[];
     subjectSeparations: string[];
+    gradeMapping: Record<number, number>;
+    zScoreGradeMapping?: Record<number, number>;
+    zScoreRoundDigits?: number;
 }
 
 export class ZScoreGradeConversionHandler extends BaseScoreHandler {
@@ -49,8 +52,12 @@ export class ZScoreGradeConversionHandler extends BaseScoreHandler {
                 continue;
             }
 
-            const zScore = (originalScore - avgScore) / stdDev;
-            const grade = this.zScoreToGrade(zScore);
+            let zScore = (originalScore - avgScore) / stdDev;
+            if (config.zScoreRoundDigits) {
+                const multiple = Math.pow(10, config.zScoreRoundDigits);
+                zScore = Math.floor(Number(zScore.toPrecision(15)) * multiple + 0.5) / multiple;
+            }
+            const grade = this.zScoreToGrade(zScore, config.gradeMapping, config.zScoreGradeMapping);
 
             const formula = `Z = (${originalScore} - ${avgScore}) / ${stdDev} = ${zScore.toFixed(2)} → ${grade}등급`;
 
@@ -84,16 +91,20 @@ export class ZScoreGradeConversionHandler extends BaseScoreHandler {
      * 8등급: 상위 96% (-1.75 ≤ z < -1.22)
      * 9등급: 하위 4% (z < -1.75)
      */
-    private zScoreToGrade(zScore: number): number {
-        if (zScore >= 1.76) return 1;
-        if (zScore >= 1.226) return 2;
-        if (zScore >= 0.738) return 3;
-        if (zScore >= 0.26) return 4;
-        if (zScore >= -0.25) return 5;
-        if (zScore >= -0.73) return 6;
-        if (zScore >= -1.22) return 7;
-        if (zScore >= -1.75) return 8;
-        return 9;
+    private zScoreToGrade(
+        zScore: number,
+        gradeMapping: Record<number, number>,
+        zScoreGradeMapping?: Record<number, number>,
+    ): number {
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[1] : 1.76)) return gradeMapping[1];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[2] : 1.226)) return gradeMapping[2];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[3] : 0.738)) return gradeMapping[3];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[4] : 0.26)) return gradeMapping[4];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[5] : -0.25)) return gradeMapping[5];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[6] : -0.73)) return gradeMapping[6];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[7] : -1.22)) return gradeMapping[7];
+        if (zScore >= (zScoreGradeMapping ? zScoreGradeMapping[8] : -1.75)) return gradeMapping[8];
+        return gradeMapping[9];
     }
 
     private findConfig(admission: string, unit: string, courseGroup: string): ZScoreGradeConfig | undefined {

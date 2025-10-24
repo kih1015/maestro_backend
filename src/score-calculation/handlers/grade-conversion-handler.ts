@@ -6,6 +6,7 @@ export interface GradeConversionConfig {
     admissions: string[];
     units: string[];
     subjectSeparations: string[];
+    reflectedSubjects?: string[];
     gradeMapping: { [grade: number]: number };
 }
 
@@ -28,7 +29,7 @@ export class GradeConversionHandler extends BaseScoreHandler {
                 continue;
             }
 
-            const config = this.findConfig(type, unitCode, s.subjectSeparationCode);
+            const config = this.findConfig(type, unitCode, s.subjectSeparationCode, s.subjectGroup ?? '');
             if (!config) {
                 continue;
             }
@@ -60,12 +61,19 @@ export class GradeConversionHandler extends BaseScoreHandler {
         }
     }
 
-    private findConfig(admission: string, unit: string, courseGroup: string): GradeConversionConfig | undefined {
-        return this.config.find(
-            config =>
-                config.admissions.includes(admission) &&
-                config.units.includes(unit) &&
-                config.subjectSeparations.includes(courseGroup),
+    private findConfig(
+        admission: string,
+        unit: string,
+        courseGroup: string,
+        subjectGroup: string,
+    ): GradeConversionConfig | undefined {
+        return this.config.find(config =>
+            config.admissions.includes(admission) &&
+            config.units.includes(unit) &&
+            config.subjectSeparations.includes(courseGroup) &&
+            config.reflectedSubjects
+                ? config.reflectedSubjects.includes(subjectGroup)
+                : true,
         );
     }
 

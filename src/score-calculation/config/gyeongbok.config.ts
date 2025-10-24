@@ -177,6 +177,17 @@ export class GyeongbokConfig {
             admissions: [...GyeongbokConfig.ALL_ADMISSIONS_CODES],
             units: [...GyeongbokConfig.ALL_UNIT_CODES],
             subjectSeparations: ['01', '03'], // 일반선택과목
+            gradeMapping: {
+                1: 100,
+                2: 99,
+                3: 98,
+                4: 97,
+                5: 96,
+                6: 95,
+                7: 90,
+                8: 60,
+                9: 0,
+            },
         },
     ];
 
