@@ -203,4 +203,5 @@ enum CalculatorType {
   DANKOOK
   DEOKSUNG
   MYONGJI
+  PUSAN
 }
