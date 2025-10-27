@@ -8,7 +8,7 @@ import { Injectable } from '@nestjs/common';
 import { CalculatorEnum } from './calculator.enum';
 import { DeoksungConfig } from '../config/deoksung.config';
 import { AchievementToGradeConversionHandler } from '../handlers/achievement-to-grade-conversion-handler';
-import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
+import { StudentValidationHandler } from '../handlers/student-validation-handler';
 import { TopCourseSelectionHandler } from '../handlers/top-course-selection-handler';
 import { WeightedFinalScoreCalculationHandler } from '../handlers/weighted-finalScore-calculation-handler';
 import { UnconvertedScoreFilterHandler } from '../handlers/unconverted-score-filter-handler';
@@ -23,7 +23,7 @@ export class DeoksungCalculator implements Calculator {
     private readonly handler: BaseScoreHandler;
 
     constructor() {
-        const validationHandler = new GCNValidationHandler(this.config.validationConfig);
+        const validationHandler = new StudentValidationHandler(this.config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler(this.config.semesterReflectionConfig);
         const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
         const commonGeneralGradeConversionHandler = new GradeConversionHandler(

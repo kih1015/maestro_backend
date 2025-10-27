@@ -1,7 +1,7 @@
 import { Calculator } from './calculator';
 import { Student } from '../entities/student.entity';
 import { BaseScoreHandler, HandlerInfo, ScoreCalculationContext } from '../handlers/base-handler';
-import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
+import { StudentValidationHandler } from '../handlers/student-validation-handler';
 import { SemesterReflectionHandler } from '../handlers/semester-reflection-handler';
 import { SubjectGroupFilterHandler } from '../handlers/subject-group-filter-handler';
 import { CourseGroupFilterHandler } from '../handlers/course-group-filter-handler';
@@ -21,7 +21,7 @@ export class GacheonCalculator implements Calculator {
     private readonly handler: BaseScoreHandler;
 
     constructor() {
-        const validationHandler = new GCNValidationHandler(this.config.validationConfig);
+        const validationHandler = new StudentValidationHandler(this.config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler(this.config.semesterReflectionConfig);
         const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
         const courseGroupHandler = new CourseGroupFilterHandler(this.config.subjectSeparationsConfigs);

@@ -56,9 +56,6 @@ export class BestSemesterSelectionHandler extends BaseScoreHandler {
                 totalWeight,
             });
         }
-        if (student.identifyNumber === '10000063') {
-            console.log(semesterAverages);
-        }
 
         semesterAverages.sort((a, b) => {
             if (a.average !== b.average) {
@@ -85,7 +82,7 @@ export class BestSemesterSelectionHandler extends BaseScoreHandler {
                     s.id,
                     false,
                     `우수 학기 미선택 (${config.bestSemesterCount}개 학기만 선택)`,
-                    0,
+                    s.calculationDetail.convertedScore ?? 0,
                     this.handlerType,
                 );
             }

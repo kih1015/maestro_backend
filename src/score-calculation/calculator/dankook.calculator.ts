@@ -10,7 +10,7 @@ import { DankookConfig } from '../config/dankook.config';
 import { AchievementToGradeConversionHandler } from '../handlers/achievement-to-grade-conversion-handler';
 import { FinalSoreRoundingHandler } from '../handlers/final-score-rounding-handler';
 import { FinalScoreCalculationHandler } from '../handlers/final-score-calculation-handler';
-import { GCNValidationHandler } from '../handlers/gcn-validation-handler';
+import { StudentValidationHandler } from '../handlers/student-validation-handler';
 import { PercentileGradeConversionHandler } from '../handlers/percentile-grade-conversion-handler';
 import { UnconvertedScoreFilterHandler } from '../handlers/unconverted-score-filter-handler';
 import { RequiredSubjectGroupHandler } from '../handlers/required-subject-group-handler';
@@ -22,7 +22,7 @@ export class DankookCalculator implements Calculator {
     private readonly handler: BaseScoreHandler;
 
     constructor() {
-        const validationHandler = new GCNValidationHandler(this.config.validationConfig);
+        const validationHandler = new StudentValidationHandler(this.config.validationConfig);
         const semesterHandler = new SemesterReflectionHandler(this.config.semesterReflectionConfig);
         const subjectGroupHandler = new SubjectGroupFilterHandler(this.config.subjectConfigs);
         const achievementToGradeConversionHandler = new AchievementToGradeConversionHandler(

@@ -1,4 +1,4 @@
-import { ValidationConfig } from '../handlers/gcn-validation-handler';
+import { ValidationConfig } from '../handlers/student-validation-handler';
 import { ExcludedSubjectConfig } from '../handlers/excluded-subject-handler';
 import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
 import { SubjectConfig } from '../handlers/subject-group-filter-handler';

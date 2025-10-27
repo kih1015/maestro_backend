@@ -4,7 +4,7 @@ import { SemesterReflectionConfig } from '../handlers/semester-reflection-handle
 import { AchievementToGradeConfig } from '../handlers/achievement-to-grade-conversion-handler';
 import { FinalGradeToScoreConfig } from '../handlers/final-score-rounding-handler';
 import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
-import { ValidationConfig } from '../handlers/gcn-validation-handler';
+import { ValidationConfig } from '../handlers/student-validation-handler';
 import { PercentileGradeConfig } from '../handlers/percentile-grade-conversion-handler';
 import { UnconvertedScoreFilterConfig } from '../handlers/unconverted-score-filter-handler';
 import { RequiredSubjectGroupConfig } from '../handlers/required-subject-group-handler';

@@ -1,7 +1,7 @@
 import { SubjectConfig } from '../handlers/subject-group-filter-handler';
 import { GradeConversionConfig } from '../handlers/grade-conversion-handler';
 import { SemesterReflectionConfig } from '../handlers/semester-reflection-handler';
-import { ValidationConfig } from '../handlers/gcn-validation-handler';
+import { ValidationConfig } from '../handlers/student-validation-handler';
 import { UnconvertedScoreFilterConfig } from '../handlers/unconverted-score-filter-handler';
 import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
 import { WeightApplyConfig } from '../handlers/weight-apply-handler';

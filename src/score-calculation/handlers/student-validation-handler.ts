@@ -7,8 +7,8 @@ export interface ValidationConfig {
     readonly units: string[];
 }
 
-export class GCNValidationHandler extends BaseScoreHandler {
-    protected readonly handlerType = 'GCNValidationHandler';
+export class StudentValidationHandler extends BaseScoreHandler {
+    protected readonly handlerType = 'StudentValidationHandler';
     private readonly subject = '전형-모집단위 필터';
     private readonly description = '유효 전형-모집단위만 필터링합니다.';
 

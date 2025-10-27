@@ -59,7 +59,7 @@ export class BestSubjectSelectionHandler extends BaseScoreHandler {
 
         subjectAverages.sort((a, b) => {
             if (a.average !== b.average) {
-                return a.average - b.average;
+                return b.average - a.average;
             }
             return b.totalWeight - a.totalWeight;
         });
@@ -77,7 +77,7 @@ export class BestSubjectSelectionHandler extends BaseScoreHandler {
                     s.id,
                     false,
                     `우수 교과 미선택 (${config.bestSubjectCount}개 교과만 선택)`,
-                    0,
+                    s.calculationDetail.convertedScore ?? 0,
                     this.handlerType,
                 );
             }

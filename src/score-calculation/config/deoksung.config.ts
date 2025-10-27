@@ -3,7 +3,7 @@ import { GradeConversionConfig } from '../handlers/grade-conversion-handler';
 import { SemesterReflectionConfig } from '../handlers/semester-reflection-handler';
 import { AchievementToGradeConfig } from '../handlers/achievement-to-grade-conversion-handler';
 import { FinalGradeToScoreConfig } from '../handlers/final-score-rounding-handler';
-import { ValidationConfig } from '../handlers/gcn-validation-handler';
+import { ValidationConfig } from '../handlers/student-validation-handler';
 import { TopCourseSelectionConfig } from '../handlers/top-course-selection-handler';
 import { WeightedFinalScoreConfig } from '../handlers/weighted-finalScore-calculation-handler';
 import { UnconvertedScoreFilterConfig } from '../handlers/unconverted-score-filter-handler';

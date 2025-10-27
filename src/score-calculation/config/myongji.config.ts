@@ -2,7 +2,7 @@ import { SubjectConfig } from '../handlers/subject-group-filter-handler';
 import { GradeConversionConfig } from '../handlers/grade-conversion-handler';
 import { SemesterReflectionConfig } from '../handlers/semester-reflection-handler';
 import { AchievementToGradeConfig } from '../handlers/achievement-to-grade-conversion-handler';
-import { ValidationConfig } from '../handlers/gcn-validation-handler';
+import { ValidationConfig } from '../handlers/student-validation-handler';
 import { UnconvertedScoreFilterConfig } from '../handlers/unconverted-score-filter-handler';
 import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
 import { CreditBonusConfig } from '../handlers/credit-bonus-handler';
