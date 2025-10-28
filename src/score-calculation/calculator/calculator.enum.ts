@@ -9,6 +9,7 @@ export const CalculatorEnum = {
     PUSAN: 'PUSAN',
     SAMYOOK: 'SAMYOOK',
     SAMYOOK_HEALTH: 'SAMYOOK_HEALTH',
+    SEOULTECH: 'SEOULTECH',
 } as const;
 
 export type CalculatorEnum = (typeof CalculatorEnum)[keyof typeof CalculatorEnum];

@@ -32,11 +32,12 @@ export class StudentValidationHandlerV2 extends BaseScoreHandler {
     }
 
     private isValidStudent(admission: string, unit: string): boolean {
-        return this.config.filters.some(filter => {
+        for (const filter of this.config.filters) {
             if (filter.admissions.includes(admission) && filter.units.includes(unit)) {
                 return true;
             }
-        });
+        }
+        return false;
     }
 
     public getInfo(): HandlerInfo {

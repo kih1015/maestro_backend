@@ -9,7 +9,8 @@ export interface CreditBonusConfig {
 export class CreditBonusHandler extends BaseScoreHandler {
     protected readonly handlerType = 'CreditBonusHandler';
     private readonly subject = '이수학점 가산점 계산';
-    private readonly description = '반영교과 내 모든 이수과목의 이수학점 합계에 배율을 곱하여 가산점을 계산하고 최종 점수에 추가합니다.';
+    private readonly description =
+        '반영교과 내 모든 이수과목의 이수학점 합계에 배율을 곱하여 가산점을 계산하고 최종 점수에 추가합니다.';
 
     constructor(private readonly config: CreditBonusConfig[]) {
         super();

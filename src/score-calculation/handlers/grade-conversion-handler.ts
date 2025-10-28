@@ -7,7 +7,7 @@ export interface GradeConversionConfig {
     units: string[];
     subjectSeparations: string[];
     reflectedSubjects?: string[];
-    gradeMapping: { [grade: number]: number };
+    gradeMapping: { [grade: number | string]: number };
 }
 
 export class GradeConversionHandler extends BaseScoreHandler {
@@ -34,20 +34,13 @@ export class GradeConversionHandler extends BaseScoreHandler {
                 continue;
             }
 
-            const grade = s.rankingGrade ? Number(s.rankingGrade) : null;
-            if (!this.isValidGrade(grade)) {
-                continue;
+            let grade: number | string | null = s.rankingGrade ? Number(s.rankingGrade) : null;
+            if (!grade) {
+                grade = s.rankingGrade;
             }
 
             const convertedScore = config.gradeMapping[grade];
             if (convertedScore === undefined) {
-                s.calculationDetail = SubjectScoreCalculationDetail.create(
-                    s.id,
-                    false,
-                    '등급 변환 규칙 없음',
-                    0,
-                    this.handlerType,
-                );
                 continue;
             }
 
@@ -67,18 +60,13 @@ export class GradeConversionHandler extends BaseScoreHandler {
         courseGroup: string,
         subjectGroup: string,
     ): GradeConversionConfig | undefined {
-        return this.config.find(config =>
-            config.admissions.includes(admission) &&
-            config.units.includes(unit) &&
-            config.subjectSeparations.includes(courseGroup) &&
-            config.reflectedSubjects
-                ? config.reflectedSubjects.includes(subjectGroup)
-                : true,
+        return this.config.find(
+            config =>
+                config.admissions.includes(admission) &&
+                config.units.includes(unit) &&
+                config.subjectSeparations.includes(courseGroup) &&
+                (config.reflectedSubjects ? config.reflectedSubjects.includes(subjectGroup) : true),
         );
-    }
-
-    private isValidGrade(g?: number | null): g is number {
-        return typeof g === 'number' && Number.isInteger(g) && g >= 1 && g <= 9;
     }
 
     public getInfo(): HandlerInfo {
