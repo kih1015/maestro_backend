@@ -8,6 +8,8 @@ export interface ZScoreGradeConfig {
     gradeMapping: Record<number, number>;
     zScoreGradeMapping?: Record<number, number>;
     zScoreRoundDigits?: number;
+    notOnlyForSpecialSubject?: boolean;
+    excludeISU?: boolean;
 }
 
 export class ZScoreGradeConversionHandler extends BaseScoreHandler {
@@ -25,16 +27,20 @@ export class ZScoreGradeConversionHandler extends BaseScoreHandler {
         const unitCode = student.recruitmentUnitCode;
 
         for (const s of student.subjectScores) {
-            if (s.calculationDetail && !s.calculationDetail.isReflected) {
-                continue;
-            }
-
-            if (!['A', 'B', 'C', 'D', 'E'].includes(s.rankingGrade)) {
+            if (s.calculationDetail) {
                 continue;
             }
 
             const config = this.findConfig(type, unitCode, s.subjectSeparationCode);
             if (!config) {
+                continue;
+            }
+
+            if (config.excludeISU && ['이수'].includes(s.rankingGrade)) {
+                continue;
+            }
+
+            if (!config.notOnlyForSpecialSubject && !['A', 'B', 'C', 'D', 'E'].includes(s.rankingGrade)) {
                 continue;
             }
 
@@ -60,11 +66,6 @@ export class ZScoreGradeConversionHandler extends BaseScoreHandler {
             const grade = this.zScoreToGrade(zScore, config.gradeMapping, config.zScoreGradeMapping);
 
             const formula = `Z = (${originalScore} - ${avgScore}) / ${stdDev} = ${zScore.toFixed(2)} → ${grade}등급`;
-
-            if (student.identifyNumber === '12181721') {
-                console.log(s.subjectName);
-                console.log(zScore);
-            }
 
             s.calculationDetail = new SubjectScoreCalculationDetail({
                 subjectScoreId: s.id,

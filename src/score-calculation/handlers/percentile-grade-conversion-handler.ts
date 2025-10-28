@@ -25,7 +25,7 @@ export class PercentileGradeConversionHandler extends BaseScoreHandler {
         const graduateYear = parseInt(student.graduateYear);
 
         for (const s of student.subjectScores) {
-            if (s.calculationDetail && !s.calculationDetail.isReflected) {
+            if (s.calculationDetail) {
                 continue;
             }
 

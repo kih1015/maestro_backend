@@ -205,4 +205,5 @@ enum CalculatorType {
   MYONGJI
   PUSAN
   SAMYOOK
+  SAMYOOK_HEALTH
 }

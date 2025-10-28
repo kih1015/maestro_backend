@@ -25,7 +25,7 @@ export class GradeConversionHandler extends BaseScoreHandler {
         const unitCode = student.recruitmentUnitCode;
 
         for (const s of student.subjectScores) {
-            if (s.calculationDetail && !s.calculationDetail.isReflected) {
+            if (s.calculationDetail) {
                 continue;
             }
 
