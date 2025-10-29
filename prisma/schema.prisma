@@ -209,4 +209,5 @@ enum CalculatorType {
   SAMYOOK_HEALTH
   SEOULTECH
   SEOIL
+  SUNGKYUL
 }

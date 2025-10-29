@@ -8,6 +8,7 @@ export interface PercentileGradeConfig {
     graduateYearThreshold: number; // 예: 2008 (2008년 이전 졸업자에게만 적용)
     gradeScoreMapping: Record<number, number>; // 등급별 점수 매핑 (1등급 -> 100점 등)
     isNotReflectedForSameRank?: boolean;
+    roundDigits?: number;
 }
 
 export class PercentileGradeConversionHandler extends BaseScoreHandler {
@@ -55,6 +56,10 @@ export class PercentileGradeConversionHandler extends BaseScoreHandler {
             let percentile = (adjustedRank / studentCount) * 100;
             if (config.isNotReflectedForSameRank) {
                 percentile = (rank / studentCount) * 100;
+            }
+            if (config.roundDigits) {
+                const multiple = Math.pow(10, config.roundDigits);
+                percentile = Math.floor(Number(percentile.toPrecision(15)) * multiple + 0.5) / multiple;
             }
             const grade = this.percentileToGrade(percentile);
             const convertedScore = config.gradeScoreMapping[grade] ?? 0;

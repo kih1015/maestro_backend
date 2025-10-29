@@ -7,16 +7,23 @@ export class SubjectScoreCalculationDetailRepository {
     constructor(private prisma: PrismaService) {}
 
     async saveMany(details: SubjectScoreCalculationDetail[]): Promise<void> {
-        const data = details.map(detail => ({
-            subjectScoreId: detail.subjectScoreId,
-            isReflected: detail.isReflected,
-            nonReflectionReason: detail.nonReflectionReason,
-            convertedScore: detail.convertedScore,
-            convertedBaseValue: detail.convertedBaseValue as 'GRADE' | 'ACHIEVEMENT' | 'PERCENTILE' | 'Z_SCORE' | null,
-            conversionFormula: detail.conversionFormula,
-            calculationHandler: detail.calculationHandler,
-            updatedAt: new Date(),
-        }));
+        const data = details
+            .filter(detail => detail.subjectScoreId >= 0)
+            .map(detail => ({
+                subjectScoreId: detail.subjectScoreId,
+                isReflected: detail.isReflected,
+                nonReflectionReason: detail.nonReflectionReason,
+                convertedScore: detail.convertedScore,
+                convertedBaseValue: detail.convertedBaseValue as
+                    | 'GRADE'
+                    | 'ACHIEVEMENT'
+                    | 'PERCENTILE'
+                    | 'Z_SCORE'
+                    | null,
+                conversionFormula: detail.conversionFormula,
+                calculationHandler: detail.calculationHandler,
+                updatedAt: new Date(),
+            }));
 
         await this.prisma.subject_score_calculation_details.createMany({
             data,

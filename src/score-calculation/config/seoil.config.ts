@@ -218,18 +218,21 @@ export class SeoilConfig {
             units: [...SeoilConfig.ALL_UNITS],
             formula: (averageGrade: number) => 144 + ((9 - averageGrade) / 8) * (200 - 144),
             roundDigits: 3, // 소수점 넷째자리에서 반올림
+            seoilOption: true,
         },
         {
             admissions: [SeoilConfig.ADMISSION_CODES.실기면접위주2],
             units: [...SeoilConfig.ALL_UNITS],
             formula: (averageGrade: number) => 288 + ((9 - averageGrade) / 8) * (400 - 288),
             roundDigits: 3, // 소수점 넷째자리에서 반올림
+            seoilOption: true,
         },
         {
             admissions: [SeoilConfig.ADMISSION_CODES.학생부위주],
             units: [...SeoilConfig.ALL_UNITS],
             formula: (averageGrade: number) => 720 + ((9 - averageGrade) / 8) * (1000 - 720),
             roundDigits: 3, // 소수점 넷째자리에서 반올림
+            seoilOption: true,
         },
     ];
 }
