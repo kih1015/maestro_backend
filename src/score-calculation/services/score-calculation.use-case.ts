@@ -65,13 +65,15 @@ export class ScoreCalculationUseCase {
         let lastId: number | null = null;
 
         while (true) {
+            this.logger.log('읽기 시작');
             const batch = await this.studentRepository.streamStudents(recruitmentSeasonId, lastId, batchSize);
-
+            this.logger.log('읽기 종료');
             if (batch.length === 0) break;
 
             const resultsBatch: StudentScoreResult[] = [];
             const detailsBatch: SubjectScoreCalculationDetail[] = [];
 
+            this.logger.log('계산 시작');
             for (const student of batch) {
                 try {
                     // Student object performs its own calculation
@@ -107,7 +109,9 @@ export class ScoreCalculationUseCase {
                 }
                 calculated += 1;
             }
+            this.logger.log('계산 종료');
 
+            this.logger.log('저장 시작');
             // Save batches
             if (resultsBatch.length > 0) {
                 await this.scoreResultRepository.createMany(resultsBatch);
@@ -115,6 +119,7 @@ export class ScoreCalculationUseCase {
             if (detailsBatch.length > 0) {
                 await this.subjectDetailRepository.saveMany(detailsBatch);
             }
+            this.logger.log('저장 종료');
 
             processed += batch.length;
             if (processed % 100 === 0) {

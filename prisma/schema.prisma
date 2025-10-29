@@ -76,6 +76,7 @@ model student_base_infos {
 
   @@unique([recruitmentSeasonId, identifyNumber])
   @@index([recruitmentSeasonId])
+  @@index([recruitmentSeasonId, id])
   @@index([recruitmentSeasonId, recruitmentTypeCode, recruitmentUnitCode])
 }
 
@@ -207,4 +208,5 @@ enum CalculatorType {
   SAMYOOK
   SAMYOOK_HEALTH
   SEOULTECH
+  SEOIL
 }

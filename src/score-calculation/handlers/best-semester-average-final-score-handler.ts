@@ -6,6 +6,7 @@ export interface BestSemesterAverageFinalScoreConfig {
     units: string[];
     formula: (averageGrade: number) => number;
     roundDigits: number;
+    seoilOption?: boolean;
 }
 
 export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
@@ -47,7 +48,7 @@ export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
 
         // 각 학기의 이수가중평균 계산
         const semesterAverages: number[] = [];
-        for (const [semester, subjects] of semesterMap.entries()) {
+        for (const [, subjects] of semesterMap.entries()) {
             const totalWeightedScore = subjects.reduce(
                 (acc, p) => acc + (p.calculationDetail?.convertedScore ?? 0) * this.parseUnit(p.unit),
                 0,
@@ -63,6 +64,9 @@ export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
         if (semesterAverages.length === 1) {
             // 1개 학기만 있을 경우: (해당 학기 등급 + 9) / 2
             totalAverageGrade = (semesterAverages[0] + 9) / 2;
+            if (config.seoilOption) {
+                totalAverageGrade = semesterAverages[0];
+            }
         } else if (semesterAverages.length > 1) {
             // 2개 이상 학기: 학기별 평균의 평균 계산
             totalAverageGrade = semesterAverages.reduce((acc, avg) => acc + avg, 0) / semesterAverages.length;
@@ -84,7 +88,7 @@ export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
 
     private roundToDigits(value: number, digits: number): number {
         const multiplier = Math.pow(10, digits);
-        return Math.round(value * multiplier) / multiplier;
+        return Math.floor(Number(value.toPrecision(15)) * multiplier + 0.5) / multiplier;
     }
 
     private findConfig(admission: string, unit: string): BestSemesterAverageFinalScoreConfig | undefined {

@@ -22,6 +22,7 @@ import { PusanCalculator } from './calculator/pusan.calculator';
 import { SamyookCalculator } from './calculator/samyook.calculator';
 import { SamyookHealthCalculator } from './calculator/samyook-health.calculator';
 import { SeoultechCalculator } from './calculator/seoultech.calculator';
+import { SeoilCalculator } from './calculator/seoil.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
@@ -38,6 +39,7 @@ import { SeoultechCalculator } from './calculator/seoultech.calculator';
         SamyookCalculator,
         SamyookHealthCalculator,
         SeoultechCalculator,
+        SeoilCalculator,
         {
             provide: CALCULATORS,
             useFactory: (
@@ -52,6 +54,7 @@ import { SeoultechCalculator } from './calculator/seoultech.calculator';
                 samyook: SamyookCalculator,
                 samyookHealth: SamyookHealthCalculator,
                 seoultech: SeoultechCalculator,
+                seoil: SeoilCalculator,
             ) => [
                 gacheon,
                 gyeongbok,
@@ -64,6 +67,7 @@ import { SeoultechCalculator } from './calculator/seoultech.calculator';
                 samyook,
                 samyookHealth,
                 seoultech,
+                seoil,
             ],
             inject: [
                 GacheonCalculator,
@@ -77,6 +81,7 @@ import { SeoultechCalculator } from './calculator/seoultech.calculator';
                 SamyookCalculator,
                 SamyookHealthCalculator,
                 SeoultechCalculator,
+                SeoilCalculator,
             ],
         },
         ScoreCalculationUseCase,

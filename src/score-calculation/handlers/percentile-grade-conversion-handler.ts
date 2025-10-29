@@ -7,6 +7,7 @@ export interface PercentileGradeConfig {
     subjectSeparations: string[];
     graduateYearThreshold: number; // 예: 2008 (2008년 이전 졸업자에게만 적용)
     gradeScoreMapping: Record<number, number>; // 등급별 점수 매핑 (1등급 -> 100점 등)
+    isNotReflectedForSameRank?: boolean;
 }
 
 export class PercentileGradeConversionHandler extends BaseScoreHandler {
@@ -51,7 +52,10 @@ export class PercentileGradeConversionHandler extends BaseScoreHandler {
             }
 
             const adjustedRank = rank + (sameRank - 1) / 2;
-            const percentile = (adjustedRank / studentCount) * 100;
+            let percentile = (adjustedRank / studentCount) * 100;
+            if (config.isNotReflectedForSameRank) {
+                percentile = (rank / studentCount) * 100;
+            }
             const grade = this.percentileToGrade(percentile);
             const convertedScore = config.gradeScoreMapping[grade] ?? 0;
             const formula = `백분율 = [${rank}+(${sameRank}-1)/2] / ${studentCount} * 100 = ${percentile.toFixed(2)}% → ${grade}등급 → ${convertedScore}점`;
