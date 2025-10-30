@@ -210,4 +210,5 @@ enum CalculatorType {
   SEOULTECH
   SEOIL
   SUNGKYUL
+  SEONGGONGHOUI
 }
