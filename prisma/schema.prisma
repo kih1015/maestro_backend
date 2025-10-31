@@ -212,4 +212,5 @@ enum CalculatorType {
   SUNGKYUL
   SEONGGONGHOUI
   SUNGSIL
+  SOONGUI
 }

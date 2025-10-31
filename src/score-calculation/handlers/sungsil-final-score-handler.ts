@@ -38,7 +38,7 @@ export class SungsilFinalScoreHandler extends BaseScoreHandler {
             student.id,
             finalScore,
             0,
-            `${commonGeneralScore} + ${commonGeneralScore} = ${finalScore}`,
+            `${commonGeneralScore} + ${careerScore} = ${finalScore}`,
         );
     }
 

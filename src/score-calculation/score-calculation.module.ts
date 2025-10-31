@@ -26,6 +26,7 @@ import { SeoilCalculator } from './calculator/seoil.calculator';
 import { SungkyulCalculator } from './calculator/sungkyul.calculator';
 import { SeonggonghouiCalculator } from './calculator/seonggonghoui.calculator';
 import { SungsilCalculator } from './calculator/sungsil.calculator';
+import { SoonguiCalculator } from './calculator/soongui.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
@@ -46,6 +47,7 @@ import { SungsilCalculator } from './calculator/sungsil.calculator';
         SungkyulCalculator,
         SeonggonghouiCalculator,
         SungsilCalculator,
+        SoonguiCalculator,
         {
             provide: CALCULATORS,
             useFactory: (
@@ -64,6 +66,7 @@ import { SungsilCalculator } from './calculator/sungsil.calculator';
                 sungkyul: SungkyulCalculator,
                 seonggonghoui: SeonggonghouiCalculator,
                 sungsil: SungsilCalculator,
+                soongui: SoonguiCalculator,
             ) => [
                 gacheon,
                 gyeongbok,
@@ -80,6 +83,7 @@ import { SungsilCalculator } from './calculator/sungsil.calculator';
                 sungkyul,
                 seonggonghoui,
                 sungsil,
+                soongui,
             ],
             inject: [
                 GacheonCalculator,
@@ -97,6 +101,7 @@ import { SungsilCalculator } from './calculator/sungsil.calculator';
                 SungkyulCalculator,
                 SeonggonghouiCalculator,
                 SungsilCalculator,
+                SoonguiCalculator,
             ],
         },
         ScoreCalculationUseCase,
