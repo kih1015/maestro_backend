@@ -33,7 +33,7 @@ export class BaseScoreSumHandler extends BaseScoreHandler {
         const reflectedSubjects = student.subjectScores.filter(s => s.calculationDetail?.isReflected);
 
         if (reflectedSubjects.length === 0) {
-            student.scoreResult = StudentScoreResult.create(student.id, config.baseScore, 0, '반영 과목 없음');
+            student.scoreResult = StudentScoreResult.create(student.id, 0, 0, '반영 과목 없음');
             return;
         }
 

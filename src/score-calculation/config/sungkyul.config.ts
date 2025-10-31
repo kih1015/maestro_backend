@@ -5,7 +5,6 @@ import { UnconvertedScoreFilterConfig } from '../handlers/unconverted-score-filt
 import { SubjectConfig } from '../handlers/subject-group-filter-handler';
 import { TopCourseSelectionConfig } from '../handlers/top-course-selection-handler';
 import { FinalScoreConfig } from '../handlers/final-score-calculation-handler';
-import { ZScoreGradeConfig } from '../handlers/zscore-grade-conversion-handler';
 import { PercentileGradeConfig } from '../handlers/percentile-grade-conversion-handler';
 import { AverageScoreTo1000Config } from '../handlers/average-score-to-1000-handler';
 import { FinalGradeToScoreConfig } from '../handlers/final-score-rounding-handler';

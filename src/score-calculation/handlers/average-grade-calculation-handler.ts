@@ -8,12 +8,12 @@ export interface AverageGradeCalculationConfig {
 
 /**
  * 평균 등급 계산 핸들러
- * 반영된 과목들의 등급을 단순 평균으로 계산합니다 (가중평균이 아님)
+ * 반영된 과목들의 환산 점수를 단순 평균으로 계산합니다 (가중평균이 아님)
  */
 export class AverageGradeCalculationHandler extends BaseScoreHandler {
     protected readonly handlerType = 'AverageGradeCalculationHandler';
-    private readonly subject = '평균 등급 계산';
-    private readonly description = '반영된 과목들의 등급을 단순 평균으로 계산합니다.';
+    private readonly subject = '평균 점수 계산';
+    private readonly description = '반영된 과목들의 환산 점수를 단순 평균으로 계산합니다.';
 
     constructor(private readonly config: AverageGradeCalculationConfig[]) {
         super();
@@ -37,16 +37,15 @@ export class AverageGradeCalculationHandler extends BaseScoreHandler {
             return;
         }
 
-        // 등급의 단순 평균 계산
-        const totalGrade = reflectedSubjects.reduce((acc, s) => {
-            const grade = parseFloat(s.rankingGrade);
-            return acc + (Number.isFinite(grade) ? grade : 9);
+        // 환산 점수의 단순 평균 계산
+        const totalScore = reflectedSubjects.reduce((acc, s) => {
+            return acc + (s.calculationDetail?.convertedScore ?? 0);
         }, 0);
 
-        const averageGrade = totalGrade / reflectedSubjects.length;
+        const averageScore = totalScore / reflectedSubjects.length;
 
-        // averageGrade를 임시로 finalScore에 저장 (다음 핸들러에서 최종 점수로 변환)
-        student.scoreResult = StudentScoreResult.create(student.id, averageGrade, 0, undefined);
+        // averageScore를 finalScore에 저장
+        student.scoreResult = StudentScoreResult.create(student.id, averageScore, 0, undefined);
     }
 
     private findConfig(admission: string, unit: string): AverageGradeCalculationConfig | undefined {
@@ -62,7 +61,7 @@ export class AverageGradeCalculationHandler extends BaseScoreHandler {
             config: this.config.map(c => ({
                 admissions: c.admissions,
                 units: c.units,
-                formula: `\\frac{\\sum(등급)}{과목 수}`,
+                formula: `\\frac{\\sum(환산\\ 점수)}{과목\\ 수}`,
             })),
         };
     }
