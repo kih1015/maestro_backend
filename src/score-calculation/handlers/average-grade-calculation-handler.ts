@@ -33,7 +33,7 @@ export class AverageGradeCalculationHandler extends BaseScoreHandler {
 
         const reflectedSubjects = student.subjectScores.filter(s => s.calculationDetail?.isReflected);
 
-        if (reflectedSubjects.length === 0) {
+        if (reflectedSubjects.length === 0 && !config.minCourseCount && !config.defaultScore) {
             student.scoreResult = StudentScoreResult.create(student.id, 0, 0, '반영 과목 없음');
             context.shouldContinue = false;
             return;

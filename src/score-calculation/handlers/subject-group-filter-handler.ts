@@ -40,10 +40,6 @@ export class SubjectGroupFilterHandler extends BaseScoreHandler {
                 );
             }
         }
-
-        if (student.identifyNumber === '15729932') {
-            console.log(student.subjectScores);
-        }
     }
 
     private getReflectedSubjects(admission: string, unit: string): string[] | undefined {
