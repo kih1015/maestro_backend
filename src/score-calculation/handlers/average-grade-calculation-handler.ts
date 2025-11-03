@@ -4,6 +4,8 @@ import { StudentScoreResult } from '../entities/student.entity';
 export interface AverageGradeCalculationConfig {
     readonly admissions: string[];
     readonly units: string[];
+    readonly minCourseCount?: number; // 최소 과목 수 (선택)
+    readonly defaultScore?: number; // 최소 과목 수 미달 시 사용할 기본 점수 (선택)
 }
 
 /**
@@ -38,11 +40,22 @@ export class AverageGradeCalculationHandler extends BaseScoreHandler {
         }
 
         // 환산 점수의 단순 평균 계산
-        const totalScore = reflectedSubjects.reduce((acc, s) => {
+        let totalScore = reflectedSubjects.reduce((acc, s) => {
             return acc + (s.calculationDetail?.convertedScore ?? 0);
         }, 0);
 
-        const averageScore = totalScore / reflectedSubjects.length;
+        let courseCount = reflectedSubjects.length;
+
+        // 최소 과목 수 미달 시 기본 점수로 채우기
+        if (config.minCourseCount && config.defaultScore !== undefined) {
+            if (courseCount < config.minCourseCount) {
+                const missingCount = config.minCourseCount - courseCount;
+                totalScore += config.defaultScore * missingCount;
+                courseCount = config.minCourseCount;
+            }
+        }
+
+        const averageScore = totalScore / courseCount;
 
         // averageScore를 finalScore에 저장
         student.scoreResult = StudentScoreResult.create(student.id, averageScore, 0, undefined);
@@ -62,6 +75,12 @@ export class AverageGradeCalculationHandler extends BaseScoreHandler {
                 admissions: c.admissions,
                 units: c.units,
                 formula: `\\frac{\\sum(환산\\ 점수)}{과목\\ 수}`,
+                minCourseCount: c.minCourseCount,
+                defaultScore: c.defaultScore,
+                note:
+                    c.minCourseCount && c.defaultScore !== undefined
+                        ? `최소 ${c.minCourseCount}개 과목 미달 시 부족한 과목 수만큼 ${c.defaultScore}점(9등급) 추가`
+                        : undefined,
             })),
         };
     }
