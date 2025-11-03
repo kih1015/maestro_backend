@@ -28,6 +28,7 @@ import { SeonggonghouiCalculator } from './calculator/seonggonghoui.calculator';
 import { SungsilCalculator } from './calculator/sungsil.calculator';
 import { SoonguiCalculator } from './calculator/soongui.calculator';
 import { ShinhanCalculator } from './calculator/shinhan.calculator';
+import { YonseiCalculator } from './calculator/yonsei.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
@@ -50,6 +51,7 @@ import { ShinhanCalculator } from './calculator/shinhan.calculator';
         SungsilCalculator,
         SoonguiCalculator,
         ShinhanCalculator,
+        YonseiCalculator,
         {
             provide: CALCULATORS,
             useFactory: (
@@ -70,6 +72,7 @@ import { ShinhanCalculator } from './calculator/shinhan.calculator';
                 sungsil: SungsilCalculator,
                 soongui: SoonguiCalculator,
                 shinhan: ShinhanCalculator,
+                yonsei: YonseiCalculator,
             ) => [
                 gacheon,
                 gyeongbok,
@@ -88,6 +91,7 @@ import { ShinhanCalculator } from './calculator/shinhan.calculator';
                 sungsil,
                 soongui,
                 shinhan,
+                yonsei,
             ],
             inject: [
                 GacheonCalculator,
@@ -107,6 +111,7 @@ import { ShinhanCalculator } from './calculator/shinhan.calculator';
                 SungsilCalculator,
                 SoonguiCalculator,
                 ShinhanCalculator,
+                YonseiCalculator,
             ],
         },
         ScoreCalculationUseCase,

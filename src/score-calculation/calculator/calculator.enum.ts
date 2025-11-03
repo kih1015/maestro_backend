@@ -16,6 +16,7 @@ export const CalculatorEnum = {
     SUNGSIL: 'SUNGSIL',
     SOONGUI: 'SOONGUI',
     SHINHAN: 'SHINHAN',
+    YONSEI: 'YONSEI',
 } as const;
 
 export type CalculatorEnum = (typeof CalculatorEnum)[keyof typeof CalculatorEnum];

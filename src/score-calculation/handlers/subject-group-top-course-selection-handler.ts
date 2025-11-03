@@ -127,9 +127,7 @@ export class SubjectGroupTopCourseSelectionHandler extends BaseScoreHandler {
             config: this.config.map(c => ({
                 admissions: c.admissions,
                 units: c.units,
-                formula: c.subjectGroupRules
-                    .map(rule => `${rule.groupName}: 상위 ${rule.topCourseCount}개`)
-                    .join(', '),
+                formula: c.subjectGroupRules.map(rule => `${rule.groupName}: 상위 ${rule.topCourseCount}개`).join(', '),
             })),
         };
     }
