@@ -215,10 +215,13 @@ export class ShinhanConfig {
     ];
 
     // 최종 점수 계산: (과목별 환산 점수 합) / (과목 수)
+    // 10개 과목 미달 시 미달 과목 수만큼 68점(9등급) 추가
     readonly averageGradeCalculationConfig: AverageGradeCalculationConfig[] = [
         {
             admissions: [...ShinhanConfig.ALL_ADMISSIONS],
             units: [...ShinhanConfig.ALL_UNITS],
+            minCourseCount: 10,
+            defaultScore: 68,
         },
     ];
 
