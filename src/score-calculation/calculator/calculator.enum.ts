@@ -18,6 +18,7 @@ export const CalculatorEnum = {
     SHINHAN: 'SHINHAN',
     YONSEI: 'YONSEI',
     YUHAN: 'YUHAN',
+    HANSHIN: 'HANSHIN',
 } as const;
 
 export type CalculatorEnum = (typeof CalculatorEnum)[keyof typeof CalculatorEnum];

@@ -216,4 +216,5 @@ enum CalculatorType {
   SHINHAN
   YONSEI
   YUHAN
+  HANSHIN
 }
