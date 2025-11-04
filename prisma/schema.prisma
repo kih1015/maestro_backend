@@ -215,4 +215,5 @@ enum CalculatorType {
   SOONGUI
   SHINHAN
   YONSEI
+  YUHAN
 }

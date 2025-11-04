@@ -7,6 +7,9 @@ export interface BestSemesterAverageFinalScoreConfig {
     formula: (averageGrade: number) => number;
     roundDigits: number;
     seoilOption?: boolean;
+    middleRoundOption?: boolean;
+    middleFinalRoundOption?: boolean;
+    notFinalRoundOption?: boolean;
 }
 
 export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
@@ -55,7 +58,7 @@ export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
             );
             const totalWeight = subjects.reduce((acc, p) => acc + this.parseUnit(p.unit), 0);
             const average = totalWeight > 0 ? totalWeightedScore / totalWeight : 0;
-            semesterAverages.push(average);
+            semesterAverages.push(config.middleRoundOption ? this.roundToDigits(average, config.roundDigits) : average);
         }
 
         // 학기들의 평균 계산 (총 석차 등급 비율)
@@ -72,12 +75,19 @@ export class BestSemesterAverageFinalScoreHandler extends BaseScoreHandler {
             totalAverageGrade = semesterAverages.reduce((acc, avg) => acc + avg, 0) / semesterAverages.length;
         }
 
+        totalAverageGrade = config.middleFinalRoundOption
+            ? this.roundToDigits(totalAverageGrade, config.roundDigits)
+            : totalAverageGrade;
+
         // 공식 적용: 600 + (50 × (9 - 등급 비율))
         const rawScore = config.formula(totalAverageGrade);
 
         // 소수점 반올림
+        if (config.notFinalRoundOption) {
+            student.scoreResult = StudentScoreResult.create(student.id, rawScore, 0, undefined);
+            return;
+        }
         const finalScore = this.roundToDigits(rawScore, config.roundDigits);
-
         student.scoreResult = StudentScoreResult.create(student.id, finalScore, 0, undefined);
     }
 
