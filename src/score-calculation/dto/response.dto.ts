@@ -233,6 +233,12 @@ export class StudentScoreDetailDto {
         description: 'Final calculation formula',
     })
     finalFormula?: string | null;
+
+    @ApiPropertyOptional({
+        example: 175.0,
+        description: 'Final calculated score',
+    })
+    finalScore?: number | null;
 }
 
 export class StudentScoreDetailResponseDto {

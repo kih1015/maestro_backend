@@ -172,7 +172,7 @@ export class StudentQueryUseCase {
                 };
             });
 
-        const { finalFormula, examNumber } = await this.studentRepository.getStudentExtraInfo(student.id);
+        const { finalFormula, examNumber, finalScore } = await this.studentRepository.getStudentExtraInfo(student.id);
 
         return {
             success: true,
@@ -188,6 +188,7 @@ export class StudentQueryUseCase {
                 applicableSubjects,
                 excludedSubjects,
                 finalFormula: finalFormula ?? null,
+                finalScore: finalScore ?? null,
             },
         };
     }

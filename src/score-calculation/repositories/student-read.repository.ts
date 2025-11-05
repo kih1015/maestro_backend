@@ -540,6 +540,7 @@ export class StudentReadRepository {
     async getStudentExtraInfo(studentBaseInfoId: number): Promise<{
         finalFormula: string | null;
         examNumber: string | null;
+        finalScore: number | null;
     }> {
         const student = await this.prisma.student_base_infos.findUnique({
             where: { id: studentBaseInfoId },
@@ -551,6 +552,7 @@ export class StudentReadRepository {
         return {
             finalFormula: student?.student_score_results?.finalFormula || null,
             examNumber: student?.examNumber || null,
+            finalScore: student?.student_score_results?.finalScore ?? null,
         };
     }
 }
