@@ -31,6 +31,7 @@ import { ShinhanCalculator } from './calculator/shinhan.calculator';
 import { YonseiCalculator } from './calculator/yonsei.calculator';
 import { YuhanCalculator } from './calculator/yuhan.calculator';
 import { HanshinCalculator } from './calculator/hanshin.calculator';
+import { TukoreaCalculator } from './calculator/tukorea.calculator';
 
 @Module({
     imports: [PrismaModule, EventsModule, AdmissionsModule],
@@ -56,6 +57,7 @@ import { HanshinCalculator } from './calculator/hanshin.calculator';
         YonseiCalculator,
         YuhanCalculator,
         HanshinCalculator,
+        TukoreaCalculator,
         {
             provide: CALCULATORS,
             useFactory: (
@@ -79,6 +81,7 @@ import { HanshinCalculator } from './calculator/hanshin.calculator';
                 yonsei: YonseiCalculator,
                 yuhan: YuhanCalculator,
                 hanshin: HanshinCalculator,
+                tukorea: TukoreaCalculator,
             ) => [
                 gacheon,
                 gyeongbok,
@@ -100,6 +103,7 @@ import { HanshinCalculator } from './calculator/hanshin.calculator';
                 yonsei,
                 yuhan,
                 hanshin,
+                tukorea,
             ],
             inject: [
                 GacheonCalculator,
@@ -122,6 +126,7 @@ import { HanshinCalculator } from './calculator/hanshin.calculator';
                 YonseiCalculator,
                 YuhanCalculator,
                 HanshinCalculator,
+                TukoreaCalculator,
             ],
         },
         ScoreCalculationUseCase,
